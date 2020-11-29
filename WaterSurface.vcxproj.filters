@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\CallBacks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\ControlPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\Track.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\include\glad4.6\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\BufferObject.h">
+      <Filter>RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Shader.h">
+      <Filter>RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Texture.h">
+      <Filter>RenderUtilities</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Project4-WaterSurface\WaterSurface-master\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\CallBacks.H" />
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\ControlPoint.H" />
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\Object.H" />
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\Track.H" />
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainView.H" />
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainWindow.H" />
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\shaders\simple.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\shaders\simple.frag">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="RenderUtilities">
+      <UniqueIdentifier>{288E1A27-AAAD-3593-8456-160631EDF704}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0C510BF7-11FB-387E-87B0-4B7D9295263B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{76603AEE-4B1B-3953-A849-1A12ACE7AE4C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
