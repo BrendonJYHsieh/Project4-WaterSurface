@@ -39,6 +39,8 @@
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include"RenderUtilities/model.h"
 
 
 #ifdef EXAMPLE_SOLUTION
@@ -193,9 +195,16 @@ void TrainView::draw()
 		if (!this->shader)
 			this->shader = new
 			Shader(
-				"../WaterSurface/src/shaders/simple.vert", 
+				"../WaterSurface-master/src/shaders/simple.vert",
 				nullptr, nullptr, nullptr, 
-				"../WaterSurface/src/shaders/simple.frag");
+				"../WaterSurface-master/src/shaders/simple.frag");
+
+		if (!this->wave_shader)
+			this->wave_shader = new
+			Shader(
+				"../WaterSurface-master/src/shaders/wave.vert",
+				nullptr, nullptr, nullptr,
+				"../WaterSurface-master/src/shaders/wave.frag");
 
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
@@ -204,6 +213,16 @@ void TrainView::draw()
 			glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
 			glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		if (!backpack) {
+			backpack = new Model("../backpack/backpack.obj");
+			//backpack = new Model("water/water.obj");
+			//backpack = new Model("water/water2.obj");
+			//backpack = new Model("water/water_with_texture.obj");
+			//bind shader
+			if (backpack) {
+				cout << "success load obj";
+			}
+		}
 
 		if (!this->plane) {
 			GLfloat  vertices[] = {
@@ -432,7 +451,6 @@ void TrainView::draw()
 
 	//bind shader
 	this->shader->Use();
-
 	glm::mat4 model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, this->source_pos);
 	model_matrix = glm::scale(model_matrix, glm::vec3(10.0f, 10.0f, 10.0f));
@@ -451,6 +469,7 @@ void TrainView::draw()
 
 	//unbind shader(switch to fixed pipeline)
 	glUseProgram(0);
+	backpack->Draw(*shader);
 }
 
 //************************************************************************

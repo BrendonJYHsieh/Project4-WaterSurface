@@ -59,6 +59,12 @@
     <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\shaders\simple.frag">
       <Filter>shaders</Filter>
     </None>
+    <None Include="WaterSurface-master\src\shaders\wave.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaterSurface-master\src\shaders\wave.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="RenderUtilities">

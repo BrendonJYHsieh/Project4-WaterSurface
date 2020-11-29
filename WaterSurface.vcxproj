@@ -85,8 +85,20 @@
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>C:\Project4-WaterSurface\WaterSurface-master\lib\dll;C:\Project4-WaterSurface\WaterSurface-master\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Project4-WaterSurface\WaterSurface-master\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Project4-WaterSurface\WaterSurface-master\lib;C:\Project4-WaterSurface\WaterSurface-master\lib\dll;C:\Project4-WaterSurface\WaterSurface-master\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Project4-WaterSurface\WaterSurface-master\include;C:\Project4-WaterSurface\WaterSurface-master\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Project4-WaterSurface\WaterSurface-master\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Project4-WaterSurface\WaterSurface-master\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <IncludePath>C:\Project4-WaterSurface\WaterSurface-master\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Project4-WaterSurface\WaterSurface-master\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <IncludePath>C:\Project4-WaterSurface\WaterSurface-master\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Project4-WaterSurface\WaterSurface-master\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -161,7 +173,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>WaterSurface-master\lib\Release\fltk_forms.lib;WaterSurface-master\lib\Release\fltk_gl.lib;WaterSurface-master\lib\Release\fltk_images.lib;WaterSurface-master\lib\Release\fltk_jpeg.lib;WaterSurface-master\lib\Release\fltk_png.lib;WaterSurface-master\lib\Release\fltk_z.lib;WaterSurface-master\lib\Release\fltk.lib;WaterSurface-master\lib\Release\opencv_world341.lib;WaterSurface-master\lib\OpenGL32.lib;WaterSurface-master\lib\glu32.lib;WaterSurface-master\lib\common.lib;WaterSurface-master\lib\ex-common.lib;WaterSurface-master\lib\OpenAL32.lib;WaterSurface-master\lib\alut.lib;WaterSurface-master\lib\alut_static.lib;Release\Utilities.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>WaterSurface-master\lib\Release\fltk_forms.lib;WaterSurface-master\lib\Release\fltk_gl.lib;WaterSurface-master\lib\Release\fltk_images.lib;WaterSurface-master\lib\Release\fltk_jpeg.lib;WaterSurface-master\lib\Release\fltk_png.lib;WaterSurface-master\lib\Release\fltk_z.lib;WaterSurface-master\lib\Release\fltk.lib;WaterSurface-master\lib\Release\opencv_world341.lib;WaterSurface-master\lib\OpenGL32.lib;WaterSurface-master\lib\glu32.lib;WaterSurface-master\lib\common.lib;WaterSurface-master\lib\ex-common.lib;WaterSurface-master\lib\OpenAL32.lib;WaterSurface-master\lib\alut.lib;WaterSurface-master\lib\alut_static.lib;Release\Utilities.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;WaterSurface-master\lib\assimp-vc142-mt.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -346,6 +358,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Shader.h" />
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Texture.h" />
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\include\glad4.6\src\glad.c" />
+    <None Include="WaterSurface-master\src\shaders\wave.frag" />
+    <None Include="WaterSurface-master\src\shaders\wave.vert" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Project4-WaterSurface\ZERO_CHECK.vcxproj">

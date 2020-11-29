@@ -33,6 +33,7 @@
 // Preclarify for preventing the compiler error
 class TrainWindow;
 class CTrack;
+class Model;
 
 
 //#######################################################################
@@ -93,6 +94,9 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
+		Shader* wave_shader = nullptr;
+		Texture2D* wave_texture = nullptr;
+
 		Shader* shader		= nullptr;
 		Texture2D* texture	= nullptr;
 		VAO* plane			= nullptr;
@@ -105,6 +109,6 @@ class TrainView : public Fl_Gl_Window
 		ALCcontext* context = nullptr;
 		ALuint source;
 		ALuint buffer;
-
+		Model* backpack = nullptr;
 
 };
