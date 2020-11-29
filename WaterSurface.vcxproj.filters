@@ -33,6 +33,15 @@
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Texture.h">
       <Filter>RenderUtilities</Filter>
     </ClInclude>
+    <ClInclude Include="WaterSurface-master\src\RenderUtilities\mesh.h">
+      <Filter>RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterSurface-master\src\RenderUtilities\model.h">
+      <Filter>RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterSurface-master\src\RenderUtilities\stb_image.h">
+      <Filter>RenderUtilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Project4-WaterSurface\WaterSurface-master\CMakeLists.txt" />
