@@ -140,12 +140,31 @@ TrainWindow(const int x, const int y)
 		Fl_Button* rzp = new Fl_Button(700,pty,30,20,"R-Z");
 		rzp->callback((Fl_Callback*)rmzCB,this);
 
-		pty+=30;
+		pty+=100;
 
-		// TODO: add widgets for all of your fancier features here
-#ifdef EXAMPLE_SOLUTION
-		makeExampleWidgets(this,pty);
-#endif
+		WaveScale = new Fl_Value_Slider(675, pty, 120, 20, "Wave Scale");
+		WaveScale->range(0, 100);
+		WaveScale->value(30);
+		WaveScale->align(FL_ALIGN_LEFT);
+		WaveScale->type(FL_HORIZONTAL);
+		
+		pty += 30;
+
+		WaveHeight = new Fl_Value_Slider(695, pty, 140, 20, "Wave Height");
+		WaveHeight->range(0, 100);
+		WaveHeight->value(25);
+		WaveHeight->align(FL_ALIGN_LEFT);
+		WaveHeight->type(FL_HORIZONTAL);
+
+		pty += 30;
+
+		WaveAmplitude = new Fl_Value_Slider(705, pty, 90, 20, "Wave Amplitude");
+		WaveAmplitude->range(0, 20);
+		WaveAmplitude->value(5);
+		WaveAmplitude->align(FL_ALIGN_LEFT);
+		WaveAmplitude->type(FL_HORIZONTAL);
+		Refresh = true;
+		
 
 		// we need to make a little phantom widget to have things resize correctly
 		Fl_Box* resizebox = new Fl_Box(600,595,200,5);
@@ -157,6 +176,8 @@ TrainWindow(const int x, const int y)
 
 	// set up callback on idle
 	Fl::add_idle((void (*)(void*))runButtonCB,this);
+	Fl::add_idle((void (*)(void*))SettingRefresh, this);
+	
 }
 
 //************************************************************************

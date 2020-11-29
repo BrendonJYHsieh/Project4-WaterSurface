@@ -143,6 +143,15 @@ void runButtonCB(TrainWindow* tw)
 	}
 }
 
+void SettingRefresh(TrainWindow* tw)
+//===========================================================================
+{
+	if (clock() - lastRedraw > CLOCKS_PER_SEC / 30) {
+		tw->wave_t += 0.1;
+		lastRedraw = clock();
+		tw->damageMe();
+	}
+}
 //***************************************************************************
 //
 // * Load the control points from the files

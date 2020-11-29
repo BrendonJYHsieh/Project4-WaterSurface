@@ -110,5 +110,5 @@ class TrainView : public Fl_Gl_Window
 		ALuint source;
 		ALuint buffer;
 		Model* backpack = nullptr;
-
+		
 };

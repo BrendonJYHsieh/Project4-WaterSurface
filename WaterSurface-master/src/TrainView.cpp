@@ -35,6 +35,10 @@
 #include <glm/gtx/transform.hpp>
 #include <GL/glu.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "TrainView.H"
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
@@ -191,14 +195,6 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
-
-		if (!this->shader)
-			this->shader = new
-			Shader(
-				"../WaterSurface-master/src/shaders/simple.vert",
-				nullptr, nullptr, nullptr, 
-				"../WaterSurface-master/src/shaders/simple.frag");
-
 		if (!this->wave_shader)
 			this->wave_shader = new
 			Shader(
@@ -213,73 +209,12 @@ void TrainView::draw()
 			glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
 			glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 		if (!backpack) {
-			backpack = new Model("../backpack/backpack.obj");
-			//backpack = new Model("water/water.obj");
-			//backpack = new Model("water/water2.obj");
-			//backpack = new Model("water/water_with_texture.obj");
-			//bind shader
-			if (backpack) {
-				cout << "success load obj";
-			}
+			backpack = new Model("../water_bunny/water_bunny.obj");
+			//backpack = new Model("../backpack/backpack.obj");
+			//backpack = new Model("../obj/test.obj");
 		}
-
-		if (!this->plane) {
-			GLfloat  vertices[] = {
-				-0.5f ,0.0f , -0.5f,
-				-0.5f ,0.0f , 0.5f ,
-				0.5f ,0.0f ,0.5f ,
-				0.5f ,0.0f ,-0.5f };
-			GLfloat  normal[] = {
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f };
-			GLfloat  texture_coordinate[] = {
-				0.0f, 0.0f,
-				1.0f, 0.0f,
-				1.0f, 1.0f,
-				0.0f, 1.0f };
-			GLuint element[] = {
-				0, 1, 2,
-				0, 2, 3, };
-
-			this->plane = new VAO;
-			this->plane->element_amount = sizeof(element) / sizeof(GLuint);
-			glGenVertexArrays(1, &this->plane->vao);
-			glGenBuffers(3, this->plane->vbo);
-			glGenBuffers(1, &this->plane->ebo);
-
-			glBindVertexArray(this->plane->vao);
-
-			// Position attribute
-			glBindBuffer(GL_ARRAY_BUFFER, this->plane->vbo[0]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-			glEnableVertexAttribArray(0);
-
-			// Normal attribute
-			glBindBuffer(GL_ARRAY_BUFFER, this->plane->vbo[1]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(normal), normal, GL_STATIC_DRAW);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-			glEnableVertexAttribArray(1);
-
-			// Texture Coordinate attribute
-			glBindBuffer(GL_ARRAY_BUFFER, this->plane->vbo[2]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coordinate), texture_coordinate, GL_STATIC_DRAW);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-			glEnableVertexAttribArray(2);
-
-			//Element attribute
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->plane->ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(element), element, GL_STATIC_DRAW);
-
-			// Unbind VAO
-			glBindVertexArray(0);
-		}
-
-		if (!this->texture)
-			this->texture = new Texture2D("../WaterSurface/Images/church.png");
 
 		if (!this->device){
 			//Tutorial: https://ffainelli.github.io/openal-example/
@@ -444,32 +379,59 @@ void TrainView::draw()
 		drawStuff(true);
 		unsetupShadows();
 	}
-
+	
+	this->wave_shader->Use();
 	setUBO();
 	glBindBufferRange(
 		GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
-
-	//bind shader
-	this->shader->Use();
-	glm::mat4 model_matrix = glm::mat4();
-	model_matrix = glm::translate(model_matrix, this->source_pos);
-	model_matrix = glm::scale(model_matrix, glm::vec3(10.0f, 10.0f, 10.0f));
-	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "u_color"), 1, &glm::vec3(0.0f, 1.0f, 0.0f)[0]);
-	this->texture->bind(0);
-	glUniform1i(glGetUniformLocation(this->shader->Program, "u_texture"), 0);
+	GLfloat ModelView[16];
+	GLfloat Projection[16];
+	glPushMatrix();
+	glTranslatef(0, tw->WaveHeight->value(), 0);
+	glScalef(tw->WaveScale->value(), tw->WaveScale->value(), tw->WaveScale->value());
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "t"), tw->wave_t);
+	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, ModelView);
+	glUniformMatrix4fv(glGetUniformLocation(this->wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(this->wave_shader->Program, "model_matrix"), 1, GL_FALSE, ModelView);
+	backpack->Draw(*wave_shader);
+	glPopMatrix();
 	
-	//bind VAO
-	glBindVertexArray(this->plane->vao);
+	glm::mat4x4 modelView;
+	for (int i = 0; i < 16; i++) {
+		modelView[i / 4][i % 4] = ModelView[i];
+	}
+	modelView = glm::transpose(modelView);
+	modelView = glm::inverse(modelView);
 
-	glDrawElements(GL_TRIANGLES, this->plane->element_amount, GL_UNSIGNED_INT, 0);
 
-	//unbind VAO
-	glBindVertexArray(0);
+	//Direction light
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "viewPos"), 0.0f, 0.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.direction"), 0.0f, 1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.ambient"), 1.0f, 1.0f, 0.00f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+	//spot light
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "viewPos"), modelView[0][3], modelView[1][3], modelView[2][3]);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.position"), 0.0f, 5.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.direction"), 0.0f, -1.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.ambient"), 1.0f, 0.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.quadratic"), 0.032f);
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.cutOff"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(12.5f)));
 
-	//unbind shader(switch to fixed pipeline)
+
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "material.diffuse"), 0.0f);
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "material.specular"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "material.shininess"), 32.0f);
+
 	glUseProgram(0);
-	backpack->Draw(*shader);
 }
 
 //************************************************************************
