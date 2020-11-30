@@ -94,6 +94,9 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Button*			arcLength;		// do we use arc length for speed?
 		bool Refresh = false;
 		float wave_t = 0.0f;
+		bool direct = false;
+		bool point = false;
+		bool spot = false;
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about
 #ifdef EXAMPLE_SOLUTION

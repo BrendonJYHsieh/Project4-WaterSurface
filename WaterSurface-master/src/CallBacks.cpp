@@ -152,6 +152,18 @@ void SettingRefresh(TrainWindow* tw)
 		tw->damageMe();
 	}
 }
+void Diret_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->direct = !tw->direct;
+	tw->damageMe();
+}
+void Spot_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->spot = !tw->spot;
+	tw->damageMe();
+}
+void Point_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->point = !tw->point;
+	tw->damageMe();
+}
 //***************************************************************************
 //
 // * Load the control points from the files

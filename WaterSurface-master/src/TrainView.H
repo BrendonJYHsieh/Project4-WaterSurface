@@ -95,7 +95,7 @@ class TrainView : public Fl_Gl_Window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
 		Shader* wave_shader = nullptr;
-		Texture2D* wave_texture = nullptr;
+		Shader* height_map= nullptr;
 
 		Shader* shader		= nullptr;
 		Texture2D* texture	= nullptr;

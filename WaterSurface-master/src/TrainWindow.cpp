@@ -165,6 +165,16 @@ TrainWindow(const int x, const int y)
 		WaveAmplitude->type(FL_HORIZONTAL);
 		Refresh = true;
 		
+		pty += 30;
+
+		Fl_Button* BDirect = new Fl_Button(605, pty, 45, 20, "Direct");
+		BDirect->callback((Fl_Callback*)Diret_enable, this);
+
+		Fl_Button* BPoint = new Fl_Button(655, pty, 45, 20, "Point");
+		BPoint->callback((Fl_Callback*)Point_enable, this);
+
+		Fl_Button* BSpot = new Fl_Button(705, pty, 45, 20, "Spot");
+		BSpot->callback((Fl_Callback*)Spot_enable, this);
 
 		// we need to make a little phantom widget to have things resize correctly
 		Fl_Box* resizebox = new Fl_Box(600,595,200,5);
