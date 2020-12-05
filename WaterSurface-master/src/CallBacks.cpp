@@ -164,6 +164,10 @@ void Point_enable(Fl_Widget*, TrainWindow* tw) {
 	tw->point = !tw->point;
 	tw->damageMe();
 }
+void HeightMap_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->heightmap = !tw->heightmap;
+	tw->damageMe();
+}
 //***************************************************************************
 //
 // * Load the control points from the files

@@ -94,7 +94,7 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
-		Shader* wave_shader = nullptr;
+		Shader* sin = nullptr;
 		Shader* height_map= nullptr;
 
 		Shader* shader		= nullptr;
@@ -110,5 +110,8 @@ class TrainView : public Fl_Gl_Window
 		ALuint source;
 		ALuint buffer;
 		Model* backpack = nullptr;
+		Texture2D* height = nullptr;
+		int height_index = 0;
+
 		
 };

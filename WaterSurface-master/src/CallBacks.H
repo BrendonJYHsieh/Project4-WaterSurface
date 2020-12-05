@@ -47,6 +47,7 @@ void SettingRefresh(TrainWindow* tw);
 void Diret_enable(Fl_Widget*, TrainWindow* tw);
 void Spot_enable(Fl_Widget*, TrainWindow* tw);
 void Point_enable(Fl_Widget*, TrainWindow* tw);
+void HeightMap_enable(Fl_Widget*, TrainWindow* tw);
 // For load and save buttons
 void loadCB(Fl_Widget*, TrainWindow* tw);
 void saveCB(Fl_Widget*, TrainWindow* tw);

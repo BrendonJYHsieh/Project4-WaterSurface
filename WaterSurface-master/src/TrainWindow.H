@@ -86,6 +86,8 @@ class TrainWindow : public Fl_Double_Window {
 
 		// are we animating the train?
 		Fl_Button*			runButton;
+
+		Fl_Button* HeightMap;
 		// if we're animating it, how fast should it go?
 		Fl_Value_Slider*	speed;
 		Fl_Value_Slider* WaveScale;
@@ -97,6 +99,8 @@ class TrainWindow : public Fl_Double_Window {
 		bool direct = false;
 		bool point = false;
 		bool spot = false;
+		bool heightmap = false;
+		
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about
 #ifdef EXAMPLE_SOLUTION

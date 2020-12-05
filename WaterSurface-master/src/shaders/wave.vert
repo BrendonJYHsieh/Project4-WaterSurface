@@ -5,9 +5,10 @@ layout (location = 2) in vec2 texture_coordinate;
 
 
 uniform mat4 model_matrix;
-uniform mat4 u_model;
 uniform mat4 proj_matrix;
+
 uniform float amplitude;
+uniform float frequency;
 uniform float t;
 
 out V_OUT
@@ -19,10 +20,13 @@ out V_OUT
 
 void main()
 {
-    gl_Position = proj_matrix * model_matrix * vec4(position.x,(sin(position.x*25+t)*3.1415926535 /180)* amplitude,position.z, 1.0f);
-    v_out.position = vec3(u_model * vec4(position, 1.0f));
-    v_out.position.y = sin(v_out.position.x*100) * amplitude;
-    v_out.normal = mat3(transpose(inverse(u_model))) * normal;
+    float w = 2 * 3.1415926535 * frequency * (position.x) +t;
+    vec3 temp = position;
+    temp.y = amplitude * sin(w);
+    vec3 tangent = normalize(vec3(1,amplitude*cos(w),0));
+    v_out.normal = normalize(vec3(-tangent.y, tangent.x, 0));
+    gl_Position = proj_matrix * model_matrix * vec4(temp, 1.0f);
+    v_out.position = temp;
     v_out.texture_coordinate = vec2(texture_coordinate.x, 1.0f - texture_coordinate.y);
 
 }

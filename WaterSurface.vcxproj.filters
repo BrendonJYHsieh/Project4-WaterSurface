@@ -65,6 +65,12 @@
     <None Include="WaterSurface-master\src\shaders\wave.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="WaterSurface-master\src\shaders\height_map.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaterSurface-master\src\shaders\height_map.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="RenderUtilities">

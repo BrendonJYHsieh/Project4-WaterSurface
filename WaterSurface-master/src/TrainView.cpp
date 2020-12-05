@@ -33,6 +33,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <GL/glu.h>
 
 #include <assimp/Importer.hpp>
@@ -185,7 +186,7 @@ int TrainView::handle(int event)
 //========================================================================
 void TrainView::draw()
 {
-
+	
 	//*********************************************************************
 	//
 	// * Set up basic opengl informaiton
@@ -201,8 +202,8 @@ void TrainView::draw()
 				"../WaterSurface-master/src/shaders/height_map.vert",
 				nullptr, nullptr, nullptr,
 				"../WaterSurface-master/src/shaders/height_map.frag");
-		if (!this->wave_shader)
-			this->wave_shader = new
+		if (!this->sin)
+			this->sin = new
 			Shader(
 				"../WaterSurface-master/src/shaders/wave.vert",
 				nullptr, nullptr, nullptr,
@@ -221,7 +222,6 @@ void TrainView::draw()
 			//backpack = new Model("../backpack/backpack.obj");
 			//backpack = new Model("../obj/test.obj");
 		}
-
 		if (!this->device){
 			//Tutorial: https://ffainelli.github.io/openal-example/
 			this->device = alcOpenDevice(NULL);
@@ -385,71 +385,88 @@ void TrainView::draw()
 		drawStuff(true);
 		unsetupShadows();
 	}
+	Shader* wave_shader;
+	if (tw->heightmap) {
+		height_map->Use();
+		wave_shader = height_map;
+		string num = to_string(height_index);
+		if (num.size() == 1) {
+			num = "00" + num;
+		}
+		else if (num.size() == 2) {
+			num = "0" + num;
+		}
+		backpack->set_height_map(height_map, (num + ".png").c_str(), "../height_map");
+		height_index++;
+		if (height_index == 199) { height_index = 0; }
+	}
+	else {
+		sin->Use();
+		wave_shader = sin;
+		backpack->set_height_map(height_map, "water_bunny1.png", "../water_bunny");
+	}
 	
-	this->wave_shader->Use();
 	setUBO();
 	glBindBufferRange(
 		GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
 	GLfloat ModelView[16];
 	GLfloat Projection[16];
 	glPushMatrix();
-	glTranslatef(0, tw->WaveHeight->value(), 0);
-	glScalef(tw->WaveScale->value(), tw->WaveScale->value(), tw->WaveScale->value());
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "t"), tw->wave_t);
+	glTranslatef(0, 10, 0);
+	glScalef(30, 30, 30);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveScale->value());
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, ModelView);
-	glUniformMatrix4fv(glGetUniformLocation(this->wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(this->wave_shader->Program, "model_matrix"), 1, GL_FALSE, ModelView);
+	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, ModelView);
+
 	backpack->Draw(*wave_shader);
+
 	glPopMatrix();
 	
-	glm::mat4x4 modelView;
-	for (int i = 0; i < 16; i++) {
-		modelView[i / 4][i % 4] = ModelView[i];
-	}
-	modelView = glm::transpose(modelView);
-	modelView = glm::inverse(modelView);
-
+	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(ModelView));
+	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
 	//¶}Ãö
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "direct_enable"), tw->direct);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "point_enable"), tw->point);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spot_enable"), tw->spot);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "viewPos"), modelView[0][3], modelView[1][3], modelView[2][3]);
-
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "direct_enable"), tw->direct);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "point_enable"), tw->point);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "spot_enable"), tw->spot);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos[0], viewPos[1], viewPos[2]);
 	//Direction light
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.direction"), 100.2f, 1.0f, 100.3f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.ambient"), 0.5f, 0.5f, 0.5f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.direction"), 100.0f, 1.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.ambient"), 0.6f, 0.6f, 0.6f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.specular"), 1.0f, 1.0f, 1.0f);
 	//point light
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "pointLights.position"), 0, 5, 0);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "pointLights.direction"), 0.0f, 1.5f, 0.0f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "pointLights.ambient"), 0.1f, 0.1f, 0.1f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "pointLights.diffuse"), 0.8f, 0.8f, 0.8f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "pointLights.specular"), 1.0f, 0.0f, 1.0f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "pointLights.constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "pointLights.linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "pointLights.quadratic"), 0.032f);
-
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.position"), 0, 5, 0);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.direction"), 0.0f, 1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.ambient"), 0.1f, 0.1f, 0.1f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.diffuse"), 0.4f, 0.4f, 0.4f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.specular"), 1.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "pointLights.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "pointLights.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "pointLights.quadratic"), 0.032f);
 	//spot light
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.position"), 0, 5, 0);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.direction"), modelView[0][3], modelView[0][3], modelView[0][3]);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.ambient"), 0.1f, 0.1f, 0.1f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
-	glUniform3f(glGetUniformLocation(this->wave_shader->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.cutOff"), 0.032f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.position"), 0, 5, 0);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.direction"), viewPos[0], viewPos[1], viewPos[2]);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.ambient"), 0.1f, 0.1f, 0.1f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.cutOff"), 0.032f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
+	//material
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.diffuse"), 0.0f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.specular"), 1.0f);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.shininess"), 32.0f);
+	//sky box
 
-
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "material.diffuse"), 0.0f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "material.specular"), 1.0f);
-	glUniform1f(glGetUniformLocation(this->wave_shader->Program, "material.shininess"), 32.0f);
 
 	glUseProgram(0);
+
 }
 
 //************************************************************************

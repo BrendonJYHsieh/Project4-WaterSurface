@@ -142,25 +142,17 @@ TrainWindow(const int x, const int y)
 
 		pty+=100;
 
-		WaveScale = new Fl_Value_Slider(675, pty, 120, 20, "Wave Scale");
-		WaveScale->range(0, 100);
-		WaveScale->value(30);
+		WaveScale = new Fl_Value_Slider(675, pty, 120, 20, "Freqency");
+		WaveScale->range(0, 2.0);
+		WaveScale->value(1);
 		WaveScale->align(FL_ALIGN_LEFT);
 		WaveScale->type(FL_HORIZONTAL);
-		
+	
 		pty += 30;
 
-		WaveHeight = new Fl_Value_Slider(695, pty, 140, 20, "Wave Height");
-		WaveHeight->range(0, 100);
-		WaveHeight->value(25);
-		WaveHeight->align(FL_ALIGN_LEFT);
-		WaveHeight->type(FL_HORIZONTAL);
-
-		pty += 30;
-
-		WaveAmplitude = new Fl_Value_Slider(705, pty, 90, 20, "Wave Amplitude");
-		WaveAmplitude->range(0, 20);
-		WaveAmplitude->value(5);
+		WaveAmplitude = new Fl_Value_Slider(675, pty, 120, 20, "Amplitude");
+		WaveAmplitude->range(0, 0.5);
+		WaveAmplitude->value(0.15);
 		WaveAmplitude->align(FL_ALIGN_LEFT);
 		WaveAmplitude->type(FL_HORIZONTAL);
 		Refresh = true;
@@ -175,6 +167,11 @@ TrainWindow(const int x, const int y)
 
 		Fl_Button* BSpot = new Fl_Button(705, pty, 45, 20, "Spot");
 		BSpot->callback((Fl_Callback*)Spot_enable, this);
+
+		pty += 30;
+
+		HeightMap = new Fl_Button(605, pty, 70, 20, "HeightMap");
+		HeightMap->callback((Fl_Callback*)HeightMap_enable, this);
 
 		// we need to make a little phantom widget to have things resize correctly
 		Fl_Box* resizebox = new Fl_Box(600,595,200,5);

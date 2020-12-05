@@ -7,8 +7,7 @@ layout (location = 2) in vec2 texture_coordinate;
 uniform mat4 model_matrix;
 uniform mat4 u_model;
 uniform mat4 proj_matrix;
-uniform float amplitude;
-uniform float t;
+uniform sampler2D height_map_image;
 
 out V_OUT
 {
@@ -19,9 +18,10 @@ out V_OUT
 
 void main()
 {
-    gl_Position = proj_matrix * model_matrix * vec4(position.x,(sin(position.x*25+t)*3.1415926535 /180)* amplitude,position.z, 1.0f);
-    v_out.position = vec3(u_model * vec4(position, 1.0f));
-    v_out.position.y = sin(v_out.position.x*100) * amplitude;
+    vec3 height_map = position;
+    height_map.y = height_map.y + texture(height_map_image,texture_coordinate).r;
+    gl_Position = proj_matrix * model_matrix * vec4(height_map, 1.0f);
+    v_out.position = height_map;
     v_out.normal = mat3(transpose(inverse(u_model))) * normal;
     v_out.texture_coordinate = vec2(texture_coordinate.x, 1.0f - texture_coordinate.y);
 

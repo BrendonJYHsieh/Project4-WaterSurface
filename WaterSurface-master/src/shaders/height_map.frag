@@ -90,7 +90,7 @@ uniform bool spot_enable;
 void main()
 {   
     // properties
-    vec3 result={0,0,0};
+    vec3 result={0.0,0.0,0.0};
     vec3 norm = normalize(f_in.normal);
     vec3 viewDir = normalize(viewPos - f_in.position);
 
