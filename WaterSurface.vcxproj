@@ -360,6 +360,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\include\glad4.6\src\glad.c" />
     <None Include="WaterSurface-master\src\shaders\height_map.frag" />
     <None Include="WaterSurface-master\src\shaders\height_map.vert" />
+    <None Include="WaterSurface-master\src\shaders\skybox.frag" />
+    <None Include="WaterSurface-master\src\shaders\skybox.vert" />
     <None Include="WaterSurface-master\src\shaders\wave.frag" />
     <None Include="WaterSurface-master\src\shaders\wave.vert" />
   </ItemGroup>

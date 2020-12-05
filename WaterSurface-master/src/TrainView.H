@@ -96,12 +96,14 @@ class TrainView : public Fl_Gl_Window
 
 		Shader* sin = nullptr;
 		Shader* height_map= nullptr;
+		Shader* skybox	= nullptr;
 
-		Shader* shader		= nullptr;
+		bool sw = false;
+
 		Texture2D* texture	= nullptr;
 		VAO* plane			= nullptr;
 		UBO* commom_matrices= nullptr;
-
+		int height_id[200];
 		//OpenAL
 		glm::vec3 source_pos;
 		glm::vec3 listener_pos;
@@ -109,9 +111,10 @@ class TrainView : public Fl_Gl_Window
 		ALCcontext* context = nullptr;
 		ALuint source;
 		ALuint buffer;
-		Model* backpack = nullptr;
+		Model* wave_model = nullptr;
 		Texture2D* height = nullptr;
 		int height_index = 0;
-
+		
+		int sinwave_load_id = 0;
 		
 };

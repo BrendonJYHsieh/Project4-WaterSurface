@@ -48,11 +48,37 @@
 #include"RenderUtilities/model.h"
 
 
-#ifdef EXAMPLE_SOLUTION
-#	include "TrainExample/TrainExample.H"
-#endif
+unsigned int loadCubemap(vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+			);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
+	return textureID;
+}
 //************************************************************************
 //
 // * Constructor to set up the GL window
@@ -202,12 +228,18 @@ void TrainView::draw()
 				"../WaterSurface-master/src/shaders/height_map.vert",
 				nullptr, nullptr, nullptr,
 				"../WaterSurface-master/src/shaders/height_map.frag");
-		if (!this->sin)
+		if (!this->sin) 
 			this->sin = new
+				Shader(
+					"../WaterSurface-master/src/shaders/wave.vert",
+					nullptr, nullptr, nullptr,
+					"../WaterSurface-master/src/shaders/wave.frag");	
+		if (!this->skybox)
+			this->skybox = new
 			Shader(
-				"../WaterSurface-master/src/shaders/wave.vert",
+				"../WaterSurface-master/src/shaders/skybox.vert",
 				nullptr, nullptr, nullptr,
-				"../WaterSurface-master/src/shaders/wave.frag");
+				"../WaterSurface-master/src/shaders/skybox.frag");
 
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
@@ -217,10 +249,20 @@ void TrainView::draw()
 			glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		if (!backpack) {
-			backpack = new Model("../water_bunny/water_bunny.obj");
-			//backpack = new Model("../backpack/backpack.obj");
-			//backpack = new Model("../obj/test.obj");
+		if (!wave_model) {
+			wave_model = new Model("../water_bunny/water_bunny.obj");
+			sinwave_load_id = wave_model->textures_loaded[0].id;
+
+			for (int i = 0; i < 200; i++) {
+				string num = to_string(i);
+				if (num.size() == 1) {
+					num = "00" + num;
+				}
+				else if (num.size() == 2) {
+					num = "0" + num;
+				}
+				height_id[i] = TextureFromFile((num + ".png").c_str(), "../height_map");
+			}
 		}
 		if (!this->device){
 			//Tutorial: https://ffainelli.github.io/openal-example/
@@ -389,29 +431,26 @@ void TrainView::draw()
 	if (tw->heightmap) {
 		height_map->Use();
 		wave_shader = height_map;
-		string num = to_string(height_index);
-		if (num.size() == 1) {
-			num = "00" + num;
-		}
-		else if (num.size() == 2) {
-			num = "0" + num;
-		}
-		backpack->set_height_map(height_map, (num + ".png").c_str(), "../height_map");
+		wave_model->meshes[0].textures[0].id = height_id[height_index];
 		height_index++;
-		if (height_index == 199) { height_index = 0; }
+		if (height_index == 199) { 
+			height_index = 0; 
+		}
 	}
 	else {
 		sin->Use();
 		wave_shader = sin;
-		backpack->set_height_map(height_map, "water_bunny1.png", "../water_bunny");
+		wave_model->meshes[0].textures[0].id = sinwave_load_id;
 	}
 	
-	setUBO();
-	glBindBufferRange(
-		GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
+
+
+	//setUBO();
+	//glBindBufferRange(
+	//	GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
 	GLfloat ModelView[16];
 	GLfloat Projection[16];
-	glPushMatrix();
+	//glPushMatrix();
 	glTranslatef(0, 10, 0);
 	glScalef(30, 30, 30);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
@@ -422,9 +461,9 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, ModelView);
 
-	backpack->Draw(*wave_shader);
+	wave_model->Draw(*wave_shader);
 
-	glPopMatrix();
+	//glPopMatrix();
 	
 	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(ModelView));
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
@@ -463,9 +502,136 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.specular"), 1.0f);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.shininess"), 32.0f);
 	//sky box
+	vector<std::string> faces
+	{
+		"../skybox/right.jpg",
+		"../skybox/left.jpg",
+		"../skybox/top.jpg",
+		"../skybox/bottom.jpg",
+		"../skybox/front.jpg",
+		"../skybox/back.jpg"
+	};
+	float cubeVertices[] = {
+		// positions          // texture Coords
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-	glUseProgram(0);
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+	//skybox
+	/*skybox->Use(); 
+	glDepthMask(GL_FALSE);*/
+	// cube VAO
+	//unsigned int cubeVAO, cubeVBO;
+	//glGenVertexArrays(1, &cubeVAO);
+	//glGenBuffers(1, &cubeVBO);
+	//glBindVertexArray(cubeVAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	//// skybox VAO
+	//unsigned int skyboxVAO, skyboxVBO;
+	//glGenVertexArrays(1, &skyboxVAO);
+	//glGenBuffers(1, &skyboxVBO);
+	//glBindVertexArray(skyboxVAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	/*unsigned int cubemapTexture = loadCubemap(faces);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glm::mat4 view = glm::mat4(glm::mat3(viewMatrix));
+	GLfloat skyview[16];
+	for (int i = 0; i < 16; i++) {
+		skyview[i] = view[i % 4][i / 4];
+	}
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_matrix"), 1, GL_FALSE, skyview);
+	glUseProgram(0);*/
 
 }
 
