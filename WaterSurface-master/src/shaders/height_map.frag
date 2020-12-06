@@ -51,11 +51,9 @@ in V_OUT
 } f_in;
  
 
-uniform vec3 u_color;
 
 uniform vec3 viewPos;
 
-uniform sampler2D u_texture;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
@@ -90,26 +88,20 @@ uniform bool spot_enable;
 void main()
 {   
     // properties
-    vec3 result={0.0,0.0,0.0};
+    vec3 result={0.0,0.0,0.1};
     vec3 norm = normalize(f_in.normal);
     vec3 viewDir = normalize(viewPos - f_in.position);
 
     if(direct_enable) result += CalcDirLight(dirLight, f_in.normal, viewDir);
     if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
     if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
-
+    //vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
     f_color = vec4(result, 1.0);
 
    
     
-     /*
-    vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
-    f_color = vec4(color+result, 1.0f);
-    f_color  = vec4(texture(texture_diffuse1,f_in.texture_coordinate));*/
-
-    //vec3 viewDir = normalize(viewPos - f_in.position);
     /*
-    f_color  = vec4(texture(texture_diffuse1,f_in.texture_coordinate));
+    f_color += vec4(texture(texture_diffuse1,f_in.texture_coordinate));
     vec3 light_direction = normalize(light_position - f_in.position);
     vec3 normal = normalize(f_in.normal);
     vec3 half_vector = normalize(normalize(light_direction)+normalize(eyeDirection));

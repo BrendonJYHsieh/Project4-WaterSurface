@@ -77,6 +77,12 @@
     <None Include="WaterSurface-master\src\shaders\skybox.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="WaterSurface-master\src\shaders\cube.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaterSurface-master\src\shaders\cube.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="RenderUtilities">

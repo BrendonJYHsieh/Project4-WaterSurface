@@ -83,10 +83,13 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 uniform bool direct_enable;
 uniform bool point_enable;
 uniform bool spot_enable;
-
+uniform samplerCube skybox;
 
 void main()
 {   
+
+    vec3 I = normalize(f_in.position - viewPos);
+    vec3 R = reflect(I, normalize(f_in.normal));
     // properties
     vec3 result={0.0,0.0,0.1};
     vec3 norm = normalize(f_in.normal);
@@ -97,7 +100,7 @@ void main()
     if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
     //vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
     f_color = vec4(result, 1.0);
-
+    f_color += vec4(texture(skybox, R).rgb, 1.0);
    
     
     /*

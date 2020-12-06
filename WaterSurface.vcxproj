@@ -358,6 +358,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Shader.h" />
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Texture.h" />
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\include\glad4.6\src\glad.c" />
+    <None Include="WaterSurface-master\src\shaders\cube.frag" />
+    <None Include="WaterSurface-master\src\shaders\cube.vert" />
     <None Include="WaterSurface-master\src\shaders\height_map.frag" />
     <None Include="WaterSurface-master\src\shaders\height_map.vert" />
     <None Include="WaterSurface-master\src\shaders\skybox.frag" />

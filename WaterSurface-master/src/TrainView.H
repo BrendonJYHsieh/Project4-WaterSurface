@@ -52,6 +52,8 @@ class Model;
 #pragma warning(disable:4311)
 #include <Fl/Fl_Gl_Window.h>
 #pragma warning(pop)
+#include<string>
+#include<iostream>
 
 #include <AL/alut.h>
 //#include <AL/al.h>
@@ -97,6 +99,7 @@ class TrainView : public Fl_Gl_Window
 		Shader* sin = nullptr;
 		Shader* height_map= nullptr;
 		Shader* skybox	= nullptr;
+		Shader* cube = nullptr;
 
 		bool sw = false;
 
@@ -114,7 +117,12 @@ class TrainView : public Fl_Gl_Window
 		Model* wave_model = nullptr;
 		Texture2D* height = nullptr;
 		int height_index = 0;
-		
+		bool first = true;
+		bool skybox_load = true;
 		int sinwave_load_id = 0;
 		
+		unsigned char* skybox_data[6];
+		int skybox_width[6];
+		int skybox_height[6];
+		int skybox_nrChannels[6];	
 };

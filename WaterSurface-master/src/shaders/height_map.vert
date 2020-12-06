@@ -22,7 +22,13 @@ void main()
     height_map.y = height_map.y + texture(height_map_image,texture_coordinate).r;
     gl_Position = proj_matrix * model_matrix * vec4(height_map, 1.0f);
     v_out.position = height_map;
-    v_out.normal = mat3(transpose(inverse(u_model))) * normal;
+    vec3 forward = position;
+    forward.x +=1;
+    vec3 right = position;
+    right.z +=1;
+    forward = forward-position;
+    right = right-position;
+    v_out.normal = normalize(right*forward);
     v_out.texture_coordinate = vec2(texture_coordinate.x, 1.0f - texture_coordinate.y);
 
 }
