@@ -45,7 +45,7 @@
 #include "Utilities/3DUtils.H"
 
 #define STB_IMAGE_IMPLEMENTATION
-//#define dcube
+#define dcube
 #include"RenderUtilities/model.h"
 
 
@@ -463,8 +463,8 @@ void TrainView::draw()
 		"../skybox/left.jpg",
 		"../skybox/top.jpg",
 		"../skybox/bottom.jpg",
-		"../skybox/back.jpg",
-		"../skybox/front.jpg"
+		"../skybox/front.jpg",
+		"../skybox/back.jpg"
 
 	};
 #ifdef dcube
@@ -527,47 +527,47 @@ void TrainView::draw()
 
 	float skyboxVertices[] = {
 		// positions          
-		-300.0f,  300.0f, -300.0f,
-		-300.0f, -300.0f, -300.0f,
-		 300.0f, -300.0f, -300.0f,
-		 300.0f, -300.0f, -300.0f,
-		 300.0f,  300.0f, -300.0f,
-		-300.0f,  300.0f, -300.0f,
+		-200.0f,  200.0f, -200.0f,
+		-200.0f, -200.0f, -200.0f,
+		 200.0f, -200.0f, -200.0f,
+		 200.0f, -200.0f, -200.0f,
+		 200.0f,  200.0f, -200.0f,
+		-200.0f,  200.0f, -200.0f,
 
-		-300.0f, -300.0f,  300.0f,
-		-300.0f, -300.0f, -300.0f,
-		-300.0f,  300.0f, -300.0f,
-		-300.0f,  300.0f, -300.0f,
-		-300.0f,  300.0f,  300.0f,
-		-300.0f, -300.0f,  300.0f,
+		-200.0f, -200.0f,  200.0f,
+		-200.0f, -200.0f, -200.0f,
+		-200.0f,  200.0f, -200.0f,
+		-200.0f,  200.0f, -200.0f,
+		-200.0f,  200.0f,  200.0f,
+		-200.0f, -200.0f,  200.0f,
 
-		 300.0f, -300.0f, -300.0f,
-		 300.0f, -300.0f,  300.0f,
-		 300.0f,  300.0f,  300.0f,
-		 300.0f,  300.0f,  300.0f,
-		 300.0f,  300.0f, -300.0f,
-		 300.0f, -300.0f, -300.0f,
+		 200.0f, -200.0f, -200.0f,
+		 200.0f, -200.0f,  200.0f,
+		 200.0f,  200.0f,  200.0f,
+		 200.0f,  200.0f,  200.0f,
+		 200.0f,  200.0f, -200.0f,
+		 200.0f, -200.0f, -200.0f,
 
-		-300.0f, -300.0f,  300.0f,
-		-300.0f,  300.0f,  300.0f,
-		 300.0f,  300.0f,  300.0f,
-		 300.0f,  300.0f,  300.0f,
-		 300.0f, -300.0f,  300.0f,
-		-300.0f, -300.0f,  300.0f,
+		-200.0f, -200.0f,  200.0f,
+		-200.0f,  200.0f,  200.0f,
+		 200.0f,  200.0f,  200.0f,
+		 200.0f,  200.0f,  200.0f,
+		 200.0f, -200.0f,  200.0f,
+		-200.0f, -200.0f,  200.0f,
 
-		-300.0f,  300.0f, -300.0f,
-		 300.0f,  300.0f, -300.0f,
-		 300.0f,  300.0f,  300.0f,
-		 300.0f,  300.0f,  300.0f,
-		-300.0f,  300.0f,  300.0f,
-		-300.0f,  300.0f, -300.0f,
+		-200.0f,  200.0f, -200.0f,
+		 200.0f,  200.0f, -200.0f,
+		 200.0f,  200.0f,  200.0f,
+		 200.0f,  200.0f,  200.0f,
+		-200.0f,  200.0f,  200.0f,
+		-200.0f,  200.0f, -200.0f,
 
-		-300.0f, -300.0f, -300.0f,
-		-300.0f, -300.0f,  300.0f,
-		 300.0f, -300.0f, -300.0f,
-		 300.0f, -300.0f, -300.0f,
-		-300.0f, -300.0f,  300.0f,
-		 300.0f, -300.0f,  300.0f
+		-200.0f, -200.0f, -200.0f,
+		-200.0f, -200.0f,  200.0f,
+		 200.0f, -200.0f, -200.0f,
+		 200.0f, -200.0f, -200.0f,
+		-200.0f, -200.0f,  200.0f,
+		 200.0f, -200.0f,  200.0f
 	};
 
 	unsigned int skyboxVAO, skyboxVBO;
@@ -618,6 +618,7 @@ void TrainView::draw()
 	GLfloat Projection[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, ModelView);
+
 	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(ModelView));
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
 	/*cube*/
@@ -697,12 +698,7 @@ void TrainView::draw()
 	skybox->Use();
 	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glm::mat4 view = glm::mat4(glm::mat3(viewMatrix));
-	GLfloat skyview[16];
-	for (int i = 0; i < 16; i++) {
-		skyview[i] = view[i % 4][i / 4];
-	}
-	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_matrix"), 1, GL_FALSE, skyview);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_matrix"), 1, GL_FALSE, ModelView);
 	// skybox cube
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);

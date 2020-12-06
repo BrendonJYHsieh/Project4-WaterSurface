@@ -10,7 +10,7 @@ uniform mat4 proj_matrix;
 
 void main()
 {
-    Normal = mat3(transpose(inverse(model_matrix))) * aNormal;
-    Position = vec3(model_matrix * vec4(aPos, 1.0));
+    Normal =  aNormal;
+    Position = vec3(vec4(aPos, 1.0));
     gl_Position = proj_matrix * model_matrix * vec4(aPos, 1.0);
 }

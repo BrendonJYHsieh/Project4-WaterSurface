@@ -11,7 +11,8 @@ uniform samplerCube skybox;
 
 void main()
 {    
-    float ratio = 1.00 / 1.52;
+
+    float ratio = 1.0 / 1.52;
     vec3 I = normalize(Position - viewPos);
     vec3 R={0.0,0.0,0.0};
     if(reflect_enable)
@@ -19,4 +20,5 @@ void main()
     if(refract_enable)
     R += refract(I, normalize(Normal), ratio);
     FragColor = vec4(texture(skybox, R).rgb, 1.0);
+
 }
