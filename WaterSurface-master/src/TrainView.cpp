@@ -45,7 +45,7 @@
 #include "Utilities/3DUtils.H"
 
 #define STB_IMAGE_IMPLEMENTATION
-#define dcube
+//#define dcube
 #include"RenderUtilities/model.h"
 
 
@@ -407,9 +407,9 @@ void TrainView::draw()
 	// set to opengl fixed pipeline(use opengl 1.x draw function)
 	glUseProgram(0);
 
-	setupFloor();
+	/*setupFloor();
 	glDisable(GL_LIGHTING);
-	drawFloor(200, 10);
+	drawFloor(200, 10);*/
 
 
 	//*********************************************************************
@@ -470,47 +470,47 @@ void TrainView::draw()
 #ifdef dcube
 	float cubeVertices[] = {
 		// positions          // normals
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-5, -5, -5,  0.0,  0.0, -10.0,
+		 5, -5, -5,  0.0,  0.0, -10.0,
+		 5,  5, -5,  0.0,  0.0, -10.0,
+		 5,  5, -5,  0.0,  0.0, -10.0,
+		-5,  5, -5,  0.0,  0.0, -10.0,
+		-5, -5, -5,  0.0,  0.0, -10.0,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-5, -5,  5,  0.0,  0.0, 10.0,
+		 5, -5,  5,  0.0,  0.0, 10.0,
+		 5,  5,  5,  0.0,  0.0, 10.0,
+		 5,  5,  5,  0.0,  0.0, 10.0,
+		-5,  5,  5,  0.0,  0.0, 10.0,
+		-5, -5,  5,  0.0,  0.0, 10.0,
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-5,  5,  5, -10.0,  0.0,  0.0,
+		-5,  5, -5, -10.0,  0.0,  0.0,
+		-5, -5, -5, -10.0,  0.0,  0.0,
+		-5, -5, -5, -10.0,  0.0,  0.0,
+		-5, -5,  5, -10.0,  0.0,  0.0,
+		-5,  5,  5, -10.0,  0.0,  0.0,
 
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 5,  5,  5,  10.0,  0.0,  0.0,
+		 5,  5, -5,  10.0,  0.0,  0.0,
+		 5, -5, -5,  10.0,  0.0,  0.0,
+		 5, -5, -5,  10.0,  0.0,  0.0,
+		 5, -5,  5,  10.0,  0.0,  0.0,
+		 5,  5,  5,  10.0,  0.0,  0.0,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		-5, -5, -5,  0.0, -10.0,  0.0,
+		 5, -5, -5,  0.0, -10.0,  0.0,
+		 5, -5,  5,  0.0, -10.0,  0.0,
+		 5, -5,  5,  0.0, -10.0,  0.0,
+		-5, -5,  5,  0.0, -10.0,  0.0,
+		-5, -5, -5,  0.0, -10.0,  0.0,
 
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+		-5,  5, -5,  0.0,  10.0,  0.0,
+		 5,  5, -5,  0.0,  10.0,  0.0,
+		 5,  5,  5,  0.0,  10.0,  0.0,
+		 5,  5,  5,  0.0,  10.0,  0.0,
+		-5,  5,  5,  0.0,  10.0,  0.0,
+		-5,  5, -5,  0.0,  10.0,  0.0
 	};
 	// cube VAO
 	unsigned int cubeVAO, cubeVBO;
@@ -625,7 +625,10 @@ void TrainView::draw()
 	cube->Use();
 	glUniformMatrix4fv(glGetUniformLocation(cube->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(cube->Program, "model_matrix"), 1, GL_FALSE, ModelView);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos[0], viewPos[1], viewPos[2]);
+	glUniform1f(glGetUniformLocation(cube->Program, "reflect_enable"), tw->reflect);
+	glUniform1f(glGetUniformLocation(cube->Program, "refract_enable"), tw->refract);
+	glUniform3f(glGetUniformLocation(cube->Program, "viewPos"), viewPos[0], viewPos[1], viewPos[2]);
+	glUniform1f(glGetUniformLocation(cube->Program, "skybox"), 1);
 	// cubes
 	glBindVertexArray(cubeVAO);
 	glActiveTexture(GL_TEXTURE0);
@@ -635,6 +638,7 @@ void TrainView::draw()
 #endif 
 
 
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos[0], viewPos[1], viewPos[2]);
 	/*Sine Wave*/
 	glPushMatrix();
 	glTranslatef(0, 10, 0);
@@ -648,17 +652,16 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, ModelView);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
 	glPopMatrix();
-	//wave_model->Draw(*wave_shader);
-
+#ifndef dcube
+	wave_model->Draw(*wave_shader);
+#endif 
 
 	/*Lighting*/
-
-	
 	//¶}Ãö
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "direct_enable"), tw->direct);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "point_enable"), tw->point);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "spot_enable"), tw->spot);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos[0], viewPos[1], viewPos[2]);
+	
 	//Direction light
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.direction"), 100.0f, 1.0f, 0.0f);
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.ambient"), 0.6f, 0.6f, 0.6f);

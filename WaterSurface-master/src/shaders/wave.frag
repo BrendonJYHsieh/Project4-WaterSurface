@@ -88,8 +88,10 @@ uniform samplerCube skybox;
 void main()
 {   
 
+    float ratio = 1.00 / 1.52;
     vec3 I = normalize(f_in.position - viewPos);
     vec3 R = reflect(I, normalize(f_in.normal));
+    //vec3 R = refract(I, normalize(f_in.normal), ratio);
     // properties
     vec3 result={0.0,0.0,0.1};
     vec3 norm = normalize(f_in.normal);
@@ -99,8 +101,8 @@ void main()
     if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
     if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
     //vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
-    f_color = vec4(result, 1.0);
-    f_color += vec4(texture(skybox, R).rgb, 1.0);
+    //f_color = vec4(result, 1.0);
+    f_color = vec4(texture(skybox, R).rgb, 1.0);
    
     
     /*

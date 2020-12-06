@@ -168,6 +168,15 @@ void HeightMap_enable(Fl_Widget*, TrainWindow* tw) {
 	tw->heightmap = !tw->heightmap;
 	tw->damageMe();
 }
+void Reflect_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->reflect = !tw->reflect;
+	tw->damageMe();
+}
+void Refract_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->refract = !tw->refract;
+	tw->damageMe();
+}
+
 //***************************************************************************
 //
 // * Load the control points from the files

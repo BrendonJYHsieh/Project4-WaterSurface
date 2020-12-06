@@ -88,6 +88,9 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Button*			runButton;
 
 		Fl_Button* HeightMap;
+		Fl_Button* ReflectBtn;
+		Fl_Button* RefractBtn;
+
 		// if we're animating it, how fast should it go?
 		Fl_Value_Slider*	speed;
 		Fl_Value_Slider* WaveScale;
@@ -100,6 +103,9 @@ class TrainWindow : public Fl_Double_Window {
 		bool point = false;
 		bool spot = false;
 		bool heightmap = false;
+
+		bool reflect = true;
+		bool refract = false;
 		
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about

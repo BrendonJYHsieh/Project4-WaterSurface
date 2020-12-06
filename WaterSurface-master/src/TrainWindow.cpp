@@ -173,6 +173,13 @@ TrainWindow(const int x, const int y)
 		HeightMap = new Fl_Button(605, pty, 70, 20, "HeightMap");
 		HeightMap->callback((Fl_Callback*)HeightMap_enable, this);
 
+		pty += 30;
+
+		ReflectBtn = new Fl_Button(605, pty, 70, 20, "Reflect");
+		ReflectBtn->callback((Fl_Callback*)Reflect_enable, this);
+		RefractBtn = new Fl_Button(685, pty, 70, 20, "Refract");
+		RefractBtn->callback((Fl_Callback*)Refract_enable, this);
+
 		// we need to make a little phantom widget to have things resize correctly
 		Fl_Box* resizebox = new Fl_Box(600,595,200,5);
 		widgets->resizable(resizebox);

@@ -59,10 +59,10 @@
     <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\shaders\simple.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="WaterSurface-master\src\shaders\wave.frag">
+    <None Include="WaterSurface-master\src\shaders\cube.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="WaterSurface-master\src\shaders\wave.vert">
+    <None Include="WaterSurface-master\src\shaders\cube.vert">
       <Filter>shaders</Filter>
     </None>
     <None Include="WaterSurface-master\src\shaders\height_map.frag">
@@ -77,10 +77,16 @@
     <None Include="WaterSurface-master\src\shaders\skybox.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="WaterSurface-master\src\shaders\cube.frag">
+    <None Include="WaterSurface-master\src\shaders\wave.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="WaterSurface-master\src\shaders\cube.vert">
+    <None Include="WaterSurface-master\src\shaders\wave.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaterSurface-master\src\shaders\Toon.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaterSurface-master\src\shaders\Toon.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
