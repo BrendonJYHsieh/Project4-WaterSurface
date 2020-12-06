@@ -263,63 +263,63 @@ void TrainView::draw()
 			wave_model = new Model("../wave/wave.obj");
 			sinwave_load_id = wave_model->textures_loaded[0].id;
 		}
-		if (!this->device) {
-			//Tutorial: https://ffainelli.github.io/openal-example/
-			this->device = alcOpenDevice(NULL);
-			if (!this->device)
-				puts("ERROR::NO_AUDIO_DEVICE");
+		//if (!this->device) {
+		//	Tutorial: https://ffainelli.github.io/openal-example/
+		//	this->device = alcOpenDevice(NULL);
+		//	if (!this->device)
+		//		puts("ERROR::NO_AUDIO_DEVICE");
 
-			ALboolean enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-			if (enumeration == AL_FALSE)
-				puts("Enumeration not supported");
-			else
-				puts("Enumeration supported");
+		//	ALboolean enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+		//	if (enumeration == AL_FALSE)
+		//		puts("Enumeration not supported");
+		//	else
+		//		puts("Enumeration supported");
 
-			this->context = alcCreateContext(this->device, NULL);
-			if (!alcMakeContextCurrent(context))
-				puts("Failed to make context current");
+		//	this->context = alcCreateContext(this->device, NULL);
+		//	if (!alcMakeContextCurrent(context))
+		//		puts("Failed to make context current");
 
-			this->source_pos = glm::vec3(0.0f, 5.0f, 0.0f);
+		//	this->source_pos = glm::vec3(0.0f, 5.0f, 0.0f);
 
-			ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
-			alListener3f(AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
-			alListener3f(AL_VELOCITY, 0, 0, 0);
-			alListenerfv(AL_ORIENTATION, listenerOri);
+		//	ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
+		//	alListener3f(AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
+		//	alListener3f(AL_VELOCITY, 0, 0, 0);
+		//	alListenerfv(AL_ORIENTATION, listenerOri);
 
-			alGenSources((ALuint)1, &this->source);
-			alSourcef(this->source, AL_PITCH, 1);
-			alSourcef(this->source, AL_GAIN, 1.0f);
-			alSource3f(this->source, AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
-			alSource3f(this->source, AL_VELOCITY, 0, 0, 0);
-			alSourcei(this->source, AL_LOOPING, AL_TRUE);
+		//	alGenSources((ALuint)1, &this->source);
+		//	alSourcef(this->source, AL_PITCH, 1);
+		//	alSourcef(this->source, AL_GAIN, 1.0f);
+		//	alSource3f(this->source, AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
+		//	alSource3f(this->source, AL_VELOCITY, 0, 0, 0);
+		//	alSourcei(this->source, AL_LOOPING, AL_TRUE);
 
-			alGenBuffers((ALuint)1, &this->buffer);
+		//	alGenBuffers((ALuint)1, &this->buffer);
 
-			ALsizei size, freq;
-			ALenum format;
-			ALvoid* data;
-			ALboolean loop = AL_TRUE;
+		//	ALsizei size, freq;
+		//	ALenum format;
+		//	ALvoid* data;
+		//	ALboolean loop = AL_TRUE;
 
-			//Material from: ThinMatrix
-			alutLoadWAVFile((ALbyte*)"../WaterSurface/Audios/bounce.wav", &format, &data, &size, &freq, &loop);
-			alBufferData(this->buffer, format, data, size, freq);
-			alSourcei(this->source, AL_BUFFER, this->buffer);
+		//	Material from: ThinMatrix
+		//	alutLoadWAVFile((ALbyte*)"../WaterSurface/Audios/bounce.wav", &format, &data, &size, &freq, &loop);
+		//	alBufferData(this->buffer, format, data, size, freq);
+		//	alSourcei(this->source, AL_BUFFER, this->buffer);
 
-			if (format == AL_FORMAT_STEREO16 || format == AL_FORMAT_STEREO8)
-				puts("TYPE::STEREO");
-			else if (format == AL_FORMAT_MONO16 || format == AL_FORMAT_MONO8)
-				puts("TYPE::MONO");
+		//	if (format == AL_FORMAT_STEREO16 || format == AL_FORMAT_STEREO8)
+		//		puts("TYPE::STEREO");
+		//	else if (format == AL_FORMAT_MONO16 || format == AL_FORMAT_MONO8)
+		//		puts("TYPE::MONO");
 
-			alSourcePlay(this->source);
+		//	alSourcePlay(this->source);
 
-			// cleanup context
-			//alDeleteSources(1, &source);
-			//alDeleteBuffers(1, &buffer);
-			//device = alcGetContextsDevice(context);
-			//alcMakeContextCurrent(NULL);
-			//alcDestroyContext(context);
-			//alcCloseDevice(device);
-		}
+		//	 cleanup context
+		//	alDeleteSources(1, &source);
+		//	alDeleteBuffers(1, &buffer);
+		//	device = alcGetContextsDevice(context);
+		//	alcMakeContextCurrent(NULL);
+		//	alcDestroyContext(context);
+		//	alcCloseDevice(device);
+		//}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -389,7 +389,7 @@ void TrainView::draw()
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
 
 	// set linstener position 
-	if (selectedCube >= 0)
+	/*if (selectedCube >= 0)
 		alListener3f(AL_POSITION,
 			m_pTrack->points[selectedCube].pos.x,
 			m_pTrack->points[selectedCube].pos.y,
@@ -398,7 +398,7 @@ void TrainView::draw()
 		alListener3f(AL_POSITION,
 			this->source_pos.x,
 			this->source_pos.y,
-			this->source_pos.z);
+			this->source_pos.z);*/
 
 
 	//*********************************************************************
