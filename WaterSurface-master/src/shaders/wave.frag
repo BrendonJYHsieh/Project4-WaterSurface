@@ -84,6 +84,9 @@ uniform bool direct_enable;
 uniform bool point_enable;
 uniform bool spot_enable;
 uniform samplerCube skybox;
+uniform bool reflect_enable;
+uniform bool refract_enable;
+
 
 void main()
 {   
@@ -93,17 +96,20 @@ void main()
     // properties
     vec3 result={0.0,0.0,0.0};
     vec3 viewDir = normalize(viewPos - f_in.position);
-    
+
     float ratio = 1.00 / 1.52;
     vec3 I = normalize(f_in.position - viewPos);
-    vec3 R = reflect(I, normalize(f_in.normal));
+    if(reflect_enable)
+    result += reflect(I, normalize(f_in.normal));
+    if(refract_enable)
+    result += refract(I, normalize(f_in.normal), ratio);
 
     if(direct_enable) result += CalcDirLight(dirLight, f_in.normal, viewDir);
     if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
     if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
     //vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
     //f_color = vec4(result, 1.0);
-    f_color = vec4(texture(skybox, R).rgb, 1.0);
+    f_color = vec4(texture(skybox, result).rgb, 1.0);
    
     
     /*

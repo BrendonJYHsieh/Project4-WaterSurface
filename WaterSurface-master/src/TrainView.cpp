@@ -223,6 +223,14 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
+		if (!this->toon) {
+			this->toon = new
+				Shader(
+					"../WaterSurface-master/src/shaders/Toon.vert",
+					nullptr, nullptr, nullptr,
+					"../WaterSurface-master/src/shaders/Toon.frag");
+			toon->Use();
+		}
 		if (!this->height_map)
 			this->height_map = new
 			Shader(
@@ -329,6 +337,9 @@ void TrainView::draw()
 		if (!wave_model) {
 			wave_model = new Model("../wave/wave.obj");
 			sinwave_load_id = wave_model->textures_loaded[0].id;
+		}
+		if (!backpack) {
+			backpack = new Model("../backpack/teapot.obj");
 		}
 		if (!this->device) {
 			Tutorial: https://ffainelli.github.io/openal-example/
@@ -598,7 +609,7 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(cube->Program, "model_matrix"), 1, GL_FALSE, ModelView);
 	glUniform1f(glGetUniformLocation(cube->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(cube->Program, "refract_enable"), tw->refract);
-	glUniform3f(glGetUniformLocation(cube->Program, "viewPos"), viewPos[0], viewPos[1], viewPos[2]);
+	glUniform3f(glGetUniformLocation(cube->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	glUniform1f(glGetUniformLocation(cube->Program, "skybox"), 1);
 	// cubes
 	glBindVertexArray(cubeVAO);
@@ -607,18 +618,19 @@ void TrainView::draw()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 #endif 
-
-
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), 0, 0, 0);
+	
+	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
 	glPushMatrix();
-	glTranslatef(0, 10, 0);
-	glScalef(30, 30, 30);
+	/*glTranslatef(0, 10, 0);
+	glScalef(30, 30, 30);*/
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveScale->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, ModelView);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, ModelView);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
@@ -676,7 +688,39 @@ void TrainView::draw()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // set depth function back to default
+
+	//Toon shader
+	/*glUniformMatrix4fv(glGetUniformLocation(toon->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(toon->Program, "model_matrix"), 1, GL_FALSE, ModelView);
+	glUniform1f(glGetUniformLocation(toon->Program, "tex_toon"), 0);
+	static const GLubyte toon_tex_data[] =
+	{
+	   0x44, 0x00, 0x00, 0x00,
+	   0x88, 0x00, 0x00, 0x00,
+	   0xCC, 0x00, 0x00, 0x00,
+	   0xFF, 0x00, 0x00, 0x00
+	};
+	GLuint tex_toon;
+
+	glGenTextures(1, &tex_toon);
+	glBindTexture(GL_TEXTURE_1D, tex_toon);
+	glTexStorage1D(GL_TEXTURE_1D, 1, GL_RGB8, sizeof(toon_tex_data) / 4);
+	glTexSubImage1D(GL_TEXTURE_1D, 0,
+		0, sizeof(toon_tex_data) / 4,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		toon_tex_data);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	backpack->Draw(*toon);*/
+
 	glUseProgram(0);
+#ifdef dcube
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteBuffers(1, &cubeVAO);
+#endif // DEBUG
+
+	
 
 }
 
