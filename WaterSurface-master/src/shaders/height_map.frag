@@ -92,6 +92,7 @@ void main()
     vec3 result={0.0,0.0,0.0};
     vec3 norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
     vec3 viewDir = normalize(viewPos - f_in.position);
+    
 
     if(direct_enable) result += CalcDirLight(dirLight, f_in.normal, viewDir);
     if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
@@ -100,9 +101,9 @@ void main()
     float ratio = 1.00 / 1.52;
     vec3 I = normalize(f_in.position - viewPos);
     if(reflect_enable)
-    result += reflect(I, normalize(f_in.normal));
+    result += reflect(I, normalize(norm));
     if(refract_enable)
-    result += refract(I, normalize(f_in.normal), ratio);
+    result += refract(I, normalize(norm), ratio);
     //vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
     f_color = vec4(result, 1.0);
 

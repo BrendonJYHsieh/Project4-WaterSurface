@@ -347,8 +347,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <None Include="WaterSurface-master\src\shaders\height_map.vert" />
     <None Include="WaterSurface-master\src\shaders\skybox.frag" />
     <None Include="WaterSurface-master\src\shaders\skybox.vert" />
-    <None Include="WaterSurface-master\src\shaders\Toon.frag" />
-    <None Include="WaterSurface-master\src\shaders\Toon.vert" />
     <None Include="WaterSurface-master\src\shaders\wave.frag" />
     <None Include="WaterSurface-master\src\shaders\wave.vert" />
   </ItemGroup>

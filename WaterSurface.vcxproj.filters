@@ -83,12 +83,6 @@
     <None Include="WaterSurface-master\src\shaders\wave.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="WaterSurface-master\src\shaders\Toon.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="WaterSurface-master\src\shaders\Toon.vert">
-      <Filter>shaders</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="RenderUtilities">
