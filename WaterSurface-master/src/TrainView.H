@@ -119,7 +119,6 @@ class TrainView : public Fl_Gl_Window
 		ALuint buffer;
 
 		Model* wave_model = nullptr;
-		Model* backpack = nullptr;
 
 		Texture2D* height = nullptr;
 		int height_index = 0;

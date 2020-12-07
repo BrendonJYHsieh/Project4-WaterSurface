@@ -86,7 +86,7 @@ uniform bool spot_enable;
 uniform samplerCube skybox;
 uniform bool reflect_enable;
 uniform bool refract_enable;
-
+uniform vec3 light_pos ={30.0,70.0,100};
 
 void main()
 {   
@@ -99,18 +99,57 @@ void main()
 
     float ratio = 1.00 / 1.52;
     vec3 I = normalize(f_in.position - viewPos);
-    if(reflect_enable)
-    result += reflect(I, normalize(f_in.normal));
-    if(refract_enable)
-    result += refract(I, normalize(f_in.normal), ratio);
 
-    if(direct_enable) result += CalcDirLight(dirLight, f_in.normal, viewDir);
-    if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
-    if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
-    //vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
-    //f_color = vec4(result, 1.0);
-    f_color = vec4(texture(skybox, result).rgb, 1.0);
-   
+    
+
+    if(reflect_enable && refract_enable){
+        vec3 ReflectColor = vec3(textureCube(skybox, reflect(I, normalize(f_in.normal))));
+        vec3 RefractColor = vec3(textureCube(skybox, refract(I, normalize(f_in.normal), ratio)));
+        f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f); 
+    }
+    else if(reflect_enable){
+        result += reflect(I, normalize(f_in.normal));
+        f_color = vec4(texture(skybox, result).rgb, 1.0);
+    }
+    else if(refract_enable){
+        result += refract(I, normalize(f_in.normal), ratio);
+        f_color = vec4(texture(skybox, result).rgb, 1.0);
+    }
+    else{
+        f_color = vec4(texture(skybox, result).rgb, 1.0);
+    }
+    
+    
+    
+ 
+    /*
+    if(direct_enable) {
+        float intensity;
+    vec4 color;
+ 
+    vec3 n = normalize(f_in.normal);
+
+    intensity = dot(-I,n);
+
+    if (intensity > 0.95)
+        color = vec4(1.0,0.5,0.5,1.0);
+    else if (intensity > 0.5)
+        color = vec4(0.6,0.3,0.3,1.0);
+    else if (intensity > 0.25)
+        color = vec4(0.4,0.2,0.2,1.0);
+    else
+        color = vec4(0.2,0.1,0.1,1.0);
+        f_color = color;
+    }
+    else{
+        f_color = vec4(texture(skybox, result).rgb, 1.0);
+    }*/
+    //if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
+    //if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
+
+    
+ 
+    
     
     /*
     f_color += vec4(texture(texture_diffuse1,f_in.texture_coordinate));
@@ -123,20 +162,7 @@ void main()
 
     
 }
-/*
-float dot(vec3 v1,vec3 v2){
-    return v1[0]*v2[0]+v1[1]*v2[1]+v1[3]*v2[3];
-}
-float max(float a,float b){
-    if(a>b)
-    return a;
-    
-    return b;
-}
-float min(vec4 a,vec4 b){
-    float temp1,temp2;
-    temp
-}*/
+
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -198,16 +224,3 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     specular *= attenuation * intensity;
     return (ambient + diffuse + specular);
 }
-
-
-//#version 330 core
-//out vec4 FragColor;
-//
-//in vec2 TexCoords;
-//
-//uniform sampler2D texture_diffuse1;
-//
-//void main()
-//{    
-//    FragColor = texture(texture_diffuse1, TexCoords);
-//}

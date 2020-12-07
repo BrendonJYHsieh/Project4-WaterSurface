@@ -338,9 +338,7 @@ void TrainView::draw()
 			wave_model = new Model("../wave/wave.obj");
 			sinwave_load_id = wave_model->textures_loaded[0].id;
 		}
-		if (!backpack) {
-			backpack = new Model("../backpack/teapot.obj");
-		}
+
 		if (!this->device) {
 			Tutorial: https://ffainelli.github.io/openal-example/
 			this->device = alcOpenDevice(NULL);
@@ -448,23 +446,23 @@ void TrainView::draw()
 	// * set the light parameters
 	//
 	//**********************************************************************
-	GLfloat lightPosition1[] = { 0,1,1,0 }; // {50, 200.0, 50, 1.0};
-	GLfloat lightPosition2[] = { 1, 0, 0, 0 };
-	GLfloat lightPosition3[] = { 0, -1, 0, 0 };
-	GLfloat yellowLight[] = { 0.5f, 0.5f, .1f, 1.0 };
-	GLfloat whiteLight[] = { 1.0f, 1.0f, 1.0f, 1.0 };
-	GLfloat blueLight[] = { .1f,.1f,.3f,1.0 };
-	GLfloat grayLight[] = { .3f, .3f, .3f, 1.0 };
+	//GLfloat lightPosition1[] = { 0,1,1,0 }; // {50, 200.0, 50, 1.0};
+	//GLfloat lightPosition2[] = { 1, 0, 0, 0 };
+	//GLfloat lightPosition3[] = { 0, -1, 0, 0 };
+	//GLfloat yellowLight[] = { 0.5f, 0.5f, .1f, 1.0 };
+	//GLfloat whiteLight[] = { 1.0f, 1.0f, 1.0f, 1.0 };
+	//GLfloat blueLight[] = { .1f,.1f,.3f,1.0 };
+	//GLfloat grayLight[] = { .3f, .3f, .3f, 1.0 };
 
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, grayLight);
+	//glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, grayLight);
 
-	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowLight);
+	//glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowLight);
 
-	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
+	//glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
+	//glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
 
 	// set linstener position 
 	/*if (selectedCube >= 0)
@@ -534,117 +532,39 @@ void TrainView::draw()
 		wave_model->meshes[0].textures[0].id = sinwave_load_id;
 	}
 	
-#ifdef dcube
-	float cubeVertices[] = {
-		// positions          // normals
-		-5, -5, -5,  0.0,  0.0, -10.0,
-		 5, -5, -5,  0.0,  0.0, -10.0,
-		 5,  5, -5,  0.0,  0.0, -10.0,
-		 5,  5, -5,  0.0,  0.0, -10.0,
-		-5,  5, -5,  0.0,  0.0, -10.0,
-		-5, -5, -5,  0.0,  0.0, -10.0,
-
-		-5, -5,  5,  0.0,  0.0, 10.0,
-		 5, -5,  5,  0.0,  0.0, 10.0,
-		 5,  5,  5,  0.0,  0.0, 10.0,
-		 5,  5,  5,  0.0,  0.0, 10.0,
-		-5,  5,  5,  0.0,  0.0, 10.0,
-		-5, -5,  5,  0.0,  0.0, 10.0,
-
-		-5,  5,  5, -10.0,  0.0,  0.0,
-		-5,  5, -5, -10.0,  0.0,  0.0,
-		-5, -5, -5, -10.0,  0.0,  0.0,
-		-5, -5, -5, -10.0,  0.0,  0.0,
-		-5, -5,  5, -10.0,  0.0,  0.0,
-		-5,  5,  5, -10.0,  0.0,  0.0,
-
-		 5,  5,  5,  10.0,  0.0,  0.0,
-		 5,  5, -5,  10.0,  0.0,  0.0,
-		 5, -5, -5,  10.0,  0.0,  0.0,
-		 5, -5, -5,  10.0,  0.0,  0.0,
-		 5, -5,  5,  10.0,  0.0,  0.0,
-		 5,  5,  5,  10.0,  0.0,  0.0,
-
-		-5, -5, -5,  0.0, -10.0,  0.0,
-		 5, -5, -5,  0.0, -10.0,  0.0,
-		 5, -5,  5,  0.0, -10.0,  0.0,
-		 5, -5,  5,  0.0, -10.0,  0.0,
-		-5, -5,  5,  0.0, -10.0,  0.0,
-		-5, -5, -5,  0.0, -10.0,  0.0,
-
-		-5,  5, -5,  0.0,  10.0,  0.0,
-		 5,  5, -5,  0.0,  10.0,  0.0,
-		 5,  5,  5,  0.0,  10.0,  0.0,
-		 5,  5,  5,  0.0,  10.0,  0.0,
-		-5,  5,  5,  0.0,  10.0,  0.0,
-		-5,  5, -5,  0.0,  10.0,  0.0
-	};
-	// cube VAO
-	unsigned int cubeVAO, cubeVBO;
-	glGenVertexArrays(1, &cubeVAO);
-	glGenBuffers(1, &cubeVBO);
-	glBindVertexArray(cubeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-#endif // dcube
-
-	
 	GLfloat ModelView[16];
 	GLfloat Projection[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, ModelView);
 
 	glm::mat4 skybox_modelview = glm::mat4(glm::mat3(glm::make_mat4(ModelView)));
-
 	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(ModelView));
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
-	/*cube*/
-#ifdef dcube
-	cube->Use();
-	glUniformMatrix4fv(glGetUniformLocation(cube->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(cube->Program, "model_matrix"), 1, GL_FALSE, ModelView);
-	glUniform1f(glGetUniformLocation(cube->Program, "reflect_enable"), tw->reflect);
-	glUniform1f(glGetUniformLocation(cube->Program, "refract_enable"), tw->refract);
-	glUniform3f(glGetUniformLocation(cube->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
-	glUniform1f(glGetUniformLocation(cube->Program, "skybox"), 1);
-	// cubes
-	glBindVertexArray(cubeVAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-#endif 
-	
+
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model,glm::vec3(0, 10, 0));
+	model = glm::scale(model, glm::vec3(20, 20, 20));
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
-	glPushMatrix();
-	/*glTranslatef(0, 10, 0);
-	glScalef(30, 30, 30);*/
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveScale->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
-	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, ModelView);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, ModelView);
+	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, ModelView);
+	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
 #ifndef dcube
 	wave_model->Draw(*wave_shader);
 #endif 
-	glPopMatrix();
+
 
 	/*Lighting*/
 	//¶}Ãö
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "direct_enable"), tw->direct);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "point_enable"), tw->point);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "spot_enable"), tw->spot);
-	
 	//Direction light
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.direction"), 100.0f, 1.0f, 0.0f);
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.ambient"), 0.6f, 0.6f, 0.6f);
@@ -688,31 +608,6 @@ void TrainView::draw()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // set depth function back to default
-
-	//Toon shader
-	/*glUniformMatrix4fv(glGetUniformLocation(toon->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(toon->Program, "model_matrix"), 1, GL_FALSE, ModelView);
-	glUniform1f(glGetUniformLocation(toon->Program, "tex_toon"), 0);
-	static const GLubyte toon_tex_data[] =
-	{
-	   0x44, 0x00, 0x00, 0x00,
-	   0x88, 0x00, 0x00, 0x00,
-	   0xCC, 0x00, 0x00, 0x00,
-	   0xFF, 0x00, 0x00, 0x00
-	};
-	GLuint tex_toon;
-
-	glGenTextures(1, &tex_toon);
-	glBindTexture(GL_TEXTURE_1D, tex_toon);
-	glTexStorage1D(GL_TEXTURE_1D, 1, GL_RGB8, sizeof(toon_tex_data) / 4);
-	glTexSubImage1D(GL_TEXTURE_1D, 0,
-		0, sizeof(toon_tex_data) / 4,
-		GL_RGBA, GL_UNSIGNED_BYTE,
-		toon_tex_data);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	backpack->Draw(*toon);*/
 
 	glUseProgram(0);
 #ifdef dcube
