@@ -5,7 +5,6 @@ layout (location = 2) in vec2 texture_coordinate;
 
 
 uniform mat4 model_matrix;
-uniform mat4 u_model;
 uniform mat4 proj_matrix;
 uniform sampler2D height_map_image;
 
@@ -22,13 +21,7 @@ void main()
     height_map.y = height_map.y + texture(height_map_image,texture_coordinate).r;
     gl_Position = proj_matrix * model_matrix * vec4(height_map, 1.0f);
     v_out.position = height_map;
-    vec3 forward = position;
-    forward.x +=1;
-    vec3 right = position;
-    right.z +=1;
-    forward = forward-position;
-    right = right-position;
-    v_out.normal = normalize(right*forward);
+    v_out.normal = mat3(transpose(inverse(model_matrix))) * normal;
     v_out.texture_coordinate = vec2(texture_coordinate.x, 1.0f - texture_coordinate.y);
 
 }

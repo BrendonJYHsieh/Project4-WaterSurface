@@ -88,14 +88,15 @@ uniform samplerCube skybox;
 void main()
 {   
 
-    float ratio = 1.00 / 1.52;
-    vec3 I = normalize(f_in.position - viewPos);
-    vec3 R = reflect(I, normalize(f_in.normal));
+    
     //vec3 R = refract(I, normalize(f_in.normal), ratio);
     // properties
     vec3 result={0.0,0.0,0.0};
-    vec3 norm = normalize(f_in.normal);
     vec3 viewDir = normalize(viewPos - f_in.position);
+    
+    float ratio = 1.00 / 1.52;
+    vec3 I = normalize(f_in.position - viewPos);
+    vec3 R = reflect(I, normalize(f_in.normal));
 
     if(direct_enable) result += CalcDirLight(dirLight, f_in.normal, viewDir);
     if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);

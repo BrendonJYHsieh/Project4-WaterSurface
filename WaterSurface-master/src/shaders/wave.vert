@@ -20,13 +20,14 @@ out V_OUT
 
 void main()
 {
-    float w = 2 * 3.1415926535 * frequency * (position.x) +t;
+    float k = 2*3.1415926535*frequency;
+    float w = k * (position.x) +t;
     vec3 temp = position;
     temp.y = amplitude * sin(w);
-    vec3 tangent = normalize(vec3(1,amplitude*cos(w),0));
-    v_out.normal = normalize(vec3(-tangent.y, tangent.x, 0));
+    vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
+    v_out.normal =  normalize(vec3(-tangent.y, tangent.x, 0));
     gl_Position = proj_matrix * model_matrix * vec4(temp, 1.0f);
     v_out.position = temp;
-    v_out.texture_coordinate = vec2(texture_coordinate.x, 1.0f - texture_coordinate.y);
+    v_out.texture_coordinate = texture_coordinate;
 
 }
