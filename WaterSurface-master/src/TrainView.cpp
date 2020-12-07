@@ -504,9 +504,7 @@ void TrainView::draw()
 		}
 		wave_model->meshes[0].textures[0].id = height_id[height_index];
 		height_index++;
-		if (height_index == 199) {
-			height_index = 0;
-		}
+		height_index = height_index % 200;
 	}
 	else {
 		sin->Use();
@@ -514,13 +512,13 @@ void TrainView::draw()
 		wave_model->meshes[0].textures[0].id = sinwave_load_id;
 	}
 	
-	GLfloat ModelView[16];
+	GLfloat View[16];
 	GLfloat Projection[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, ModelView);
+	glGetFloatv(GL_MODELVIEW_MATRIX, View);
 
-	glm::mat4 skybox_modelview = glm::mat4(glm::mat3(glm::make_mat4(ModelView)));
-	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(ModelView));
+	glm::mat4 skybox_View = glm::mat4(glm::mat3(glm::make_mat4(View)));
+	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(View));
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
 
 	glm::mat4 model = glm::mat4(1.0f);
@@ -534,7 +532,7 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, ModelView);
+	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
 	wave_model->Draw(*wave_shader);
@@ -579,7 +577,7 @@ void TrainView::draw()
 	skybox->Use();
 	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_matrix"), 1, GL_FALSE, &skybox_modelview[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_matrix"), 1, GL_FALSE, &skybox_View[0][0]);
 	// skybox cube
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
@@ -596,7 +594,7 @@ void TrainView::draw()
 
 //************************************************************************
 //
-// * This sets up both the Projection and the ModelView matrices
+// * This sets up both the Projection and the View matrices
 //   HOWEVER: it doesn't clear the projection first (the caller handles
 //   that) - its important for picking
 //========================================================================

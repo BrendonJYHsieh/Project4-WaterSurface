@@ -132,7 +132,7 @@ class ArcBallCam {
 		int handle(int e);
 
 		// this sets the projection for viewing. it clears (and sets) the
-		// projection and modelview matrices
+		// projection and View matrices
 		// note: we might not want to clear out the projection matrix
 		// (for example, if there is a pick matrix), so we give the option
 		// of not doing the load identity
