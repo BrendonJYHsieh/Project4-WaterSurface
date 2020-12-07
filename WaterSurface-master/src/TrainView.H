@@ -99,8 +99,6 @@ class TrainView : public Fl_Gl_Window
 		Shader* sin = nullptr;
 		Shader* height_map= nullptr;
 		Shader* skybox	= nullptr;
-		Shader* cube = nullptr;
-		Shader* toon = nullptr;
 
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;

@@ -223,14 +223,6 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
-		if (!this->toon) {
-			this->toon = new
-				Shader(
-					"../WaterSurface-master/src/shaders/Toon.vert",
-					nullptr, nullptr, nullptr,
-					"../WaterSurface-master/src/shaders/Toon.frag");
-			toon->Use();
-		}
 		if (!this->height_map)
 			this->height_map = new
 			Shader(
