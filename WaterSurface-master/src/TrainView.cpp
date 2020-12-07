@@ -496,8 +496,10 @@ void TrainView::draw()
 				else if (num.size() == 2) {
 					num = "0" + num;
 				}
-				num = num + ".png";
+				num = "../height_map/"+num + ".png";
 				height_id[i] = TextureFromFile(num.c_str(), "../height_map");
+				Texture2D temp(num.c_str());
+				Height_id.push_back(temp);
 			}
 			first = false;
 		}

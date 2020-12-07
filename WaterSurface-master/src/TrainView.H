@@ -107,7 +107,7 @@ class TrainView : public Fl_Gl_Window
 
 		UBO* commom_matrices= nullptr;
 		int height_id[200];
-		Texture2D Height_ID;
+		std::vector<Texture2D> Height_id;
 		//OpenAL
 		glm::vec3 source_pos;
 		glm::vec3 listener_pos;
