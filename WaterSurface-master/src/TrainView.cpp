@@ -286,7 +286,6 @@ void TrainView::draw()
 				-1.0f, -1.0f,  1.0f,
 				 1.0f, -1.0f,  1.0f
 			};
-
 			glGenVertexArrays(1, &skyboxVAO);
 			glGenBuffers(1, &skyboxVBO);
 			glBindVertexArray(skyboxVAO);
@@ -307,16 +306,6 @@ void TrainView::draw()
 			};
 			cubemapTexture = loadCubemap(faces);
 		}
-			
-		#ifdef dcube
-		if (!this->cube)
-			this->cube = new
-			Shader(
-				"../WaterSurface-master/src/shaders/cube.vert",
-				nullptr, nullptr, nullptr,
-				"../WaterSurface-master/src/shaders/cube.frag");
-		#endif
-		
 
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
