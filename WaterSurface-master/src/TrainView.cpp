@@ -503,8 +503,7 @@ void TrainView::draw()
 			}
 			first = false;
 		}
-		wave_model->meshes[0].textures[0].id = height_id[height_index];
-		height_index++;
+		Height_id[height_index].bind(1);
 		height_index = height_index % 200;
 	}
 	else {
@@ -535,6 +534,7 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 1);
 	//glUniform1i(glGetUniformLocation(wave_shader->Program, "texture_diffuse1"), 1);
 	wave_model->Draw(*wave_shader);
 
