@@ -317,7 +317,6 @@ void TrainView::draw()
 
 		if (!wave_model) {
 			wave_model = new Model("../wave/wave.obj");
-			sinwave_load_id = wave_model->textures_loaded[0].id;
 		}
 
 		if (!this->device) {
@@ -509,7 +508,6 @@ void TrainView::draw()
 	else {
 		sin->Use();
 		wave_shader = sin;
-		wave_model->meshes[0].textures[0].id = sinwave_load_id;
 	}
 	
 	GLfloat View[16];
@@ -535,6 +533,7 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
+	//glUniform1i(glGetUniformLocation(wave_shader->Program, "texture_diffuse1"), 1);
 	wave_model->Draw(*wave_shader);
 
 	/*Lighting*/

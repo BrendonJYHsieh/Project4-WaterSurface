@@ -102,12 +102,12 @@ class TrainView : public Fl_Gl_Window
 
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
-		bool sw = false;
 
-		Texture2D* texture	= nullptr;
-		VAO* plane			= nullptr;
+
+
 		UBO* commom_matrices= nullptr;
 		int height_id[200];
+		Texture2D Height_ID;
 		//OpenAL
 		glm::vec3 source_pos;
 		glm::vec3 listener_pos;
@@ -122,10 +122,5 @@ class TrainView : public Fl_Gl_Window
 		int height_index = 0;
 		bool first = true;
 		bool skybox_load = true;
-		int sinwave_load_id = 0;
-		
-		unsigned char* skybox_data[6];
-		int skybox_width[6];
-		int skybox_height[6];
-		int skybox_nrChannels[6];	
+
 };
