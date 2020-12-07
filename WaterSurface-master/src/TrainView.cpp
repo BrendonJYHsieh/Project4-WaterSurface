@@ -536,10 +536,7 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, ModelView);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
-#ifndef dcube
 	wave_model->Draw(*wave_shader);
-#endif 
-
 
 	/*Lighting*/
 	//¶}Ãö
@@ -591,10 +588,6 @@ void TrainView::draw()
 	glDepthFunc(GL_LESS); // set depth function back to default
 
 	glUseProgram(0);
-#ifdef dcube
-	glDeleteVertexArrays(1, &cubeVAO);
-	glDeleteBuffers(1, &cubeVAO);
-#endif // DEBUG
 
 	
 
