@@ -497,7 +497,8 @@ void TrainView::draw()
 				else if (num.size() == 2) {
 					num = "0" + num;
 				}
-				height_id[i] = TextureFromFile((num + ".png").c_str(), "../height_map");
+				num = num + ".png";
+				height_id[i] = TextureFromFile(num.c_str(), "../height_map");
 			}
 			first = false;
 		}
