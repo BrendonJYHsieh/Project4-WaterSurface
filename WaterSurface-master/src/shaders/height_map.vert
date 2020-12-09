@@ -8,7 +8,7 @@ uniform mat4 view_matrix;
 uniform mat4 proj_matrix;
 uniform float amplitude;
 uniform float frequency;
-uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_d;
 
 out V_OUT
 {
@@ -20,10 +20,9 @@ out V_OUT
 void main()
 {
     vec3 height_map = position;
-    height_map.y = height_map.y + (texture(texture_diffuse1,texture_coordinate).r-0.5f) * amplitude * 5;
-    //height_map.y = height_map.y + texture(height_map_image,texture_coordinate).r;
+    height_map.y = height_map.y + (texture(texture_d,texture_coordinate).r) * amplitude;
     gl_Position = proj_matrix * view_matrix * model_matrix * vec4(height_map, 1.0f);
-    v_out.position = height_map;
+    v_out.position = (model_matrix*vec4(height_map, 1.0f)).xyz;
     v_out.normal = mat3(transpose(inverse(model_matrix)))*normal;
     v_out.texture_coordinate = texture_coordinate;
 

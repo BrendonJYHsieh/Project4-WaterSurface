@@ -86,6 +86,7 @@ uniform bool spot_enable;
 uniform samplerCube skybox;
 uniform bool reflect_enable;
 uniform bool refract_enable;
+uniform bool heightmap_enable;
 uniform vec3 light_pos ={30.0,70.0,100};
 
 void main()
@@ -94,6 +95,20 @@ void main()
     
     //vec3 R = refract(I, normalize(f_in.normal), ratio);
     // properties
+    vec3 norm=f_in.normal;
+
+   
+
+    if(heightmap_enable){
+       norm = -normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    }
+    else{
+        if(viewPos.y>0)
+        norm=f_in.normal;
+        else
+        norm=-f_in.normal;
+    }
+
     vec3 result={0.0,0.0,0.0};
     vec3 viewDir = normalize(viewPos - f_in.position);
 
@@ -103,16 +118,16 @@ void main()
     
 
     if(reflect_enable && refract_enable){
-        vec3 ReflectColor = vec3(textureCube(skybox, reflect(I, normalize(f_in.normal))));
-        vec3 RefractColor = vec3(textureCube(skybox, refract(I, normalize(f_in.normal), ratio)));
+        vec3 ReflectColor = vec3(textureCube(skybox, reflect(I, normalize(norm))));
+        vec3 RefractColor = vec3(textureCube(skybox, refract(I, normalize(norm), ratio)));
         f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f); 
     }
     else if(reflect_enable){
-        result += reflect(I, normalize(f_in.normal));
+        result += reflect(I, normalize(norm));
         f_color = vec4(texture(skybox, result).rgb, 1.0);
     }
     else if(refract_enable){
-        result += refract(I, normalize(f_in.normal), ratio);
+        result += refract(I, normalize(norm), ratio);
         f_color = vec4(texture(skybox, result).rgb, 1.0);
     }
     else{

@@ -333,10 +333,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\Track.cpp" />
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainView.cpp" />
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainWindow.cpp" />
-    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\shaders\simple.vert">
-    </None>
-    <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\shaders\simple.frag">
-    </None>
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\BufferObject.h" />
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Shader.h" />
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\Texture.h" />

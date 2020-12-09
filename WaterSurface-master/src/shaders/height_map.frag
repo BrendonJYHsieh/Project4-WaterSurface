@@ -85,29 +85,46 @@ uniform bool point_enable;
 uniform bool spot_enable;
 uniform bool reflect_enable;
 uniform bool refract_enable;
+uniform samplerCube skybox;
 
 void main()
 {   
     // properties
-    vec3 result={0.0,0.0,0.0};
-    vec3 norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
-    vec3 viewDir = normalize(viewPos - f_in.position);
+    
     
 
-    if(direct_enable) result += CalcDirLight(dirLight, f_in.normal, viewDir);
-    if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
-    if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
+    //if(direct_enable) result += CalcDirLight(dirLight, f_in.normal, viewDir);
+    //if(point_enable) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
+    //if(spot_enable) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
+
+
+    vec3 norm = -normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    vec3 result={0.0,0.0,0.0};
+    vec3 viewDir = normalize(viewPos - f_in.position);
 
     float ratio = 1.00 / 1.52;
     vec3 I = normalize(f_in.position - viewPos);
-    if(reflect_enable)
-    result += reflect(I, normalize(norm));
-    if(refract_enable)
-    result += refract(I, normalize(norm), ratio);
-    //vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
-    f_color = vec4(result, 1.0);
 
-   
+    
+
+    if(reflect_enable && refract_enable){
+        vec3 ReflectColor = vec3(textureCube(skybox, reflect(I, normalize(norm))));
+        vec3 RefractColor = vec3(textureCube(skybox, refract(I, normalize(norm), ratio)));
+        f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f); 
+    }
+    else if(reflect_enable){
+        result += reflect(I, normalize(norm));
+        f_color = vec4(texture(skybox, result).rgb, 1.0);
+    }
+    else if(refract_enable){
+        result += refract(I, normalize(norm), ratio);
+        f_color = vec4(texture(skybox, result).rgb, 1.0);
+    }
+    else{
+        f_color = vec4(texture(skybox, result).rgb, 1.0);
+    }
+    
+    
     
     /*
     f_color += vec4(texture(texture_diffuse1,f_in.texture_coordinate));

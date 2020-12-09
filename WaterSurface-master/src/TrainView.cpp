@@ -228,7 +228,7 @@ void TrainView::draw()
 			Shader(
 				"../WaterSurface-master/src/shaders/height_map.vert",
 				nullptr, nullptr, nullptr,
-				"../WaterSurface-master/src/shaders/height_map.frag");
+				"../WaterSurface-master/src/shaders/wave.frag");
 		if (!this->sin)
 			this->sin = new
 			Shader(
@@ -485,44 +485,42 @@ void TrainView::draw()
 	}
 	Shader* wave_shader;
 	if (tw->heightmap) {
-		height_map->Use();
 		wave_shader = height_map;
 		if (first) {
 			for (int i = 0; i < 200; i++) {
-				string num = to_string(i);
-				if (num.size() == 1) {
-					num = "00" + num;
+				string name = to_string(i);
+				if (name.size() == 1) {
+					name = "00" + name;
 				}
-				else if (num.size() == 2) {
-					num = "0" + num;
+				else if (name.size() == 2) {
+					name = "0" + name;
 				}
-				num = "../height_map/"+num + ".png";
-				height_id[i] = TextureFromFile(num.c_str(), "../height_map");
-				Texture2D temp(num.c_str());
-				Height_id.push_back(temp);
+				name = name + ".png";
+				height_id.push_back(TextureFromFile(name.c_str(), "../height_map"));
 			}
 			first = false;
 		}
-		Height_id[height_index].bind(1);
-		height_index = height_index % 200;
+		wave_model->meshes[0].textures[0].id = height_id[height_index];
+		height_index = ++height_index % 200;
 	}
 	else {
-		sin->Use();
 		wave_shader = sin;
 	}
-	
+
+	wave_shader->Use();
 	GLfloat View[16];
 	GLfloat Projection[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, View);
 
+
 	glm::mat4 skybox_View = glm::mat4(glm::mat3(glm::make_mat4(View)));
 	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(View));
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
 
+	//transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model,glm::vec3(0, 10, 0));
-	model = glm::scale(model, glm::vec3(20, 20, 20));
+	model = glm::scale(glm::translate(model, glm::vec3(0, 10, 0)), glm::vec3(20, 20, 20));
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
@@ -530,14 +528,14 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "heightmap_enable"), tw->heightmap);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 0);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 1);
-	//glUniform1i(glGetUniformLocation(wave_shader->Program, "texture_diffuse1"), 1);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 10);
 	wave_model->Draw(*wave_shader);
 
+	
 	/*Lighting*/
 	//¶}Ãö
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "direct_enable"), tw->direct);
@@ -576,7 +574,7 @@ void TrainView::draw()
 	/*Sky box*/
 	glDepthFunc(GL_LEQUAL);
 	skybox->Use();
-	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 0);
+	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 10);
 	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_matrix"), 1, GL_FALSE, &skybox_View[0][0]);
 	// skybox cube
