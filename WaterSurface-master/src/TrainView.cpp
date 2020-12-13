@@ -242,8 +242,7 @@ void TrainView::draw()
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/skybox.frag");
 
-			float skyboxVertices[] = {
-				// positions          
+			float skyboxVertices[] = {       
 				-1.0f,  1.0f, -1.0f,
 				-1.0f, -1.0f, -1.0f,
 				 1.0f, -1.0f, -1.0f,
@@ -293,7 +292,6 @@ void TrainView::draw()
 			glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			//sky box
 			vector<std::string> faces
 			{
 				"../skybox/right.jpg",
@@ -461,7 +459,7 @@ void TrainView::draw()
 	// now draw the ground plane
 	//*********************************************************************
 	// set to opengl fixed pipeline(use opengl 1.x draw function)
-	glUseProgram(0);
+	//glUseProgram(0);
 
 	/*setupFloor();
 	glDisable(GL_LIGHTING);
@@ -585,7 +583,7 @@ void TrainView::draw()
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // set depth function back to default
 
-	glUseProgram(0);
+	//glUseProgram(0);
 
 	
 
