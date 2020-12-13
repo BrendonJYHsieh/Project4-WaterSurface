@@ -159,13 +159,13 @@ TrainWindow(const int x, const int y)
 		
 		pty += 30;
 
-		Fl_Button* BDirect = new Fl_Button(605, pty, 45, 20, "Direct");
+		Fl_Button* BDirect = new Fl_Button(605, pty, 70, 20, "Pixelation");
 		BDirect->callback((Fl_Callback*)Diret_enable, this);
 
-		Fl_Button* BPoint = new Fl_Button(655, pty, 45, 20, "Point");
+		Fl_Button* BPoint = new Fl_Button(680, pty, 45, 20, "Offset");
 		BPoint->callback((Fl_Callback*)Point_enable, this);
 
-		Fl_Button* BSpot = new Fl_Button(705, pty, 45, 20, "Spot");
+		Fl_Button* BSpot = new Fl_Button(735, pty, 45, 20, "Other");
 		BSpot->callback((Fl_Callback*)Spot_enable, this);
 
 		pty += 30;

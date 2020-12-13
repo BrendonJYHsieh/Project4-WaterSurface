@@ -96,18 +96,12 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
-		Shader* sin = nullptr;
-		Shader* height_map= nullptr;
-		Shader* skybox	= nullptr;
-
-		GLuint cubemapTexture;
-		GLuint skyboxVAO, skyboxVBO;
+		
 
 
 
 		UBO* commom_matrices= nullptr;
-		std::vector<int> height_id;
-		std::vector<Texture2D> Height_id;
+		
 		//OpenAL
 		glm::vec3 source_pos;
 		glm::vec3 listener_pos;
@@ -117,10 +111,20 @@ class TrainView : public Fl_Gl_Window
 		ALuint buffer;
 
 		Model* wave_model = nullptr;
-
 		Texture2D* height = nullptr;
 		int height_index = 0;
 		bool first = true;
 		bool skybox_load = true;
-
+		std::vector<int> height_id;
+		std::vector<Texture2D> Height_id;
+		Shader* sin = nullptr;
+		Shader* height_map = nullptr;
+		Shader* skybox = nullptr;
+		Shader* screenShader = nullptr;
+		GLuint cubemapTexture;
+		GLuint skyboxVAO, skyboxVBO;
+		//frame buffer
+		unsigned int framebuffer;
+		unsigned int textureColorbuffer;
+		unsigned int quadVAO, quadVBO;
 };
