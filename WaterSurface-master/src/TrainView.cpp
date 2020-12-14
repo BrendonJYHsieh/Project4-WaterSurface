@@ -223,6 +223,13 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
+		if (!this->tail) {
+			this->tail = new
+				Shader(
+					"../WaterSurface-master/src/shaders/load_model.vert",
+					nullptr, nullptr, nullptr,
+					"../WaterSurface-master/src/shaders/load_model.frag");
+		}
 		if (!this->wave_shader) {
 			this->wave_shader = new
 				Shader(
@@ -326,6 +333,7 @@ void TrainView::draw()
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+			glBindVertexArray(0);
 			// framebuffer configuration
 			// -------------------------
 			glGenFramebuffers(1, &framebuffer);
@@ -403,8 +411,13 @@ void TrainView::draw()
 			wave_model = new Model("../wave/wave.obj");
 		}
 
+		if (!tail_model) {
+			tail_model = new Model("../tail/tail.obj");
+			tail_texture = new Texture2D("../tail/tiles.jpg");
+		}
+
 		if (!this->device) {
-			Tutorial: https://ffainelli.github.io/openal-example/
+			//Tutorial: https://ffainelli.github.io/openal-example/
 			this->device = alcOpenDevice(NULL);
 			if (!this->device)
 				puts("ERROR::NO_AUDIO_DEVICE");
@@ -606,7 +619,7 @@ void TrainView::draw()
 
 	//transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(glm::translate(model, glm::vec3(0, 10, 0)), glm::vec3(20, 20, 20));
+	model = glm::scale(glm::translate(model, glm::vec3(0, 10, 0)), glm::vec3(scale, scale, scale));
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
@@ -622,7 +635,6 @@ void TrainView::draw()
 
 	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 10);
 	wave_model->Draw(*wave_shader);
 
 	
@@ -674,6 +686,20 @@ void TrainView::draw()
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); 
 
+	tail->Use();
+	glUniformMatrix4fv(glGetUniformLocation(tail->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(tail->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(tail->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	glUniform1i(glGetUniformLocation(tail->Program, "texture_d"), 11);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+
+	tail_texture->bind(11);
+	tail_model->Draw(*tail);
+	tail_texture->unbind(11);
+	glDisable(GL_CULL_FACE);
 
 	// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -686,9 +712,12 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
 	glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
 	glBindVertexArray(quadVAO);
+	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+	glUniform1i(glGetUniformLocation(screenShader->Program, "screenTexture"), 12);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-
+	glActiveTexture(GL_TEXTURE12);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 //************************************************************************

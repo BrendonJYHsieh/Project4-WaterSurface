@@ -17,6 +17,7 @@ uniform sampler2D texture_d;
 uniform vec2 uv_center;
 uniform float uv_t;
 
+uniform float PI = 3.1415926535;
 
 out V_OUT
 {
@@ -28,7 +29,7 @@ out V_OUT
 void main()
 { 
     if(wave_mode == 1){
-        float k = 2 * 3.1415926535 * frequency;
+        float k = 2 * PI * frequency;
         float w =  k * (position.x)+t;
         vec3 p = position;
         p.y = amplitude * sin(w);
@@ -40,7 +41,7 @@ void main()
     else if(wave_mode == 2){
         vec3 height_map = position;
         float dist = distance(texture_coordinate, uv_center)*frequency*100;
-        float t_c = (t-uv_t)*(2*3.1415926)*5.0;
+        float t_c = (t-uv_t)*(2*PI);
 
         height_map.y = height_map.y + (texture(texture_d,texture_coordinate).r) * amplitude;
         height_map.y+= amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
@@ -53,7 +54,7 @@ void main()
     else if(wave_mode ==3){
         vec3 p = position;
         float dist = distance(texture_coordinate, uv_center)*frequency*100;
-        float t_c = (t-uv_t)*(2*3.1415926)*5.0;
+        float t_c = (t-uv_t)*(2*PI);
         p.y += amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
 
         v_out.normal = mat3(transpose(inverse(model_matrix)))*normal;

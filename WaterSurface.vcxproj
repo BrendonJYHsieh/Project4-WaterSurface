@@ -339,6 +339,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\include\glad4.6\src\glad.c" />
     <None Include="WaterSurface-master\src\shaders\Interact_frame.frag" />
     <None Include="WaterSurface-master\src\shaders\Interact_frame.vert" />
+    <None Include="WaterSurface-master\src\shaders\load_model.frag" />
+    <None Include="WaterSurface-master\src\shaders\load_model.vert" />
     <None Include="WaterSurface-master\src\shaders\screenShader.frag" />
     <None Include="WaterSurface-master\src\shaders\screenShader.vert" />
     <None Include="WaterSurface-master\src\shaders\skybox.frag" />

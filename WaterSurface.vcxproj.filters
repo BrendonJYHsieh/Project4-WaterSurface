@@ -77,6 +77,12 @@
     <None Include="WaterSurface-master\src\shaders\Interact_frame.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="WaterSurface-master\src\shaders\load_model.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="WaterSurface-master\src\shaders\load_model.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="RenderUtilities">
