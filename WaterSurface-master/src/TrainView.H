@@ -149,4 +149,5 @@ class TrainView : public Fl_Gl_Window
 		int uv_t = 0;
 
 		float scale = 20;
+
 };		

@@ -5,8 +5,8 @@ in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
 uniform float vx_offset=0.55;
-uniform float rt_w=400; 
-uniform float rt_h=500; 
+uniform float rt_w; 
+uniform float rt_h; 
 uniform float t;
 uniform float pixel_w = 7; // 15.0
 uniform float pixel_h = 5; 

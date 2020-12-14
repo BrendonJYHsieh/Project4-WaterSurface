@@ -399,13 +399,15 @@ void TrainView::draw()
 				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-		if (!this->commom_matrices)
+		if (!this->commom_matrices) {
 			this->commom_matrices = new UBO();
-		this->commom_matrices->size = 2 * sizeof(glm::mat4);
-		glGenBuffers(1, &this->commom_matrices->ubo);
-		glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
-		glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			this->commom_matrices->size = 2 * sizeof(glm::mat4);
+			glGenBuffers(1, &this->commom_matrices->ubo);
+			glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
+			glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		}
+			
 
 		if (!wave_model) {
 			wave_model = new Model("../wave/wave.obj");
@@ -619,7 +621,7 @@ void TrainView::draw()
 
 	//transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(glm::translate(model, glm::vec3(0, 10, 0)), glm::vec3(scale, scale, scale));
+	model = glm::scale(model, glm::vec3(scale, scale, scale));
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
@@ -711,6 +713,8 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
 	glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
 	glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
+	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), w());
+	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), h());
 	glBindVertexArray(quadVAO);
 	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
