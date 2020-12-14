@@ -891,8 +891,17 @@ doPick()
 	glUniformMatrix4fv(glGetUniformLocation(interactive->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 	wave_model->Draw(*interactive);
 
-}
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glm::vec3 uv;
+	glReadPixels(Fl::event_x(),h()- Fl::event_y(), 1, 1, GL_RGB, GL_FLOAT, &uv[0]);
 
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+	if (uv.b != 0.0) {
+
+	}
+}
 void TrainView::setUBO()
 {
 	float wdt = this->pixel_w();

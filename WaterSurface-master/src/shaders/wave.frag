@@ -118,8 +118,8 @@ void main()
     
 
     if(reflect_enable && refract_enable){
-        vec3 ReflectColor = vec3(textureCube(skybox, reflect(I, normalize(norm))));
-        vec3 RefractColor = vec3(textureCube(skybox, refract(I, normalize(norm), ratio)));
+        vec3 ReflectColor = vec3(texture(skybox, reflect(I, normalize(norm))));
+        vec3 RefractColor = vec3(texture(skybox, refract(I, normalize(norm), ratio)));
         f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f); 
     }
     else if(reflect_enable){
