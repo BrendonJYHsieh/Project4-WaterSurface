@@ -118,16 +118,16 @@ class TrainView : public Fl_Gl_Window
 		GLfloat Projection[16];
 
 		Model* wave_model = nullptr;
-		Model* tail_model = nullptr;
+		Model* tile_model = nullptr;
 
-		Texture2D* tail_texture = nullptr;
+		Texture2D* tile_texture = nullptr;
 
 		int height_index = 0;
 		bool first = true;
 		bool skybox_load = true;
 		std::vector<int> height_id;
 		Shader* wave_shader = nullptr;
-		Shader* tail = nullptr;
+		Shader* tile = nullptr;
 
 
 		Shader* skybox = nullptr;

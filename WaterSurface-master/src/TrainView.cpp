@@ -223,8 +223,8 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
-		if (!this->tail) {
-			this->tail = new
+		if (!this->tile) {
+			this->tile = new
 				Shader(
 					"../WaterSurface-master/src/shaders/load_model.vert",
 					nullptr, nullptr, nullptr,
@@ -411,9 +411,9 @@ void TrainView::draw()
 			wave_model = new Model("../wave/wave.obj");
 		}
 
-		if (!tail_model) {
-			tail_model = new Model("../tail/tail.obj");
-			tail_texture = new Texture2D("../tail/tiles.jpg");
+		if (!tile_model) {
+			tile_model = new Model("../tile/tile.obj");
+			tile_texture = new Texture2D("../tile/tiles.jpg");
 		}
 
 		if (!this->device) {
@@ -686,19 +686,19 @@ void TrainView::draw()
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); 
 
-	tail->Use();
-	glUniformMatrix4fv(glGetUniformLocation(tail->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(tail->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniformMatrix4fv(glGetUniformLocation(tail->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
-	glUniform1i(glGetUniformLocation(tail->Program, "texture_d"), 11);
+	tile->Use();
+	glUniformMatrix4fv(glGetUniformLocation(tile->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(tile->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(tile->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	glUniform1i(glGetUniformLocation(tile->Program, "texture_d"), 11);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
 
-	tail_texture->bind(11);
-	tail_model->Draw(*tail);
-	tail_texture->unbind(11);
+	tile_texture->bind(11);
+	tile_model->Draw(*tile);
+	tile_texture->unbind(11);
 	glDisable(GL_CULL_FACE);
 
 	// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
