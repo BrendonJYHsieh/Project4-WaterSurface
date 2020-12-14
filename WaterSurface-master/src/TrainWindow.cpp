@@ -140,6 +140,17 @@ TrainWindow(const int x, const int y)
 		Fl_Button* rzp = new Fl_Button(700,pty,30,20,"R-Z");
 		rzp->callback((Fl_Callback*)rmzCB,this);
 
+		pty += 35;
+		// browser to select spline types
+		// TODO: make sure these choices are the same as what the code supports
+		waveBrowser = new Fl_Browser(605, pty, 120, 75, "Wave Type");
+		waveBrowser->type(2);		// select
+		waveBrowser->callback((Fl_Callback*)damageCB, this);
+		waveBrowser->add("Sin Wave");
+		waveBrowser->add("HeightMap Wave");
+		waveBrowser->add("Interactive Wave");
+		waveBrowser->select(1);
+
 		pty+=100;
 
 		WaveScale = new Fl_Value_Slider(675, pty, 120, 20, "Freqency");
@@ -167,15 +178,6 @@ TrainWindow(const int x, const int y)
 
 		Fl_Button* BSpot = new Fl_Button(735, pty, 45, 20, "Other");
 		BSpot->callback((Fl_Callback*)Spot_enable, this);
-
-		pty += 30;
-
-		HeightMap = new Fl_Button(605, pty, 70, 20, "HeightMap");
-		HeightMap->callback((Fl_Callback*)HeightMap_enable, this);
-		HeightMap = new Fl_Button(675, pty, 70, 20, "Interactive");
-		HeightMap->callback((Fl_Callback*)Interactive_enable, this);
-
-
 
 		pty += 30;
 

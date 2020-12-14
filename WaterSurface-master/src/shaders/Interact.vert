@@ -27,12 +27,11 @@ void main()
    // float k = 2 * 3.1415926535 * frequency;
    // float w =  k * (position.x)+t;
 
-   vec3 p = position;
-   float dist = distance(texture_coordinate, uv_center)*frequency*100;
-   float t_c = (t-uv_t)*(2*3.1415926)*5.0;
-   p.y += amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
-   // vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
-   // v_out.normal =  mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
+    vec3 p = position;
+    float dist = distance(texture_coordinate, uv_center)*frequency*100;
+    float t_c = (t-uv_t)*(2*3.1415926)*5.0;
+    p.y += amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
+
     v_out.normal = mat3(transpose(inverse(model_matrix)))*normal;
     gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
     v_out.position = vec3(model_matrix * vec4(p, 1.0));

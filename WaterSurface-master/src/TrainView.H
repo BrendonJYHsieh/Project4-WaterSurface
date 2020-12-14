@@ -112,19 +112,22 @@ class TrainView : public Fl_Gl_Window
 		ALuint source;
 		ALuint buffer;
 
+
+		//
+		GLfloat View[16];
+		GLfloat Projection[16];
+
 		Model* wave_model = nullptr;
 		Texture2D* height = nullptr;
 		int height_index = 0;
 		bool first = true;
 		bool skybox_load = true;
 		std::vector<int> height_id;
-		std::vector<Texture2D> Height_id;
-		Shader* sin = nullptr;
-		Shader* height_map = nullptr;
+		Shader* wave_shader = nullptr;
+
 		Shader* skybox = nullptr;
 		Shader* screenShader = nullptr;
 		Shader* interactive_frame = nullptr;
-		Shader* interactive = nullptr;
 
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;

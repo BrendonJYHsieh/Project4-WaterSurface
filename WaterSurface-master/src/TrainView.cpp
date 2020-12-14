@@ -223,25 +223,13 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
-		if (!this->interactive) {
-			this->interactive = new
+		if (!this->wave_shader) {
+			this->wave_shader = new
 				Shader(
-					"../WaterSurface-master/src/shaders/interact.vert",
+					"../WaterSurface-master/src/shaders/wave.vert",
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/wave.frag");
 		}
-		if (!this->height_map)
-			this->height_map = new
-			Shader(
-				"../WaterSurface-master/src/shaders/height_map.vert",
-				nullptr, nullptr, nullptr,
-				"../WaterSurface-master/src/shaders/wave.frag");
-		if (!this->sin)
-			this->sin = new
-			Shader(
-				"../WaterSurface-master/src/shaders/wave.vert",
-				nullptr, nullptr, nullptr,
-				"../WaterSurface-master/src/shaders/wave.frag");
 		if (!this->skybox) {
 			this->skybox = new
 				Shader(
@@ -595,10 +583,7 @@ void TrainView::draw()
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-
-	Shader* wave_shader;
-	if (tw->heightmap) {
-		wave_shader = height_map;
+	if (tw->waveBrowser->value()==2) {
 		if (first) {
 			for (int i = 0; i < 200; i++) {
 				string name = to_string(i);
@@ -616,16 +601,10 @@ void TrainView::draw()
 		wave_model->meshes[0].textures[0].id = height_id[height_index];
 		height_index = ++height_index % 200;
 	}
-	else if (tw->interactive) {
-		wave_shader = interactive;
-	}
-	else {
-		wave_shader = sin;
-	}
-
 	wave_shader->Use();
-	GLfloat View[16];
-	GLfloat Projection[16];
+
+
+	
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, View);
 
@@ -644,15 +623,14 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
-	glUniform1i(glGetUniformLocation(wave_shader->Program, "heightmap_enable"), tw->heightmap);
-	glUniform1i(glGetUniformLocation(wave_shader->Program, "interact_enable"), tw->interactive);
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "wave_mode"), tw->waveBrowser->value());
+
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 
 	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
-
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 10);
 	wave_model->Draw(*wave_shader);
 
@@ -716,7 +694,6 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
 	glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
 	glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "t"), tw->wave_t);
 	glBindVertexArray(quadVAO);
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -892,11 +869,6 @@ doPick()
 
 	interactive_frame->Use();
 
-	GLfloat View[16];
-	GLfloat Projection[16];
-
-	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, View);
 
 	//transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
@@ -906,9 +878,10 @@ doPick()
 	glUniformMatrix4fv(glGetUniformLocation(interactive_frame->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
 	wave_model->Draw(*interactive_frame);
 
+	//pick
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	glm::vec3 uv;
-	glReadPixels(Fl::event_x(),h()- Fl::event_y(), 1, 1, GL_RGB, GL_FLOAT, &uv[0]);
+	glReadPixels(Fl::event_x(),h()- Fl::event_y()-1, 1, 1, GL_RGB, GL_FLOAT, &uv[0]);
 
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);

@@ -53,12 +53,6 @@
     <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\Track.H" />
     <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainView.H" />
     <None Include="C:\Project4-WaterSurface\WaterSurface-master\src\TrainWindow.H" />
-    <None Include="WaterSurface-master\src\shaders\height_map.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="WaterSurface-master\src\shaders\height_map.vert">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="WaterSurface-master\src\shaders\skybox.frag">
       <Filter>shaders</Filter>
     </None>
