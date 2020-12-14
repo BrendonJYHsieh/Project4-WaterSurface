@@ -86,7 +86,10 @@ uniform bool spot_enable;
 uniform samplerCube skybox;
 uniform bool reflect_enable;
 uniform bool refract_enable;
+
 uniform bool heightmap_enable;
+uniform bool interact_enable;
+
 uniform vec3 light_pos ={30.0,70.0,100};
 
 void main()
@@ -95,12 +98,15 @@ void main()
     
     //vec3 R = refract(I, normalize(f_in.normal), ratio);
     // properties
-    vec3 norm=f_in.normal;
+    vec3 norm;
 
    
 
     if(heightmap_enable){
        norm = -normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    }
+    else if(interact_enable){
+       norm=-normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
     }
     else{
         if(viewPos.y>0)

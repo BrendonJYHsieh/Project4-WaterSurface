@@ -77,9 +77,6 @@
     <None Include="WaterSurface-master\src\shaders\screenShader.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="WaterSurface-master\src\shaders\Interact.frag">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="WaterSurface-master\src\shaders\Interact.vert">
       <Filter>shaders</Filter>
     </None>

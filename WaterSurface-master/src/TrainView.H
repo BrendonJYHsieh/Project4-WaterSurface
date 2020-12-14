@@ -90,7 +90,6 @@ class TrainView : public Fl_Gl_Window
 		//set ubo
 		void setUBO();
 
-		void addDrop(glm::vec2 , int);
 
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
@@ -138,5 +137,7 @@ class TrainView : public Fl_Gl_Window
 		unsigned int textureColorbuffer1;
 		unsigned int quadVAO1, quadVBO1;
 
+		glm::vec2 uv_center;
+		int uv_t = 0;
 		
 };		

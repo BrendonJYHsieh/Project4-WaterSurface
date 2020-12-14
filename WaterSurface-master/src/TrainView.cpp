@@ -228,7 +228,7 @@ void TrainView::draw()
 				Shader(
 					"../WaterSurface-master/src/shaders/interact.vert",
 					nullptr, nullptr, nullptr,
-					"../WaterSurface-master/src/shaders/interact.frag");
+					"../WaterSurface-master/src/shaders/wave.frag");
 		}
 		if (!this->height_map)
 			this->height_map = new
@@ -645,9 +645,13 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
 	glUniform1i(glGetUniformLocation(wave_shader->Program, "heightmap_enable"), tw->heightmap);
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "interact_enable"), tw->interactive);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+
+	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
 
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 10);
 	wave_model->Draw(*wave_shader);
@@ -910,7 +914,9 @@ doPick()
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 	if (uv.b != 1.0) {
-		this->addDrop(glm::vec2(uv), tw->wave_t);
+		uv_center.x = uv.x;
+		uv_center.y = uv.y;
+		uv_t = tw->wave_t;
 	}
 }
 void TrainView::setUBO()
@@ -931,7 +937,4 @@ void TrainView::setUBO()
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &projection_matrix[0][0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &view_matrix[0][0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-void TrainView::addDrop(glm::vec2,int) {
-	
 }
