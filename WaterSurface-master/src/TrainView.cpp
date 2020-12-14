@@ -574,15 +574,6 @@ void TrainView::draw()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	////Frame buffer1
-	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer1);
-	//glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
-
-	//// make sure we clear the framebuffer's content
-	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 	if (tw->waveBrowser->value()==2) {
 		if (first) {
 			for (int i = 0; i < 200; i++) {

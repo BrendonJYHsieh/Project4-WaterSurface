@@ -39,7 +39,12 @@ void main()
     }
     else if(wave_mode == 2){
         vec3 height_map = position;
+        float dist = distance(texture_coordinate, uv_center)*frequency*100;
+        float t_c = (t-uv_t)*(2*3.1415926)*5.0;
+
         height_map.y = height_map.y + (texture(texture_d,texture_coordinate).r) * amplitude;
+        height_map.y+= amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
+
         gl_Position = proj_matrix * view_matrix * model_matrix * vec4(height_map, 1.0f);
         v_out.position = (model_matrix*vec4(height_map, 1.0f)).xyz;
         v_out.normal = mat3(transpose(inverse(model_matrix)))*normal;
