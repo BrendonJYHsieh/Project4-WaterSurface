@@ -89,6 +89,9 @@ class TrainView : public Fl_Gl_Window
 
 		//set ubo
 		void setUBO();
+
+		void addDrop(glm::vec2 , int);
+
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
@@ -121,7 +124,9 @@ class TrainView : public Fl_Gl_Window
 		Shader* height_map = nullptr;
 		Shader* skybox = nullptr;
 		Shader* screenShader = nullptr;
+		Shader* interactive_frame = nullptr;
 		Shader* interactive = nullptr;
+
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
 		//frame buffer
@@ -132,4 +137,6 @@ class TrainView : public Fl_Gl_Window
 		unsigned int framebuffer1;
 		unsigned int textureColorbuffer1;
 		unsigned int quadVAO1, quadVBO1;
+
+		
 };		

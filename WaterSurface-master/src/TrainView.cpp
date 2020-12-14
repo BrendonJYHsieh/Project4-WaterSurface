@@ -223,6 +223,13 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
+		if (!this->interactive) {
+			this->interactive = new
+				Shader(
+					"../WaterSurface-master/src/shaders/interact.vert",
+					nullptr, nullptr, nullptr,
+					"../WaterSurface-master/src/shaders/interact.frag");
+		}
 		if (!this->height_map)
 			this->height_map = new
 			Shader(
@@ -353,12 +360,12 @@ void TrainView::draw()
 				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-		if (!this->interactive) {
-			this->interactive = new
+		if (!this->interactive_frame) {
+			this->interactive_frame = new
 				Shader(
-					"../WaterSurface-master/src/shaders/interact.vert",
+					"../WaterSurface-master/src/shaders/interact_frame.vert",
 					nullptr, nullptr, nullptr,
-					"../WaterSurface-master/src/shaders/interact.frag");
+					"../WaterSurface-master/src/shaders/interact_frame.frag");
 
 			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 			  // positions   // texCoords
@@ -609,6 +616,9 @@ void TrainView::draw()
 		wave_model->meshes[0].textures[0].id = height_id[height_index];
 		height_index = ++height_index % 200;
 	}
+	else if (tw->interactive) {
+		wave_shader = interactive;
+	}
 	else {
 		wave_shader = sin;
 	}
@@ -638,6 +648,7 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "skybox"), 10);
 	wave_model->Draw(*wave_shader);
 
@@ -875,7 +886,7 @@ doPick()
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	interactive->Use();
+	interactive_frame->Use();
 
 	GLfloat View[16];
 	GLfloat Projection[16];
@@ -886,10 +897,10 @@ doPick()
 	//transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::scale(glm::translate(model, glm::vec3(0, 10, 0)), glm::vec3(20, 20, 20));
-	glUniformMatrix4fv(glGetUniformLocation(interactive->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(interactive->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniformMatrix4fv(glGetUniformLocation(interactive->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
-	wave_model->Draw(*interactive);
+	glUniformMatrix4fv(glGetUniformLocation(interactive_frame->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(interactive_frame->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(interactive_frame->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	wave_model->Draw(*interactive_frame);
 
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	glm::vec3 uv;
@@ -898,8 +909,8 @@ doPick()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-	if (uv.b != 0.0) {
-
+	if (uv.b != 1.0) {
+		this->addDrop(glm::vec2(uv), tw->wave_t);
 	}
 }
 void TrainView::setUBO()
@@ -920,4 +931,7 @@ void TrainView::setUBO()
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &projection_matrix[0][0]);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &view_matrix[0][0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+void TrainView::addDrop(glm::vec2,int) {
+	
 }
