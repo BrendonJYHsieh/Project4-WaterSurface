@@ -121,10 +121,15 @@ class TrainView : public Fl_Gl_Window
 		Shader* height_map = nullptr;
 		Shader* skybox = nullptr;
 		Shader* screenShader = nullptr;
+		Shader* interactive = nullptr;
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
 		//frame buffer
 		unsigned int framebuffer;
 		unsigned int textureColorbuffer;
 		unsigned int quadVAO, quadVBO;
-};
+
+		unsigned int framebuffer1;
+		unsigned int textureColorbuffer1;
+		unsigned int quadVAO1, quadVBO1;
+};		

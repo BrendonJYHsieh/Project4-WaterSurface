@@ -168,6 +168,10 @@ void HeightMap_enable(Fl_Widget*, TrainWindow* tw) {
 	tw->heightmap = !tw->heightmap;
 	tw->damageMe();
 }
+void Interactive_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->interactive = !tw->interactive;
+	tw->damageMe();
+}
 void Reflect_enable(Fl_Widget*, TrainWindow* tw) {
 	tw->reflect = !tw->reflect;
 	tw->damageMe();

@@ -48,6 +48,8 @@ void Diret_enable(Fl_Widget*, TrainWindow* tw);
 void Spot_enable(Fl_Widget*, TrainWindow* tw);
 void Point_enable(Fl_Widget*, TrainWindow* tw);
 void HeightMap_enable(Fl_Widget*, TrainWindow* tw);
+void Interactive_enable(Fl_Widget*, TrainWindow* tw);
+
 void Reflect_enable(Fl_Widget*, TrainWindow* tw);
 void Refract_enable(Fl_Widget*, TrainWindow* tw);
 // For load and save buttons

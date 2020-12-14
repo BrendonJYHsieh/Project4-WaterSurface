@@ -88,6 +88,8 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Button*			runButton;
 
 		Fl_Button* HeightMap;
+		Fl_Button* Interactive;
+
 		Fl_Button* ReflectBtn;
 		Fl_Button* RefractBtn;
 
@@ -103,6 +105,7 @@ class TrainWindow : public Fl_Double_Window {
 		bool point = false;
 		bool spot = false;
 		bool heightmap = false;
+		bool interactive = false;
 
 		bool reflect = true;
 		bool refract = false;

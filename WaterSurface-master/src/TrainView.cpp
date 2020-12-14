@@ -338,7 +338,7 @@ void TrainView::draw()
 			// create a color attachment texture
 			glGenTextures(1, &textureColorbuffer);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 400, 500, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
@@ -346,8 +346,51 @@ void TrainView::draw()
 			unsigned int rbo;
 			glGenRenderbuffers(1, &rbo);
 			glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 400, 600); // use a single renderbuffer object for both a depth AND stencil buffer.
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+		if (!this->interactive) {
+			this->interactive = new
+				Shader(
+					"../WaterSurface-master/src/shaders/interact.vert",
+					nullptr, nullptr, nullptr,
+					"../WaterSurface-master/src/shaders/interact.frag");
+
+			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+			  // positions   // texCoords
+			  -1.0f,  1.0f,  0.0f, 1.0f,
+			  -1.0f, -1.0f,  0.0f, 0.0f,
+			   1.0f, -1.0f,  1.0f, 0.0f,
+
+			  -1.0f,  1.0f,  0.0f, 1.0f,
+			   1.0f, -1.0f,  1.0f, 0.0f,
+			   1.0f,  1.0f,  1.0f, 1.0f
+			};
+			// screen quad VAO
+			glGenVertexArrays(1, &quadVAO1);
+			glGenBuffers(1, &quadVBO1);
+			glBindVertexArray(quadVAO1);
+			glBindBuffer(GL_ARRAY_BUFFER, quadVBO1);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+			// framebuffer configuration
+			// -------------------------
+			glGenFramebuffers(1, &framebuffer1);
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer1);
+			// create a color attachment texture
+			glGenTextures(1, &textureColorbuffer1);
+			glBindTexture(GL_TEXTURE_2D, textureColorbuffer1);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer1, 0);
 			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
@@ -532,11 +575,17 @@ void TrainView::draw()
 	//Frame buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
-
 	// make sure we clear the framebuffer's content
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	////Frame buffer1
+	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer1);
+	//glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+
+	//// make sure we clear the framebuffer's content
+	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 
@@ -775,51 +824,73 @@ doPick()
 {
 	// since we'll need to do some GL stuff so we make this window as 
 	// active window
-	make_current();		
+	//make_current();		
 
-	// where is the mouse?
-	int mx = Fl::event_x(); 
-	int my = Fl::event_y();
+	//// where is the mouse?
+	//int mx = Fl::event_x(); 
+	//int my = Fl::event_y();
 
-	// get the viewport - most reliable way to turn mouse coords into GL coords
-	int viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
+	//// get the viewport - most reliable way to turn mouse coords into GL coords
+	//int viewport[4];
+	//glGetIntegerv(GL_VIEWPORT, viewport);
 
-	// Set up the pick matrix on the stack - remember, FlTk is
-	// upside down!
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity ();
-	gluPickMatrix((double)mx, (double)(viewport[3]-my), 
-						5, 5, viewport);
+	//// Set up the pick matrix on the stack - remember, FlTk is
+	//// upside down!
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity ();
+	//gluPickMatrix((double)mx, (double)(viewport[3]-my), 
+	//					5, 5, viewport);
 
-	// now set up the projection
-	setProjection();
+	//// now set up the projection
+	//setProjection();
 
-	// now draw the objects - but really only see what we hit
-	GLuint buf[100];
-	glSelectBuffer(100,buf);
-	glRenderMode(GL_SELECT);
-	glInitNames();
-	glPushName(0);
+	//// now draw the objects - but really only see what we hit
+	//GLuint buf[100];
+	//glSelectBuffer(100,buf);
+	//glRenderMode(GL_SELECT);
+	//glInitNames();
+	//glPushName(0);
 
-	// draw the cubes, loading the names as we go
-	for(size_t i=0; i<m_pTrack->points.size(); ++i) {
-		glLoadName((GLuint) (i+1));
-		m_pTrack->points[i].draw();
-	}
+	//// draw the cubes, loading the names as we go
+	//for(size_t i=0; i<m_pTrack->points.size(); ++i) {
+	//	glLoadName((GLuint) (i+1));
+	//	m_pTrack->points[i].draw();
+	//}
 
-	// go back to drawing mode, and see how picking did
-	int hits = glRenderMode(GL_RENDER);
-	if (hits) {
-		// warning; this just grabs the first object hit - if there
-		// are multiple objects, you really want to pick the closest
-		// one - see the OpenGL manual 
-		// remember: we load names that are one more than the index
-		selectedCube = buf[3]-1;
-	} else // nothing hit, nothing selected
-		selectedCube = -1;
+	//// go back to drawing mode, and see how picking did
+	//int hits = glRenderMode(GL_RENDER);
+	//if (hits) {
+	//	// warning; this just grabs the first object hit - if there
+	//	// are multiple objects, you really want to pick the closest
+	//	// one - see the OpenGL manual 
+	//	// remember: we load names that are one more than the index
+	//	selectedCube = buf[3]-1;
+	//} else // nothing hit, nothing selected
+	//	selectedCube = -1;
 
-	printf("Selected Cube %d\n",selectedCube);
+	//printf("Selected Cube %d\n",selectedCube);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer1);
+	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+	// make sure we clear the framebuffer's content
+	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	interactive->Use();
+
+	GLfloat View[16];
+	GLfloat Projection[16];
+
+	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, View);
+
+	//transformation matrix
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::scale(glm::translate(model, glm::vec3(0, 10, 0)), glm::vec3(20, 20, 20));
+	glUniformMatrix4fv(glGetUniformLocation(interactive->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(interactive->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(interactive->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	wave_model->Draw(*interactive);
+
 }
 
 void TrainView::setUBO()

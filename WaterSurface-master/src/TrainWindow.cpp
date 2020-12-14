@@ -172,6 +172,10 @@ TrainWindow(const int x, const int y)
 
 		HeightMap = new Fl_Button(605, pty, 70, 20, "HeightMap");
 		HeightMap->callback((Fl_Callback*)HeightMap_enable, this);
+		HeightMap = new Fl_Button(675, pty, 70, 20, "Interactive");
+		HeightMap->callback((Fl_Callback*)Interactive_enable, this);
+
+
 
 		pty += 30;
 
