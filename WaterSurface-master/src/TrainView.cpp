@@ -244,7 +244,7 @@ void TrainView::draw()
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/skybox.frag");
 
-			float skyboxVertices[] = {       
+			float skyboxVertices[] = {
 				-1.0f,  1.0f, -1.0f,
 				-1.0f, -1.0f, -1.0f,
 				 1.0f, -1.0f, -1.0f,
@@ -322,7 +322,7 @@ void TrainView::draw()
 			  -1.0f,  1.0f,  0.0f, 1.0f,
 			   1.0f, -1.0f,  1.0f, 0.0f,
 			   1.0f,  1.0f,  1.0f, 1.0f
-					};
+			};
 			// screen quad VAO
 			glGenVertexArrays(1, &quadVAO);
 			glGenBuffers(1, &quadVBO);
@@ -407,7 +407,7 @@ void TrainView::draw()
 			glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
-			
+
 
 		if (!wave_model) {
 			wave_model = new Model("../wave/wave.obj");
@@ -556,23 +556,23 @@ void TrainView::draw()
 			this->source_pos.z);*/
 
 
-	//*********************************************************************
-	// now draw the ground plane
-	//*********************************************************************
-	// set to opengl fixed pipeline(use opengl 1.x draw function)
-	//glUseProgram(0);
+			//*********************************************************************
+			// now draw the ground plane
+			//*********************************************************************
+			// set to opengl fixed pipeline(use opengl 1.x draw function)
+			//glUseProgram(0);
 
-	/*setupFloor();
-	glDisable(GL_LIGHTING);
-	drawFloor(200, 10);*/
+			/*setupFloor();
+			glDisable(GL_LIGHTING);
+			drawFloor(200, 10);*/
 
 
-	//*********************************************************************
-	// now draw the object and we need to do it twice
-	// once for real, and then once for shadows
-	//*********************************************************************
-	/*glEnable(GL_LIGHTING);
-	setupObjects();*/
+			//*********************************************************************
+			// now draw the object and we need to do it twice
+			// once for real, and then once for shadows
+			//*********************************************************************
+			/*glEnable(GL_LIGHTING);
+			setupObjects();*/
 
 	drawStuff();
 
@@ -589,7 +589,7 @@ void TrainView::draw()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (tw->waveBrowser->value()==2) {
+	if (tw->waveBrowser->value() == 2) {
 		if (first) {
 			for (int i = 0; i < 200; i++) {
 				string name = to_string(i);
@@ -610,7 +610,7 @@ void TrainView::draw()
 	wave_shader->Use();
 
 
-	
+
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, View);
 
@@ -624,7 +624,7 @@ void TrainView::draw()
 	model = glm::scale(model, glm::vec3(scale, scale, scale));
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"),tw->WaveAmplitude->value());
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"), tw->WaveAmplitude->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveScale->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
@@ -639,7 +639,7 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
 	wave_model->Draw(*wave_shader);
 
-	
+
 	/*Lighting*/
 	//¶}Ãö
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "direct_enable"), tw->direct);
@@ -686,7 +686,7 @@ void TrainView::draw()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
-	glDepthFunc(GL_LESS); 
+	glDepthFunc(GL_LESS);
 
 	tile->Use();
 	glUniformMatrix4fv(glGetUniformLocation(tile->Program, "proj_matrix"), 1, GL_FALSE, Projection);
