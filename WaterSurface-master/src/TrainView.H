@@ -51,6 +51,7 @@ class Model;
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
 #include <Fl/Fl_Gl_Window.h>
+#include"TrainWindow.H"
 #pragma warning(pop)
 #include<string>
 #include<iostream>
@@ -89,19 +90,45 @@ class TrainView : public Fl_Gl_Window
 
 		//set ubo
 		void setUBO();
-
-
+		//train
+		Pnt3f GMT(Pnt3f p1, Pnt3f p2, Pnt3f p3, Pnt3f p4, float mode, float t);
+		void drawTrack(TrainView*, bool);
+		void drawTrain(TrainView*, bool);
+		void trainCamView(TrainView*, float);
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
 
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
+		//Train
+		float physical = 0.0f;
+		float DIVIDE_LINE = 1000.0f;
+		float t_time = 0.0f;
 
+		float t_i = 0.0f;
+		float t_t = 0.0f;
+		float Path_Total = 0.0f;
+
+		float Sleeper_Length = 3.0f;
+		float Sleeper_Interval = 6.0f;
+		float Sleeper_Width = 3.0f;
+
+		float Train_Forward = 10.0f;
+		float Train_Height = 5.0f;
+		float Train_Width = 2.0f;
+		float tense = 0.5f;
+		int car_quantity = 2;
+		bool s = false;
 		
 
 
 
+
+
+
+
+		//Wave
 		UBO* commom_matrices= nullptr;
 		
 		//OpenAL

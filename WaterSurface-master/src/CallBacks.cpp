@@ -137,21 +137,27 @@ void runButtonCB(TrainWindow* tw)
 	if (tw->runButton->value()) {	// only advance time if appropriate
 		if (clock() - lastRedraw > CLOCKS_PER_SEC/30) {
 			lastRedraw = clock();
+			tw->wave_t += 0.1;
 			tw->advanceTrain();
 			tw->damageMe();
 		}
 	}
-}
-
-void SettingRefresh(TrainWindow* tw)
-//===========================================================================
-{
 	if (clock() - lastRedraw > CLOCKS_PER_SEC / 30) {
 		tw->wave_t += 0.1;
 		lastRedraw = clock();
 		tw->damageMe();
 	}
 }
+
+//void SettingRefresh(TrainWindow* tw)
+////===========================================================================
+//{
+//	if (clock() - lastRedraw > CLOCKS_PER_SEC / 30) {
+//		tw->wave_t += 0.1;
+//		lastRedraw = clock();
+//		tw->damageMe();
+//	}
+//}
 void Diret_enable(Fl_Widget*, TrainWindow* tw) {
 	tw->direct = !tw->direct;
 	tw->damageMe();

@@ -196,7 +196,7 @@ TrainWindow(const int x, const int y)
 
 	// set up callback on idle
 	Fl::add_idle((void (*)(void*))runButtonCB,this);
-	Fl::add_idle((void (*)(void*))SettingRefresh, this);
+	//Fl::add_idle((void (*)(void*))SettingRefresh, this);
 	
 }
 
@@ -239,19 +239,21 @@ advanceTrain(float dir)
 	//#####################################################################
 	// TODO: make this work for your train
 	//#####################################################################
-#ifdef EXAMPLE_SOLUTION
-	// note - we give a little bit more example code here than normal,
-	// so you can see how this works
-
-	if (arcLength->value()) {
-		float vel = ew.physics->value() ? physicsSpeed(this) : dir * (float)speed->value();
-		world.trainU += arclenVtoV(world.trainU, vel, this);
-	} else {
-		world.trainU +=  dir * ((float)speed->value() * .1f);
+	if (trainView->tw->arcLength->value()) {
+		m_Track.trainU += (1.0f * speed->value() + trainView->physical * 10) * dir;
+		if (m_Track.trainU > trainView->Path_Total) {
+			m_Track.trainU -= trainView->Path_Total;
+		}
 	}
-
-	float nct = static_cast<float>(world.points.size());
-	if (world.trainU > nct) world.trainU -= nct;
-	if (world.trainU < 0) world.trainU += nct;
-#endif
+	else {
+		if (trainView->tw->arcLength->value() != trainView->s) {
+			trainView->t_time = trainView->t_t + trainView->t_i;
+		}
+		trainView->t_time += (dir * speed->value() / 100);
+		m_Track.trainU += 1.0f * speed->value();
+	}
+	if (trainView->t_time >= trainView->m_pTrack->points.size()) {
+		trainView->t_time -= trainView->m_pTrack->points.size();
+	}
+	trainView->s = trainView->tw->arcLength->value();
 }

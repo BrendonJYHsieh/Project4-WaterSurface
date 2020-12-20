@@ -1,32 +1,32 @@
 /************************************************************************
-     File:        Pnt3f.cpp
+	 File:        Pnt3f.cpp
 
-     Author:     
-                  Michael Gleicher, gleicher@cs.wisc.edu
+	 Author:
+				  Michael Gleicher, gleicher@cs.wisc.edu
 
-     Modifier
-                  Yu-Chi Lai, yu-chi@cs.wisc.edu
-     
-     Comment:     
+	 Modifier
+				  Yu-Chi Lai, yu-chi@cs.wisc.edu
+
+	 Comment:
 						simple 3D point class
 
-						Note: for the longest time, we avoided giving out 
+						Note: for the longest time, we avoided giving out
 						basic data
-						structure classes. Everyone likes to make their 
+						structure classes. Everyone likes to make their
 						own, and everyone
 						makes different choices in how to use them.
 
-						This one is really basic. It is evolved from the 
+						This one is really basic. It is evolved from the
 						old "Pnt3"
-						class that Mike wrote in grad school (circa 1993). 
-						It is hard coded for floats (since we didn't want 
+						class that Mike wrote in grad school (circa 1993).
+						It is hard coded for floats (since we didn't want
 						to get started
-						with templates). 
+						with templates).
 
-						We've only put in a few functions. You can add more 
+						We've only put in a few functions. You can add more
 						if you want.
 
-     Platform:    Visio Studio.Net 2003/2005
+	 Platform:    Visio Studio.Net 2003/2005
 
 *************************************************************************/
 
@@ -68,8 +68,8 @@ void Pnt3f::
 normalize()
 //=============================================================================
 {
-	float l = x*x + y*y + z*z;
-	if (l<.000001) {
+	float l = x * x + y * y + z * z;
+	if (l < .000001) {
 		x = 0;
 		y = 1;
 		z = 0;
