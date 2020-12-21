@@ -1307,10 +1307,10 @@ void TrainView::drawTrack(TrainView* TrainV, bool doingShadows) {
 				count++;
 				forward.normalize();
 				DrawSleeper(qt0, qt0 - forward * Sleeper_Length, cross_t, orient_t, doingShadows);
-				if (count % 3 == 0) {
+				/*if (count % 3 == 0) {
 					DrawPillar(qt0, qt0 - forward * Sleeper_Length, cross_t, orient_t, doingShadows);
 					count = 0;
-				}
+				}*/
 				Sleep_Total -= Sleeper_Length;
 				Draw_Sleeper = !Draw_Sleeper;
 			}

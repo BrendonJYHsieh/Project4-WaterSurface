@@ -139,7 +139,20 @@ TrainWindow(const int x, const int y)
 		rz->callback((Fl_Callback*)rpzCB,this);
 		Fl_Button* rzp = new Fl_Button(700,pty,30,20,"R-Z");
 		rzp->callback((Fl_Callback*)rmzCB,this);
+		pty += 30;
 
+		Fl_Button* add_car = new Fl_Button(605, pty, 60, 20, "Add Car");
+		add_car->callback((Fl_Callback*)AddCar, this);
+		Fl_Button* delete_car = new Fl_Button(675, pty, 75, 20, "Delete Car");
+		delete_car->callback((Fl_Callback*)DeleteCar, this);
+
+
+		pty += 30;
+		Fl_Button* tension_increase = new Fl_Button(605, pty, 130, 20, "Tension_Increase");
+		tension_increase->callback((Fl_Callback*)Tension_Increase, this);
+		pty += 30;
+		Fl_Button* tension_decrease = new Fl_Button(605, pty, 130, 20, "Tension_Decrease");
+		tension_decrease->callback((Fl_Callback*)Tension_Decrease, this);
 		pty += 35;
 		// browser to select spline types
 		// TODO: make sure these choices are the same as what the code supports

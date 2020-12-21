@@ -122,12 +122,6 @@ class TrainView : public Fl_Gl_Window
 		bool s = false;
 		
 
-
-
-
-
-
-
 		//Wave
 		UBO* commom_matrices= nullptr;
 		
@@ -175,6 +169,6 @@ class TrainView : public Fl_Gl_Window
 		glm::vec2 uv_center;
 		int uv_t = 0;
 
-		float scale = 20;
+		float scale = 200;
 
 };		
