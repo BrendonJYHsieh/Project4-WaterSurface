@@ -146,7 +146,7 @@ class TrainView : public Fl_Gl_Window
 		int height_index = 0;
 		bool first = true;
 		bool skybox_load = true;
-		std::vector<int> height_id;
+		std::vector<Texture2D> height_id;
 		Shader* wave_shader = nullptr;
 		Shader* tile = nullptr;
 

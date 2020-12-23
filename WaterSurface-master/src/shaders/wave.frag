@@ -88,14 +88,15 @@ uniform bool reflect_enable;
 uniform bool refract_enable;
 
 
-
+uniform sampler2D height_map_texture;
 uniform vec3 light_pos ={30.0,70.0,100};
 
 void main()
 {   
 
 
-    vec3 norm=-normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    //vec3 norm=-normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    vec3 norm = f_in.normal;
 
     vec3 result={0.0,0.0,0.0};
     vec3 viewDir = normalize(viewPos - f_in.position);

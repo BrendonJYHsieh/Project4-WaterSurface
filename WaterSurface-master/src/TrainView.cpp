@@ -648,6 +648,17 @@ void TrainView::draw()
 					"../WaterSurface-master/src/shaders/wave.vert",
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/wave.frag");
+			for (int i = 0; i < 200; i++) {
+				string name = to_string(i);
+				if (name.size() == 1) {
+					name = "00" + name;
+				}
+				else if (name.size() == 2) {
+					name = "0" + name;
+				}
+				name = "../height_map/" + name + ".png";
+				height_id.push_back(Texture2D(name.c_str()));
+			}
 		}
 		if (!this->skybox) {
 			this->skybox = new
@@ -991,26 +1002,11 @@ void TrainView::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (tw->waveBrowser->value() == 2) {
-		if (first) {
-			for (int i = 0; i < 200; i++) {
-				string name = to_string(i);
-				if (name.size() == 1) {
-					name = "00" + name;
-				}
-				else if (name.size() == 2) {
-					name = "0" + name;
-				}
-				name = name + ".png";
-				height_id.push_back(TextureFromFile(name.c_str(), "../height_map"));
-			}
-			first = false;
-		}
-		wave_model->meshes[0].textures[0].id = height_id[height_index];
 		height_index = ++height_index % 200;
 	}
 	wave_shader->Use();
 
-
+	height_id[height_index].bind(5);
 
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, View);
@@ -1031,6 +1027,8 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
 	glUniform1i(glGetUniformLocation(wave_shader->Program, "wave_mode"), tw->waveBrowser->value());
+	
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "height_map_texture"), 5);
 
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
@@ -1039,7 +1037,7 @@ void TrainView::draw()
 	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
 	wave_model->Draw(*wave_shader);
-
+	height_id[height_index].unbind(5);
 
 	/*Lighting*/
 	//¶}Ãö
