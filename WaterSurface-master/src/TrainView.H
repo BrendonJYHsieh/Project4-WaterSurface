@@ -134,7 +134,6 @@ class TrainView : public Fl_Gl_Window
 		ALuint buffer;
 
 
-		//
 		GLfloat View[16];
 		GLfloat Projection[16];
 
@@ -157,6 +156,7 @@ class TrainView : public Fl_Gl_Window
 		Shader* screenShader = nullptr;
 		Shader* interactive_frame = nullptr;
 
+		GLuint particleVAO;
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
 		//frame buffer
