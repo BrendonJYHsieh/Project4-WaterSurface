@@ -49,7 +49,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define heightmap
-#define particle
+//#define particle
 #include"RenderUtilities/model.h"
 
 int TrainView::FindUnusedParticle() {
@@ -909,64 +909,6 @@ void TrainView::draw()
 			tile_model = new Model("../tile/tile.obj");
 			tile_texture = new Texture2D("../tile/tiles.jpg");
 		}
-
-		if (!this->device) {
-			//Tutorial: https://ffainelli.github.io/openal-example/
-			this->device = alcOpenDevice(NULL);
-			if (!this->device)
-				puts("ERROR::NO_AUDIO_DEVICE");
-
-			ALboolean enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-			if (enumeration == AL_FALSE)
-				puts("Enumeration not supported");
-			else
-				puts("Enumeration supported");
-
-			this->context = alcCreateContext(this->device, NULL);
-			if (!alcMakeContextCurrent(context))
-				puts("Failed to make context current");
-
-			this->source_pos = glm::vec3(0.0f, 5.0f, 0.0f);
-
-			ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
-			alListener3f(AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
-			alListener3f(AL_VELOCITY, 0, 0, 0);
-			alListenerfv(AL_ORIENTATION, listenerOri);
-
-			alGenSources((ALuint)1, &this->source);
-			alSourcef(this->source, AL_PITCH, 1);
-			alSourcef(this->source, AL_GAIN, 1.0f);
-			alSource3f(this->source, AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
-			alSource3f(this->source, AL_VELOCITY, 0, 0, 0);
-			alSourcei(this->source, AL_LOOPING, AL_TRUE);
-
-			alGenBuffers((ALuint)1, &this->buffer);
-
-			ALsizei size, freq;
-			ALenum format;
-			ALvoid* data;
-			ALboolean loop = AL_TRUE;
-
-
-			alutLoadWAVFile((ALbyte*)"../WaterSurface/Audios/bounce.wav", &format, &data, &size, &freq, &loop);
-			alBufferData(this->buffer, format, data, size, freq);
-			alSourcei(this->source, AL_BUFFER, this->buffer);
-
-			if (format == AL_FORMAT_STEREO16 || format == AL_FORMAT_STEREO8)
-				puts("TYPE::STEREO");
-			else if (format == AL_FORMAT_MONO16 || format == AL_FORMAT_MONO8)
-				puts("TYPE::MONO");
-
-			alSourcePlay(this->source);
-
-
-			alDeleteSources(1, &source);
-			alDeleteBuffers(1, &buffer);
-			device = alcGetContextsDevice(context);
-			alcMakeContextCurrent(NULL);
-			alcDestroyContext(context);
-			alcCloseDevice(device);
-		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -981,7 +923,6 @@ void TrainView::draw()
 	// it for shadows
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_DEPTH);
 
 	// Blayne prefers GL_DIFFUSE
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
