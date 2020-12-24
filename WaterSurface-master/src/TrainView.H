@@ -199,4 +199,5 @@ class TrainView : public Fl_Gl_Window
 		GLuint particles_color_buffer;
 		GLuint billboard_vertex_buffer;
 		double lastTime;
+		double delta;
 };		

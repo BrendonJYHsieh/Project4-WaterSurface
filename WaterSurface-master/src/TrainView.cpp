@@ -701,8 +701,43 @@ void TrainView::draw()
 			glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
 			// Initialize with empty (NULL) buffer : it will be updated later, each frame.
 			glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+			// 1rst attribute buffer : vertices
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
+			glVertexAttribPointer(
+				0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+
+			// 2nd attribute buffer : positions of particles' centers
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
+			glVertexAttribPointer(
+				1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+				4,                                // size : x + y + z + size => 4
+				GL_FLOAT,                         // type
+				GL_FALSE,                         // normalized?
+				0,                                // stride
+				(void*)0                          // array buffer offset
+			);
+
+			// 3rd attribute buffer : particles' colors
+			glEnableVertexAttribArray(2);
+			glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
+			glVertexAttribPointer(
+				2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+				4,                                // size : r + g + b + a => 4
+				GL_UNSIGNED_BYTE,                 // type
+				GL_TRUE,                          // normalized?    *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader ***
+				0,                                // stride
+				(void*)0                          // array buffer offset
+			);
 			glBindVertexArray(0);
-			lastTime = tw->wave_t;
+			lastTime = clock();
 		}
 		if (!this->tile) {
 			this->tile = new
@@ -1016,14 +1051,20 @@ void TrainView::draw()
 
 
 #ifdef particle
-	double currentTime = tw->wave_t;
-	double delta = currentTime - lastTime;
-	lastTime = currentTime;
+	
+
 	//particle
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	double currentTime = clock();
+	delta =delta+ (currentTime - lastTime);
+	lastTime = currentTime;
+
 	int newparticles = (int)(delta * 10000.0);
+
 	if (newparticles > (int)(0.016f * 10000.0))
 	{
+		delta = 0;
 		newparticles = (int)(0.016f * 10000.0);
 	}
 	
@@ -1116,47 +1157,13 @@ void TrainView::draw()
 	glActiveTexture(GL_TEXTURE6);
 	particle_texture->bind(6);
 	// Set our "myTextureSampler" sampler to user Texture Unit 0
-	glUniform1i(glGetUniformLocation(particle_shader->Program, "TextureID"), 6);
+	glUniform1i(glGetUniformLocation(particle_shader->Program, "myTextureSampler"), 6);
 	// Same as the billboards tutorial
-	glUniform3f(glGetUniformLocation(particle_shader->Program, "CameraRight_worldspace_ID"), viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
-	glUniform3f(glGetUniformLocation(particle_shader->Program, "CameraUp_worldspace_ID"), viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
-	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "ViewProjMatrixID"), 1, GL_FALSE, &ViewProjectionMatrix[0][0]);
+	glUniform3f(glGetUniformLocation(particle_shader->Program, "CameraRight_worldspace"), viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
+	glUniform3f(glGetUniformLocation(particle_shader->Program, "CameraUp_worldspace"), viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "VP"), 1, GL_FALSE, &ViewProjectionMatrix[0][0]);
 
-	// 1rst attribute buffer : vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
-	glVertexAttribPointer(
-		0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-
-	// 2nd attribute buffer : positions of particles' centers
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-	glVertexAttribPointer(
-		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-		4,                                // size : x + y + z + size => 4
-		GL_FLOAT,                         // type
-		GL_FALSE,                         // normalized?
-		0,                                // stride
-		(void*)0                          // array buffer offset
-	);
-
-	// 3rd attribute buffer : particles' colors
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
-	glVertexAttribPointer(
-		2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-		4,                                // size : r + g + b + a => 4
-		GL_UNSIGNED_BYTE,                 // type
-		GL_TRUE,                          // normalized?    *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader ***
-		0,                                // stride
-		(void*)0                          // array buffer offset
-	);
+	
 
 	// These functions are specific to glDrawArrays*Instanced*.
 	// The first parameter is the attribute buffer we're talking about.

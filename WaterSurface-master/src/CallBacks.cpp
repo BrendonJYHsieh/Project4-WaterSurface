@@ -134,18 +134,14 @@ static unsigned long lastRedraw = 0;
 void runButtonCB(TrainWindow* tw)
 //===========================================================================
 {
-	if (tw->runButton->value()) {	// only advance time if appropriate
-		if (clock() - lastRedraw > CLOCKS_PER_SEC/30) {
-			lastRedraw = clock();
-			tw->wave_t += 0.1;
-			tw->advanceTrain();
-			tw->damageMe();
-		}
-	}
-	if (clock() - lastRedraw > CLOCKS_PER_SEC / 30) {
+	if (clock() - lastRedraw > CLOCKS_PER_SEC / 100) {
 		tw->wave_t += 0.1;
 		lastRedraw = clock();
 		tw->damageMe();
+	}
+	if (tw->runButton->value()) {	// only advance time if appropriate
+			tw->advanceTrain();
+			tw->damageMe();
 	}
 }
 
