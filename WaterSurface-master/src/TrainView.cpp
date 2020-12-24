@@ -921,7 +921,6 @@ void TrainView::draw()
 
 	// we need to clear out the stencil buffer since we'll use
 	// it for shadows
-	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// Blayne prefers GL_DIFFUSE
@@ -977,33 +976,6 @@ void TrainView::draw()
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
 
 
-
-
-	////*********************************************************************
-	//// now draw the ground plane
-	////*********************************************************************
-	//// set to opengl fixed pipeline(use opengl 1.x draw function)
-	//glUseProgram(0);
-	//setupFloor();
-	//glDisable(GL_LIGHTING);
-	//drawFloor(200, 10);
-
-
-	////*********************************************************************
-	//// now draw the object and we need to do it twice
-	//// once for real, and then once for shadows
-	////*********************************************************************
-	//glEnable(GL_LIGHTING);
-	//setupObjects();
-
-	//drawStuff();
-
-	//// this time drawing is for shadows (except for top view)
-	//if (!tw->topCam->value()) {
-	//	setupShadows();
-	//	drawStuff(true);
-	//	unsetupShadows();
-	//}
 	//Frame buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
