@@ -49,7 +49,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define heightmap
-//#define particle
+#define particle
 #include"RenderUtilities/model.h"
 
 int TrainView::FindUnusedParticle() {
@@ -701,7 +701,7 @@ void TrainView::draw()
 			glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
 			// Initialize with empty (NULL) buffer : it will be updated later, each frame.
 			glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
-
+			glBindVertexArray(0);
 			lastTime = tw->wave_t;
 		}
 		if (!this->tile) {
@@ -788,6 +788,7 @@ void TrainView::draw()
 			glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			glBindVertexArray(0);
 			vector<std::string> faces
 			{
 				"../skybox/right.jpg",
@@ -877,6 +878,7 @@ void TrainView::draw()
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+			glBindVertexArray(0);
 			// framebuffer configuration
 			// -------------------------
 			glGenFramebuffers(1, &framebuffer1);
@@ -1094,6 +1096,7 @@ void TrainView::draw()
 		}
 	}
 	SortParticles();
+	glBindVertexArray(particleVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
 	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
 	glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLfloat) * 4, g_particule_position_size_data);
@@ -1173,6 +1176,7 @@ void TrainView::draw()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glBindVertexArray(0);
 #endif // particle
 
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
