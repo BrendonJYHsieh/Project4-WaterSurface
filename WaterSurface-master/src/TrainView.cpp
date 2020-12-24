@@ -1002,11 +1002,14 @@ void TrainView::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (tw->waveBrowser->value() == 2) {
-		height_index = ++height_index % 200;
+		height_index = height_index+tw->WaveFrequency->value();
+		if (height_index > 200) {
+			height_index = 0;
+		}
 	}
 	wave_shader->Use();
 
-	height_id[height_index].bind(5);
+	height_id[(int)(height_index + tw->WaveFrequency->value()) % 200].bind(5);
 
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, View);
@@ -1022,7 +1025,7 @@ void TrainView::draw()
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"), tw->WaveAmplitude->value());
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveScale->value());
+	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveFrequency->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);

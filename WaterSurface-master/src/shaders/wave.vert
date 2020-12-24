@@ -37,7 +37,10 @@ void main()
         float w =  k * (position.x)+t;
         vec3 p = position;
         p.y = amplitude * sin(w);
-        v_out.normal = mat3(transpose(inverse(model_matrix)))*normal;
+
+        vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
+
+        v_out.normal = mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
         gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
         v_out.position = vec3(model_matrix * vec4(p, 1.0));
         v_out.texture_coordinate = texture_coordinate;

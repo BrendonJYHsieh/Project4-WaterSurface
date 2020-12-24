@@ -143,7 +143,7 @@ class TrainView : public Fl_Gl_Window
 
 		Texture2D* tile_texture = nullptr;
 
-		int height_index = 0;
+		float height_index = 0;
 		bool first = true;
 		bool skybox_load = true;
 		std::vector<Texture2D> height_id;

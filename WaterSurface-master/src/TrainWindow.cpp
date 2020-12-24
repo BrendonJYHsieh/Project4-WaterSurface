@@ -166,11 +166,11 @@ TrainWindow(const int x, const int y)
 
 		pty+=100;
 
-		WaveScale = new Fl_Value_Slider(675, pty, 120, 20, "Freqency");
-		WaveScale->range(0, 2.0);
-		WaveScale->value(1);
-		WaveScale->align(FL_ALIGN_LEFT);
-		WaveScale->type(FL_HORIZONTAL);
+		WaveFrequency = new Fl_Value_Slider(675, pty, 120, 20, "Freqency");
+		WaveFrequency->range(0, 5.0);
+		WaveFrequency->value(2.5);
+		WaveFrequency->align(FL_ALIGN_LEFT);
+		WaveFrequency->type(FL_HORIZONTAL);
 	
 		pty += 30;
 
