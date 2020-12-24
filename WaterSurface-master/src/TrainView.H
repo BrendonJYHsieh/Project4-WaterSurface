@@ -142,15 +142,17 @@ class TrainView : public Fl_Gl_Window
 		Model* tile_model = nullptr;
 
 		Texture2D* tile_texture = nullptr;
+		Texture2D* particle_texture = nullptr;
 
 		float height_index = 0;
 		bool first = true;
 		bool skybox_load = true;
 		std::vector<Texture2D> height_id;
+
+		//Shader
+		Shader* particle_shader = nullptr;
 		Shader* wave_shader = nullptr;
 		Shader* tile = nullptr;
-
-
 		Shader* skybox = nullptr;
 		Shader* screenShader = nullptr;
 		Shader* interactive_frame = nullptr;
@@ -169,6 +171,32 @@ class TrainView : public Fl_Gl_Window
 		glm::vec2 uv_center;
 		int uv_t = 0;
 
-		float scale = 200;
+		float scale = 20;
 
+		//particle
+		int FindUnusedParticle();
+		void SortParticles();
+
+		struct Particle {
+			glm::vec3 pos, speed;
+			unsigned char r, g, b, a; // Color
+			float size, angle, weight;
+			float life; // Remaining life of the particle. if <0 : dead and unused.
+			float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
+
+			bool operator<(const Particle& that) const {
+				// Sort in reverse order : far particles drawn first.
+				return this->cameradistance > that.cameradistance;
+			}
+		};
+
+		const int MaxParticles = 100000;
+		Particle ParticlesContainer[100000];
+		int LastUsedParticle = 0;
+	    GLfloat* g_particule_position_size_data;
+		GLubyte* g_particule_color_data;
+		GLuint particles_position_buffer;
+		GLuint particles_color_buffer;
+		GLuint billboard_vertex_buffer;
+		double lastTime;
 };		
