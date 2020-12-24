@@ -928,7 +928,7 @@ void TrainView::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// Blayne prefers GL_DIFFUSE
-	//glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
 	// prepare for projection
 	glMatrixMode(GL_PROJECTION);
@@ -942,7 +942,8 @@ void TrainView::draw()
 	//######################################################################
 	// enable the lighting
 	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_DEPTH_TEST);
+
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
@@ -982,7 +983,6 @@ void TrainView::draw()
 
 	//Frame buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 	// make sure we clear the framebuffer's content
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -993,7 +993,7 @@ void TrainView::draw()
 			height_index = 0;
 		}
 	}
-	wave_shader->Use();
+	
 
 #ifndef heightmap
 	height_id[(int)(height_index + tw->WaveFrequency->value()) % 200].bind(5);
@@ -1176,9 +1176,10 @@ void TrainView::draw()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
-	//glBindVertexArray(0);
+	glBindVertexArray(0);
 #endif // particle
 
+	wave_shader->Use();
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Sine Wave*/
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"), tw->WaveAmplitude->value());
@@ -1269,8 +1270,9 @@ void TrainView::draw()
 	// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+
+
 	// clear all relevant buffers
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
 	glClear(GL_COLOR_BUFFER_BIT);
 	this->screenShader->Use();
 	glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
@@ -1301,7 +1303,7 @@ void TrainView::draw()
 	//*********************************************************************
 	glEnable(GL_LIGHTING);
 	setupObjects();
-	drawStuff();
+	//drawStuff();
 
 	// this time drawing is for shadows (except for top view)
 	if (!tw->topCam->value()) {
