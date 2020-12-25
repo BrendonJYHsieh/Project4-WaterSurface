@@ -49,30 +49,60 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define heightmap
-#define particle
+#define particlee
 #include"RenderUtilities/model.h"
 
-int TrainView::FindUnusedParticle() {
-
-	for (int i = LastUsedParticle; i < MaxParticles; i++) {
-		if (ParticlesContainer[i].life < 0) {
-			LastUsedParticle = i;
-			return i;
+void TrainView::Draw()
+{
+	// Use additive blending to give it a 'glow' effect
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	//particle_shader->Use();
+	for (Particle particle : this->particles)
+	{
+		if (particle.Life > 0.0f)
+		{
+			glUniform2f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Position.x, particle.Position.y);
+			glUniform4f(glGetUniformLocation(particle_shader->Program, "color"), particle.Color.r, particle.Color.g, particle.Color.b, particle.Color.a);
+			particle_texture->bind(6);
+			glBindVertexArray(this->particleVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
 		}
 	}
-
-	for (int i = 0; i < LastUsedParticle; i++) {
-		if (ParticlesContainer[i].life < 0) {
-			LastUsedParticle = i;
-			return i;
-		}
-	}
-
-	return 0; // All particles are taken, override the first one
+	// Don't forget to reset to default blending mode
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void TrainView::SortParticles() {
-	std::sort(&ParticlesContainer[0], &ParticlesContainer[MaxParticles]);
+
+void TrainView::RespawnParticle(Particle& particle, glm::vec2 offset)
+{
+	GLfloat random = ((rand() % 100) - 50) / 10.0f;
+	GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
+	particle.Position =random + offset;
+	particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
+	particle.Life = 1.0f;
+	particle.Velocity = glm::vec2(1.0,1.0) * 0.1f;
+}
+
+GLuint TrainView::FirstUnusedParticle()
+{
+	// Search from last used particle, this will usually return almost instantly
+	for (GLuint i = lastUsedParticle; i < nr_particles; ++i) {
+		if (particles[i].Life <= 0.0f) {
+			lastUsedParticle = i;
+			return i;
+		}
+	}
+	// Otherwise, do a linear search
+	for (GLuint i = 0; i < lastUsedParticle; ++i) {
+		if (particles[i].Life <= 0.0f) {
+			lastUsedParticle = i;
+			return i;
+		}
+	}
+	// Override first particle if all others are alive
+	lastUsedParticle = 0;
+	return 0;
 }
 
 //My function
@@ -669,75 +699,79 @@ void TrainView::draw()
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/particle.frag");
 			//process
-			g_particule_position_size_data = new GLfloat[MaxParticles * 4];
-			g_particule_color_data = new GLubyte[MaxParticles * 4];
-
-			for (int i = 0; i < MaxParticles; i++) {
-				ParticlesContainer[i].life = -1.0f;
-				ParticlesContainer[i].cameradistance = -1.0f;
+			for (GLuint i = 0; i < nr_particles; ++i) {
+				particles.push_back(Particle());
 			}
 
-			particle_texture = new Texture2D("../particle/particle.png");
+			//particle_texture = new Texture2D("../particle/particle.png");
+			particle_texture = new Texture2D("../particle/particle2.jpg");
+			GLfloat particle_quad[] = {
+				-1.0f,  1.0f, -1.0f,
+				-1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
 
-			static const GLfloat g_vertex_buffer_data[] = {
-			 -0.5f, -0.5f, 0.0f,
-			  0.5f, -0.5f, 0.0f,
-			 -0.5f,  0.5f, 0.0f,
-			  0.5f,  0.5f, 0.0f,
+				-1.0f, -1.0f,  1.0f,
+				-1.0f, -1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f,  1.0f,
+				-1.0f, -1.0f,  1.0f,
+
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+
+				-1.0f, -1.0f,  1.0f,
+				-1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f, -1.0f,  1.0f,
+				-1.0f, -1.0f,  1.0f,
+
+				-1.0f,  1.0f, -1.0f,
+				 1.0f,  1.0f, -1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				-1.0f,  1.0f,  1.0f,
+				-1.0f,  1.0f, -1.0f,
+
+				-1.0f, -1.0f, -1.0f,
+				-1.0f, -1.0f,  1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				-1.0f, -1.0f,  1.0f,
+				 1.0f, -1.0f,  1.0f
 			};
-
-			glGenVertexArrays(1, &particleVAO);
-			glBindVertexArray(particleVAO);
-			glGenBuffers(1, &billboard_vertex_buffer);
-			glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-			// The VBO containing the positions and sizes of the particles
-			glGenBuffers(1, &particles_position_buffer);
-			glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-			// Initialize with empty (NULL) buffer : it will be updated later, each frame.
-			glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-			// The VBO containing the colors of the particles
-			glGenBuffers(1, &particles_color_buffer);
-			glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
-			// Initialize with empty (NULL) buffer : it will be updated later, each frame.
-			glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
-			// 1rst attribute buffer : vertices
+			GLfloat particle_quad_texture[] = {
+				 0.0f,  1.0f,
+				 0.0f,  0.0f,
+				 1.0f,  0.0f,
+				 0.0f,  1.0f,
+				 1.0f,  1.0f,
+				 1.0f,  0.0f,
+			};
+			glGenVertexArrays(1, &this->particleVAO);
+			glGenBuffers(1, &particleVBO);
+			glGenBuffers(1, &particleVBO1);
+			glBindVertexArray(this->particleVAO);
+			// Fill mesh buffer
+			glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad), particle_quad, GL_STATIC_DRAW);
+			// Fill mesh buffer
+			/*glBindBuffer(GL_ARRAY_BUFFER, particleVBO1);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad_texture), particle_quad_texture, GL_STATIC_DRAW);*/
+			// Set mesh attributes
 			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
-			glVertexAttribPointer(
-				0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-
-			// 2nd attribute buffer : positions of particles' centers
-			glEnableVertexAttribArray(1);
-			glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-			glVertexAttribPointer(
-				1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-				4,                                // size : x + y + z + size => 4
-				GL_FLOAT,                         // type
-				GL_FALSE,                         // normalized?
-				0,                                // stride
-				(void*)0                          // array buffer offset
-			);
-
-			// 3rd attribute buffer : particles' colors
-			glEnableVertexAttribArray(2);
-			glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
-			glVertexAttribPointer(
-				2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-				4,                                // size : r + g + b + a => 4
-				GL_UNSIGNED_BYTE,                 // type
-				GL_TRUE,                          // normalized?    *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader ***
-				0,                                // stride
-				(void*)0                          // array buffer offset
-			);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			/*glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);*/
 			glBindVertexArray(0);
-			lastTime = clock();
 		}
 		if (!this->tile) {
 			this->tile = new
@@ -1028,163 +1062,62 @@ void TrainView::draw()
 			height_index = 0;
 		}
 	}
-	
+
 
 #ifndef heightmap
 	height_id[(int)(height_index + tw->WaveFrequency->value()) % 200].bind(5);
-#endif // heightmap
-
-	
-
+#endif // !heightmap
 
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, View);
+
+
 	glm::mat4 skybox_View = glm::mat4(glm::mat3(glm::make_mat4(View)));
 	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(View));
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
-
-	glm::mat4 ViewProjectionMatrix = glm::make_mat4(View) * glm::make_mat4(Projection);
 
 	//transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::scale(model, glm::vec3(scale, scale, scale));
 
 
-#ifdef particle
-	
 
-	//particle
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#ifdef particlee
+	currentime = clock();
+	dt = (currentime - lastime) / 200;
+	lastime = currentime;
 
-	double currentTime = clock();
-	delta =delta+ (currentTime - lastTime);
-	lastTime = currentTime;
-
-	int newparticles = (int)(delta * 10000.0);
-
-	if (newparticles > (int)(0.016f * 10000.0))
+	GLuint nr_new_particles = 2;
+	// Add new particles
+	for (GLuint i = 0; i < nr_new_particles; ++i)
 	{
-		delta = 0;
-		newparticles = (int)(0.016f * 10000.0);
+		int unusedParticle = FirstUnusedParticle();
+		RespawnParticle(particles[unusedParticle], glm::vec2(0.5, 0.5));
 	}
-	
-	for (int i = 0; i < newparticles; i++) {
-		int particleIndex = FindUnusedParticle();
-		ParticlesContainer[particleIndex].life = 5.0f; // This particle will live 5 seconds.
-		ParticlesContainer[particleIndex].pos = glm::vec3(0, 0, -20.0f);
-
-		float spread = 1.5f;
-		glm::vec3 maindir = glm::vec3(0.0f, 10.0f, 0.0f);
-		// Very bad way to generate a random direction; 
-		// See for instance http://stackoverflow.com/questions/5408276/python-uniform-spherical-distribution instead,
-		// combined with some user-controlled parameters (main direction, spread, etc)
-		glm::vec3 randomdir = glm::vec3(
-			(rand() % 2000 - 1000.0f) / 1000.0f,
-			(rand() % 2000 - 1000.0f) / 1000.0f,
-			(rand() % 2000 - 1000.0f) / 1000.0f
-		);
-
-		ParticlesContainer[particleIndex].speed = maindir + randomdir * spread;
-
-
-		// Very bad way to generate a random color
-		ParticlesContainer[particleIndex].r = rand() % 256;
-		ParticlesContainer[particleIndex].g = rand() % 256;
-		ParticlesContainer[particleIndex].b = rand() % 256;
-		ParticlesContainer[particleIndex].a = (rand() % 256) / 3;
-
-		ParticlesContainer[particleIndex].size = (rand() % 1000) / 2000.0f + 0.1f;
-
-	}
-
-	int ParticlesCount = 0;
-	for (int i = 0; i < MaxParticles; i++) {
-
-		Particle& p = ParticlesContainer[i]; // shortcut
-
-		if (p.life > 0.0f) {
-
-			// Decrease life
-			p.life -= delta;
-			if (p.life > 0.0f) {
-
-				// Simulate simple physics : gravity only, no collisions
-				p.speed += glm::vec3(0.0f, -9.81f, 0.0f) * (float)delta * 0.5f;
-				p.pos += p.speed * (float)delta;
-				p.cameradistance = glm::length2(p.pos - viewPos);
-				//ParticlesContainer[i].pos += glm::vec3(0.0f,10.0f, 0.0f) * (float)delta;
-
-				// Fill the GPU buffer
-				g_particule_position_size_data[4 * ParticlesCount + 0] = p.pos.x;
-				g_particule_position_size_data[4 * ParticlesCount + 1] = p.pos.y;
-				g_particule_position_size_data[4 * ParticlesCount + 2] = p.pos.z;
-
-				g_particule_position_size_data[4 * ParticlesCount + 3] = p.size;
-
-				g_particule_color_data[4 * ParticlesCount + 0] = p.r;
-				g_particule_color_data[4 * ParticlesCount + 1] = p.g;
-				g_particule_color_data[4 * ParticlesCount + 2] = p.b;
-				g_particule_color_data[4 * ParticlesCount + 3] = p.a;
-
-			}
-			else {
-				// Particles that just died will be put at the end of the buffer in SortParticles();
-				p.cameradistance = -1.0f;
-			}
-
-			ParticlesCount++;
-
+	// Update all particles
+	for (GLuint i = 0; i < nr_particles; ++i)
+	{
+		Particle& p = particles[i];
+		p.Life -= dt; // reduce life
+		if (p.Life > 0.0f)
+		{   // particle is alive, thus update
+			p.Position -= p.Velocity * glm::vec2(dt, dt);
+			p.Color.a -= dt * 2.5;
 		}
-	}
-	SortParticles();
-	glBindVertexArray(particleVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, particles_position_buffer);
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
-	glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLfloat) * 4, g_particule_position_size_data);
-
-	glBindBuffer(GL_ARRAY_BUFFER, particles_color_buffer);
-	glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW); // Buffer orphaning, a common way to improve streaming perf. See above link for details.
-	glBufferSubData(GL_ARRAY_BUFFER, 0, ParticlesCount * sizeof(GLubyte) * 4, g_particule_color_data);
-
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// Use our shader
+		}
 	particle_shader->Use();
+	glm::mat4 smokemodel = glm::mat4(1.0f);
+	smokemodel = glm::translate(smokemodel, glm::vec3(trainPos.x, trainPos.y+10, trainPos.z));
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model_matrix"), 1, GL_FALSE, &smokemodel[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniform1i(glGetUniformLocation(particle_shader->Program, "sprite"), 6);
+	Draw();
+#endif
 
-	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE6);
-	particle_texture->bind(6);
-	// Set our "myTextureSampler" sampler to user Texture Unit 0
-	glUniform1i(glGetUniformLocation(particle_shader->Program, "myTextureSampler"), 6);
-	// Same as the billboards tutorial
-	glUniform3f(glGetUniformLocation(particle_shader->Program, "CameraRight_worldspace"), viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
-	glUniform3f(glGetUniformLocation(particle_shader->Program, "CameraUp_worldspace"), viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
-	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "VP"), 1, GL_FALSE, &ViewProjectionMatrix[0][0]);
 
-	
 
-	// These functions are specific to glDrawArrays*Instanced*.
-	// The first parameter is the attribute buffer we're talking about.
-	// The second parameter is the "rate at which generic vertex attributes advance when rendering multiple instances"
-	// http://www.opengl.org/sdk/docs/man/xhtml/glVertexAttribDivisor.xml
-	glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
-	glVertexAttribDivisor(1, 1); // positions : one per quad (its center)                 -> 1
-	glVertexAttribDivisor(2, 1); // color : one per quad                                  -> 1
 
-	// Draw the particules !
-	// This draws many times a small triangle_strip (which looks like a quad).
-	// This is equivalent to :
-	// for(i in ParticlesCount) : glDrawArrays(GL_TRIANGLE_STRIP, 0, 4), 
-	// but faster.
-	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, ParticlesCount);
-
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-	glBindVertexArray(0);
-#endif // particle
 
 	wave_shader->Use();
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
@@ -1195,8 +1128,6 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "reflect_enable"), tw->reflect);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "refract_enable"), tw->refract);
 	glUniform1i(glGetUniformLocation(wave_shader->Program, "wave_mode"), tw->waveBrowser->value());
-	
-	glUniform1i(glGetUniformLocation(wave_shader->Program, "height_map_texture"), 5);
 
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
@@ -1205,6 +1136,8 @@ void TrainView::draw()
 	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
 	wave_model->Draw(*wave_shader);
+
+
 #ifndef heightmap
 	height_id[height_index].unbind(5);
 #endif // !heightmap
@@ -1310,7 +1243,7 @@ void TrainView::draw()
 	//*********************************************************************
 	glEnable(GL_LIGHTING);
 	setupObjects();
-	//drawStuff();
+	drawStuff();
 
 	// this time drawing is for shadows (except for top view)
 	if (!tw->topCam->value()) {
@@ -1529,6 +1462,10 @@ void TrainView::drawTrain(TrainView* TrainV, bool doingShadows) {
 			forward.normalize();
 			forward = forward * Train_Forward;
 
+			trainPos.x = qt0.x;
+			trainPos.y = qt0.y;
+			trainPos.z = qt0.z;
+
 			float total = 0.0f;
 			if (j == 1) {
 				DrawTrainHead(qt0, cross_t, up, forward, doingShadows);
@@ -1570,7 +1507,7 @@ void TrainView::drawTrain(TrainView* TrainV, bool doingShadows) {
 			ControlPoint p2 = m_pTrack->points[(ii + m_pTrack->points.size()) % m_pTrack->points.size()];
 			ControlPoint p3 = m_pTrack->points[(ii + 1 + m_pTrack->points.size()) % m_pTrack->points.size()];
 			ControlPoint p4 = m_pTrack->points[(ii + 2 + m_pTrack->points.size()) % m_pTrack->points.size()];
-
+			
 			Pnt3f qt0 = GMT(p1.pos, p2.pos, p3.pos, p4.pos, TrainV->tw->splineBrowser->value(), tt);
 			Pnt3f orient_t = GMT(p1.orient, p2.orient, p3.orient, p4.orient, TrainV->tw->splineBrowser->value(), tt);
 			Pnt3f qt1 = GMT(p1.pos, p2.pos, p3.pos, p4.pos, TrainV->tw->splineBrowser->value(), tt += percent);
@@ -1587,7 +1524,7 @@ void TrainView::drawTrain(TrainView* TrainV, bool doingShadows) {
 			if (j == 1) {
 				DrawTrainHead(qt0, cross_t, up, forward, doingShadows);
 			}
-			else {
+			else {		
 				DrawTrain(qt0, cross_t, up, forward, doingShadows);
 			}
 		}

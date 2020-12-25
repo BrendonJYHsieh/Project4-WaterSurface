@@ -95,6 +95,7 @@ class TrainView : public Fl_Gl_Window
 		void drawTrack(TrainView*, bool);
 		void drawTrain(TrainView*, bool);
 		void trainCamView(TrainView*, float);
+		
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
@@ -120,6 +121,8 @@ class TrainView : public Fl_Gl_Window
 		float tense = 0.5f;
 		int car_quantity = 2;
 		bool s = false;
+
+		glm::vec3 trainPos;
 		
 
 		//Wave
@@ -156,7 +159,7 @@ class TrainView : public Fl_Gl_Window
 		Shader* screenShader = nullptr;
 		Shader* interactive_frame = nullptr;
 
-		GLuint particleVAO;
+		GLuint particleVAO, particleVBO, particleVBO1;
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
 		//frame buffer
@@ -174,30 +177,26 @@ class TrainView : public Fl_Gl_Window
 		float scale = 20;
 
 		//particle
-		int FindUnusedParticle();
-		void SortParticles();
+		
+		
 
 		struct Particle {
-			glm::vec3 pos, speed;
-			unsigned char r, g, b, a; // Color
-			float size, angle, weight;
-			float life; // Remaining life of the particle. if <0 : dead and unused.
-			float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
+			glm::vec2 Position, Velocity;
+			glm::vec4 Color;
+			GLfloat Life;
 
-			bool operator<(const Particle& that) const {
-				// Sort in reverse order : far particles drawn first.
-				return this->cameradistance > that.cameradistance;
-			}
+			Particle()
+				: Position(0.0f), Velocity(0.0f), Color(1.0f), Life(0.0f) { }
 		};
+		void RespawnParticle(Particle& particle, glm::vec2 offset);
+		GLuint FirstUnusedParticle();
+		void Draw();
 
-		const int MaxParticles = 100000;
-		Particle ParticlesContainer[100000];
-		int LastUsedParticle = 0;
-	    GLfloat* g_particule_position_size_data;
-		GLubyte* g_particule_color_data;
-		GLuint particles_position_buffer;
-		GLuint particles_color_buffer;
-		GLuint billboard_vertex_buffer;
-		double lastTime;
-		double delta;
+		GLuint nr_particles = 500;
+		std::vector<Particle> particles;
+		GLuint lastUsedParticle = 0;
+		
+		double lastime;
+		double currentime;
+		double dt;
 };		
