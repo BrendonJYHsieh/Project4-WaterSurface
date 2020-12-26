@@ -42,6 +42,9 @@
     <ClInclude Include="WaterSurface-master\src\RenderUtilities\stb_image.h">
       <Filter>RenderUtilities</Filter>
     </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Project4-WaterSurface\WaterSurface-master\CMakeLists.txt" />

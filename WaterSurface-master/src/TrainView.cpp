@@ -55,13 +55,15 @@
 void TrainView::Draw()
 {
 	// Use additive blending to give it a 'glow' effect
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	//particle_shader->Use();
+	particle_shader->Use();
 	for (Particle particle : this->particles)
 	{
 		if (particle.Life > 0.0f)
 		{
-			glUniform2f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Position.x, particle.Position.y);
+			glUniform1f(glGetUniformLocation(particle_shader->Program, "scale"), particle.scale);
+			glUniform3f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Position.x, particle.Position.y, particle.Position.z);
 			glUniform4f(glGetUniformLocation(particle_shader->Program, "color"), particle.Color.r, particle.Color.g, particle.Color.b, particle.Color.a);
 			particle_texture->bind(6);
 			glBindVertexArray(this->particleVAO);
@@ -70,18 +72,20 @@ void TrainView::Draw()
 		}
 	}
 	// Don't forget to reset to default blending mode
+	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 
-void TrainView::RespawnParticle(Particle& particle, glm::vec2 offset)
+void TrainView::RespawnParticle(Particle& particle)
 {
-	GLfloat random = ((rand() % 100) - 50) / 10.0f;
-	GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
-	particle.Position =random + offset;
+	GLfloat random = ((rand() % 100) - 50) / 5.0f;
+	//GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
+	GLfloat rColor = 0.286;
+	particle.Position =random * glm::vec3(1.0,0.1,1.0);
 	particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
 	particle.Life = 1.0f;
-	particle.Velocity = glm::vec2(1.0,1.0) * 0.1f;
+	particle.scale = (rand() % 100) / 100.0;
 }
 
 GLuint TrainView::FirstUnusedParticle()
@@ -769,8 +773,8 @@ void TrainView::draw()
 			// Set mesh attributes
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			/*glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);*/
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)offsetof(Vertex, TexCoords));
 			glBindVertexArray(0);
 		}
 		if (!this->tile) {
@@ -1051,10 +1055,10 @@ void TrainView::draw()
 
 
 	//Frame buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	// make sure we clear the framebuffer's content
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (tw->waveBrowser->value() == 2) {
 		height_index = height_index+tw->WaveFrequency->value();
@@ -1083,8 +1087,10 @@ void TrainView::draw()
 
 
 #ifdef particlee
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	currentime = clock();
-	dt = (currentime - lastime) / 200;
+	dt = (currentime - lastime) / 400;
 	lastime = currentime;
 
 	GLuint nr_new_particles = 2;
@@ -1092,7 +1098,7 @@ void TrainView::draw()
 	for (GLuint i = 0; i < nr_new_particles; ++i)
 	{
 		int unusedParticle = FirstUnusedParticle();
-		RespawnParticle(particles[unusedParticle], glm::vec2(0.5, 0.5));
+		RespawnParticle(particles[unusedParticle]);
 	}
 	// Update all particles
 	for (GLuint i = 0; i < nr_particles; ++i)
@@ -1101,8 +1107,7 @@ void TrainView::draw()
 		p.Life -= dt; // reduce life
 		if (p.Life > 0.0f)
 		{   // particle is alive, thus update
-			p.Position -= p.Velocity * glm::vec2(dt, dt);
-			p.Color.a -= dt * 2.5;
+			p.Color.a = p.Life;
 		}
 		}
 	particle_shader->Use();
@@ -1213,20 +1218,20 @@ void TrainView::draw()
 
 
 	// clear all relevant buffers
-	glClear(GL_COLOR_BUFFER_BIT);
-	this->screenShader->Use();
-	glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), w());
-	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), h());
-	glBindVertexArray(quadVAO);
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
-	glUniform1i(glGetUniformLocation(screenShader->Program, "screenTexture"), 12);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	//this->screenShader->Use();
+	//glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
+	//glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
+	//glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
+	//glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), w());
+	//glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), h());
+	//glBindVertexArray(quadVAO);
+	//glActiveTexture(GL_TEXTURE12);
+	//glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+	//glUniform1i(glGetUniformLocation(screenShader->Program, "screenTexture"), 12);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glActiveTexture(GL_TEXTURE12);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 	//*********************************************************************
 	// now draw the ground plane
 	//*********************************************************************
@@ -1462,9 +1467,8 @@ void TrainView::drawTrain(TrainView* TrainV, bool doingShadows) {
 			forward.normalize();
 			forward = forward * Train_Forward;
 
-			trainPos.x = qt0.x;
-			trainPos.y = qt0.y;
-			trainPos.z = qt0.z;
+			trainPos = glm::vec3(qt0.x, qt0.y, qt0.z);
+
 
 			float total = 0.0f;
 			if (j == 1) {

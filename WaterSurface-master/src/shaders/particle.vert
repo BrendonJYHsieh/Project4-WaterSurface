@@ -11,11 +11,11 @@ uniform mat4 proj_matrix;
 
 uniform vec3 offset;
 uniform vec4 color;
+uniform float scale;
 
 void main()
 {
-    float scale = 5.0f;
     TexCoords =aPos.xy;
     ParticleColor = color;
-    gl_Position = proj_matrix * view_matrix * model_matrix * vec4((aPos * scale), 1.0);
+    gl_Position = proj_matrix * view_matrix * model_matrix * vec4((aPos+offset)*scale, 1.0);
 }
