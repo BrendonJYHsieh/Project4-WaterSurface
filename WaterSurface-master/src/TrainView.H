@@ -181,7 +181,7 @@ class TrainView : public Fl_Gl_Window
 		GLuint FirstUnusedParticle();
 		void Draw();
 
-		GLuint nr_particles = 500;
+		GLuint nr_particles = 10;
 		std::vector<Particle> particles;
 		GLuint lastUsedParticle = 0;
 		

@@ -82,9 +82,9 @@ void TrainView::RespawnParticle(Particle& particle)
 	GLfloat random = ((rand() % 100) - 50) / 5.0f;
 	//GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
 	GLfloat rColor = 0.286;
-	particle.Position =random * glm::vec3(1.0,0.1,1.0);
+	particle.Position =random * glm::vec3(2.0,0.3,2.0);
 	particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
-	particle.Life = 1.0f;
+	particle.Life = 3.0f;
 	particle.scale = (rand() % 100) / 100.0;
 }
 
@@ -1093,7 +1093,7 @@ void TrainView::draw()
 	dt = (currentime - lastime) / 400;
 	lastime = currentime;
 
-	GLuint nr_new_particles = 2;
+	GLuint nr_new_particles = 1;
 	// Add new particles
 	for (GLuint i = 0; i < nr_new_particles; ++i)
 	{
@@ -1109,7 +1109,7 @@ void TrainView::draw()
 		{   // particle is alive, thus update
 			p.Color.a = p.Life;
 		}
-		}
+	}
 	particle_shader->Use();
 	glm::mat4 smokemodel = glm::mat4(1.0f);
 	smokemodel = glm::translate(smokemodel, glm::vec3(trainPos.x, trainPos.y+10, trainPos.z));
