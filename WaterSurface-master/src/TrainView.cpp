@@ -48,13 +48,12 @@
 #include "Utilities/3DUtils.H"
 
 #define STB_IMAGE_IMPLEMENTATION
-#define heightmap
+//#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
 
 void TrainView::Draw()
 {
-	// Use additive blending to give it a 'glow' effect
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	particle_shader->Use();
@@ -62,9 +61,10 @@ void TrainView::Draw()
 	{
 		if (particle.Life > 0.0f)
 		{
-			glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model_matrix"), 1, GL_FALSE, &particle.Position[0][0]);
-			glUniform1f(glGetUniformLocation(particle_shader->Program, "scale"), particle.scale);
-			//glUniform3f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Position.x, particle.Position.y, particle.Position.z);
+			glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model_matrix"), 1, GL_FALSE, &particle.Module[0][0]);
+
+			glUniform1f(glGetUniformLocation(particle_shader->Program, "scale"), particle.Scale);
+			//glUniform1f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Offset);
 			glUniform4f(glGetUniformLocation(particle_shader->Program, "color"), particle.Color.r, particle.Color.g, particle.Color.b, particle.Color.a);
 			particle_texture->bind(6);
 			glBindVertexArray(this->particleVAO);
@@ -80,15 +80,21 @@ void TrainView::Draw()
 
 void TrainView::RespawnParticle(Particle& particle)
 {
-	GLfloat random = ((rand() % 100) - 50) / 5.0f;
-	//GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
-	GLfloat rColor = 0.286;
-	
-	particle.Position = glm::translate(glm::scale(particle.Position, glm::vec3(random, random, random)), glm::vec3(trainPos.x, trainPos.y + 10, trainPos.z));
+	particle.Scale_randon = (float)((rand() % 1000) - 500) / 1000.0f;
+	particle.X_random = (float)((rand() % 100) - 50) / 15.0f;
+	particle.Y_random = (float)((rand() % 100) - 50) / 15.0f;
+	particle.Z_random = (float)((rand() % 100) - 50) / 15.0f;
 
-	//.Position =random * glm::vec3(1.0,0.1,1.0)+ glm::vec3(trainPos.x, trainPos.y + 10, trainPos.z);
+	GLfloat rColor = 0.286;
+
+	particle.trainPos = trainPos;
+	particle.Module = glm::mat4(1.0f);
+	particle.Module = glm::translate(particle.Module, glm::vec3(trainPos.x+ particle.X_random*0.5, trainPos.y + 10+ particle.Y_random*0.5 , trainPos.z+ particle.Z_random*0.5));
+	particle.Module = glm::scale(particle.Module, glm::vec3(particle.Scale_randon, particle.Scale_randon, particle.Scale_randon));
+
 	particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
 	particle.Life = 1.0f;
+
 }
 
 GLuint TrainView::FirstUnusedParticle()
@@ -1096,7 +1102,7 @@ void TrainView::draw()
 	dt = (currentime - lastime) / 400;
 	lastime = currentime;
 
-	GLuint nr_new_particles = 2;
+	GLuint nr_new_particles = nr_particles /60;
 	// Add new particles
 	for (GLuint i = 0; i < nr_new_particles; ++i)
 	{
@@ -1110,11 +1116,14 @@ void TrainView::draw()
 		p.Life -= dt; // reduce life
 		if (p.Life > 0.0f)
 		{   // particle is alive, thus update
-			p.Color.a = p.Life;
+			p.Color.a = 1-p.Life;
+			p.Scale = pow(1.0-p.Life,1);
+			p.Module = glm::mat4(1.0f);
+			p.Module = glm::translate(p.Module, glm::vec3(p.trainPos.x + p.X_random * 0.5* p.Scale, p.trainPos.y + 10 + p.Y_random * 0.5* p.Scale, p.trainPos.z + p.Z_random * 0.5* p.Scale));
+			p.Module = glm::scale(p.Module, glm::vec3(p.Scale_randon, p.Scale_randon, p.Scale_randon));
 		}
-		}
+	}
 	particle_shader->Use();
-	
 	
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
@@ -1128,7 +1137,8 @@ void TrainView::draw()
 
 	wave_shader->Use();
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
-	/*Sine Wave*/
+	/*Wave*/
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "height_map_texture"), 5);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"), tw->WaveAmplitude->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveFrequency->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "t"), tw->wave_t);
@@ -1469,7 +1479,7 @@ void TrainView::drawTrain(TrainView* TrainV, bool doingShadows) {
 			forward.normalize();
 			forward = forward * Train_Forward;
 
-			trainPos = glm::vec3(qt0.x, qt0.y, qt0.z);
+			trainPos = glm::vec3(qt1.x, qt1.y, qt1.z)+ glm::vec3(forward.x, forward.y, forward.z);
 
 
 			float total = 0.0f;

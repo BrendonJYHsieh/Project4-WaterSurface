@@ -3,11 +3,24 @@ class Particle
 {
 public:
 
-		glm::mat4 Position;
+		glm::mat4 Module=glm::mat4(1.0);
 		glm::vec4 Color;
-		float scale;
+		glm::vec3 trainPos;
+		float Offset;
+		float Scale;
 		float Life;
-		Particle():Position(0.0f), Color(1.0f), Life(0.0f), scale(0.0){ }
+		GLfloat Scale_randon;
+		GLfloat X_random;
+		GLfloat Y_random;
+		GLfloat Z_random;
+		
+		Particle(){ 
+			Module = glm::mat4(1.0);
+			Color = glm::vec4(1.0);
+			Life = 0.0;
+			Offset = 0.0;
+			Scale = 0.0;
+		}
 
 private:
 

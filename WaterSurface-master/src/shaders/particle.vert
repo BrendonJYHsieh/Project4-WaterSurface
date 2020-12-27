@@ -9,9 +9,9 @@ uniform mat4 model_matrix;
 uniform mat4 view_matrix;
 uniform mat4 proj_matrix;
 
-uniform vec3 offset;
+uniform float offset;
 uniform vec4 color;
-uniform float scale;
+
 
 void main()
 {
