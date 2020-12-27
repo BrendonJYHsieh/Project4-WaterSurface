@@ -62,8 +62,9 @@ void TrainView::Draw()
 	{
 		if (particle.Life > 0.0f)
 		{
+			glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model_matrix"), 1, GL_FALSE, &particle.Position[0][0]);
 			glUniform1f(glGetUniformLocation(particle_shader->Program, "scale"), particle.scale);
-			glUniform3f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Position.x, particle.Position.y, particle.Position.z);
+			//glUniform3f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Position.x, particle.Position.y, particle.Position.z);
 			glUniform4f(glGetUniformLocation(particle_shader->Program, "color"), particle.Color.r, particle.Color.g, particle.Color.b, particle.Color.a);
 			particle_texture->bind(6);
 			glBindVertexArray(this->particleVAO);
@@ -82,10 +83,12 @@ void TrainView::RespawnParticle(Particle& particle)
 	GLfloat random = ((rand() % 100) - 50) / 5.0f;
 	//GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
 	GLfloat rColor = 0.286;
-	particle.Position =random * glm::vec3(2.0,0.3,2.0);
+	
+	particle.Position = glm::translate(glm::scale(particle.Position, glm::vec3(random, random, random)), glm::vec3(trainPos.x, trainPos.y + 10, trainPos.z));
+
+	//.Position =random * glm::vec3(1.0,0.1,1.0)+ glm::vec3(trainPos.x, trainPos.y + 10, trainPos.z);
 	particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
-	particle.Life = 3.0f;
-	particle.scale = (rand() % 100) / 100.0;
+	particle.Life = 1.0f;
 }
 
 GLuint TrainView::FirstUnusedParticle()
@@ -1093,7 +1096,7 @@ void TrainView::draw()
 	dt = (currentime - lastime) / 400;
 	lastime = currentime;
 
-	GLuint nr_new_particles = 1;
+	GLuint nr_new_particles = 2;
 	// Add new particles
 	for (GLuint i = 0; i < nr_new_particles; ++i)
 	{
@@ -1109,14 +1112,13 @@ void TrainView::draw()
 		{   // particle is alive, thus update
 			p.Color.a = p.Life;
 		}
-	}
+		}
 	particle_shader->Use();
-	glm::mat4 smokemodel = glm::mat4(1.0f);
-	smokemodel = glm::translate(smokemodel, glm::vec3(trainPos.x, trainPos.y+10, trainPos.z));
-	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model_matrix"), 1, GL_FALSE, &smokemodel[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	
+	
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniform1i(glGetUniformLocation(particle_shader->Program, "sprite"), 6);
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	
 	Draw();
 #endif
 

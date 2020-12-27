@@ -3,7 +3,7 @@ class Particle
 {
 public:
 
-		glm::vec3 Position;
+		glm::mat4 Position;
 		glm::vec4 Color;
 		float scale;
 		float Life;
