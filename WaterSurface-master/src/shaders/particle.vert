@@ -17,5 +17,5 @@ void main()
 {
     TexCoords =aPos.xy;
     ParticleColor = color;
-    gl_Position = proj_matrix * view_matrix * model_matrix * vec4((aPos+offset)*scale, 1.0);
+    gl_Position = proj_matrix * view_matrix * model_matrix * vec4(aPos, 1.0);
 }
