@@ -142,19 +142,20 @@ class TrainView : public Fl_Gl_Window
 
 		Model* wave_model = nullptr;
 		Model* tile_model = nullptr;
+		Model* tunnel_model = nullptr;
+
 
 		Texture2D* tile_texture = nullptr;
-		Texture2D* particle_texture = nullptr;
 
 		float height_index = 0;
-		bool first = true;
+		bool load_heightmap = true;
 		bool skybox_load = true;
 		std::vector<Texture2D> height_id;
 
 		//Shader
 		Shader* particle_shader = nullptr;
 		Shader* wave_shader = nullptr;
-		Shader* tile = nullptr;
+		Shader* loadmodel_shader = nullptr;
 		Shader* skybox = nullptr;
 		Shader* screenShader = nullptr;
 		Shader* interactive_frame = nullptr;

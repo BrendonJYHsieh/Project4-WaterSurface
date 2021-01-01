@@ -64,9 +64,7 @@ void TrainView::Draw()
 			glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model_matrix"), 1, GL_FALSE, &particle.Module[0][0]);
 
 			glUniform1f(glGetUniformLocation(particle_shader->Program, "scale"), particle.Scale);
-			//glUniform1f(glGetUniformLocation(particle_shader->Program, "offset"), particle.Offset);
 			glUniform4f(glGetUniformLocation(particle_shader->Program, "color"), particle.Color.r, particle.Color.g, particle.Color.b, particle.Color.a);
-			particle_texture->bind(6);
 			glBindVertexArray(this->particleVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
@@ -715,9 +713,6 @@ void TrainView::draw()
 			for (GLuint i = 0; i < nr_particles; ++i) {
 				particles.push_back(Particle());
 			}
-
-			//particle_texture = new Texture2D("../particle/particle.png");
-			particle_texture = new Texture2D("../particle/particle2.jpg");
 			GLfloat particle_quad[] = {
 				-1.0f,  1.0f, -1.0f,
 				-1.0f, -1.0f, -1.0f,
@@ -761,33 +756,17 @@ void TrainView::draw()
 				-1.0f, -1.0f,  1.0f,
 				 1.0f, -1.0f,  1.0f
 			};
-			GLfloat particle_quad_texture[] = {
-				 0.0f,  1.0f,
-				 0.0f,  0.0f,
-				 1.0f,  0.0f,
-				 0.0f,  1.0f,
-				 1.0f,  1.0f,
-				 1.0f,  0.0f,
-			};
 			glGenVertexArrays(1, &this->particleVAO);
 			glGenBuffers(1, &particleVBO);
-			glGenBuffers(1, &particleVBO1);
 			glBindVertexArray(this->particleVAO);
 			// Fill mesh buffer
 			glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad), particle_quad, GL_STATIC_DRAW);
-			// Fill mesh buffer
-			/*glBindBuffer(GL_ARRAY_BUFFER, particleVBO1);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad_texture), particle_quad_texture, GL_STATIC_DRAW);*/
-			// Set mesh attributes
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)offsetof(Vertex, TexCoords));
-			glBindVertexArray(0);
 		}
-		if (!this->tile) {
-			this->tile = new
+		if (!this->loadmodel_shader) {
+			this->loadmodel_shader = new
 				Shader(
 					"../WaterSurface-master/src/shaders/load_model.vert",
 					nullptr, nullptr, nullptr,
@@ -799,19 +778,6 @@ void TrainView::draw()
 					"../WaterSurface-master/src/shaders/wave.vert",
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/wave.frag");
-#ifndef heightmap
-		for (int i = 0; i < 200; i++) {
-						string name = to_string(i);
-						if (name.size() == 1) {
-							name = "00" + name;
-						}
-						else if (name.size() == 2) {
-							name = "0" + name;
-						}
-						name = "../height_map/" + name + ".png";
-						height_id.push_back(Texture2D(name.c_str()));
-					}
-#endif // !heightmap	
 		}
 		if (!this->skybox) {
 			this->skybox = new
@@ -995,6 +961,9 @@ void TrainView::draw()
 			tile_model = new Model("../tile/tile.obj");
 			tile_texture = new Texture2D("../tile/tiles.jpg");
 		}
+		if (!tunnel_model) {
+			tunnel_model = new Model("../backpack/backpack.obj");
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -1068,18 +1037,29 @@ void TrainView::draw()
 	// make sure we clear the framebuffer's content
 	//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 
 	if (tw->waveBrowser->value() == 2) {
+		if (load_heightmap) {
+			for (int i = 0; i < 200; i++) {
+				string name = to_string(i);
+				if (name.size() == 1) {
+					name = "00" + name;
+				}
+				else if (name.size() == 2) {
+					name = "0" + name;
+				}
+				name = "../height_map/" + name + ".png";
+				height_id.push_back(Texture2D(name.c_str()));
+			}
+			load_heightmap = false;
+		}
 		height_index = height_index+tw->WaveFrequency->value();
 		if (height_index > 200) {
 			height_index = 0;
 		}
+		height_id[(int)(height_index + tw->WaveFrequency->value()) % 200].bind(5);
 	}
-
-
-#ifndef heightmap
-	height_id[(int)(height_index + tw->WaveFrequency->value()) % 200].bind(5);
-#endif // !heightmap
 
 	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, View);
@@ -1124,10 +1104,8 @@ void TrainView::draw()
 		}
 	}
 	particle_shader->Use();
-	
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	
 	Draw();
 #endif
 
@@ -1152,49 +1130,11 @@ void TrainView::draw()
 
 	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
+
 	wave_model->Draw(*wave_shader);
-
-
-#ifndef heightmap
-	height_id[height_index].unbind(5);
-#endif // !heightmap
-
-	
-
-	/*Lighting*/
-	//¶}Ãö
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "direct_enable"), tw->direct);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "point_enable"), tw->point);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "spot_enable"), tw->spot);
-	//Direction light
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.direction"), 100.0f, 1.0f, 0.0f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.ambient"), 0.6f, 0.6f, 0.6f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "dirLight.specular"), 1.0f, 1.0f, 1.0f);
-	//point light
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.position"), 0, 5, 0);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.direction"), 0.0f, 1.5f, 0.0f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.ambient"), 0.1f, 0.1f, 0.1f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.diffuse"), 0.4f, 0.4f, 0.4f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "pointLights.specular"), 1.0f, 1.0f, 1.0f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "pointLights.constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "pointLights.linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "pointLights.quadratic"), 0.032f);
-	//spot light
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.position"), 0, 5, 0);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.direction"), viewPos[0], viewPos[1], viewPos[2]);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.ambient"), 0.1f, 0.1f, 0.1f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
-	glUniform3f(glGetUniformLocation(wave_shader->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.cutOff"), 0.032f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
-	//material
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.diffuse"), 0.0f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.specular"), 1.0f);
-	glUniform1f(glGetUniformLocation(wave_shader->Program, "material.shininess"), 32.0f);
+	if (tw->waveBrowser->value() == 2) {
+		height_id[height_index].unbind(5);
+	}
 
 	/*Sky box*/
 	glDepthFunc(GL_LEQUAL);
@@ -1209,24 +1149,30 @@ void TrainView::draw()
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);
 
-	tile->Use();
-	glUniformMatrix4fv(glGetUniformLocation(tile->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(tile->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniformMatrix4fv(glGetUniformLocation(tile->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
-	glUniform1i(glGetUniformLocation(tile->Program, "texture_d"), 11);
+	loadmodel_shader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	tunnel_model->Draw(*loadmodel_shader);
 
+
+
+	//Draw Tiles
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
-
 	tile_texture->bind(11);
-	tile_model->Draw(*tile);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
+	tile_model->Draw(*loadmodel_shader);
 	tile_texture->unbind(11);
 	glDisable(GL_CULL_FACE);
 
 	// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
 
 	// clear all relevant buffers
