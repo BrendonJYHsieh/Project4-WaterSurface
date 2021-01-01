@@ -78,6 +78,13 @@ TrainWindow(const int x, const int y)
 		speed->align(FL_ALIGN_LEFT);
 		speed->type(FL_HORIZONTAL);
 
+		pty += 25;
+		adjust = new Fl_Value_Slider(655, pty, 140, 20, "adjust");
+		adjust->range(-200, 200);
+		adjust->value(2);
+		adjust->align(FL_ALIGN_LEFT);
+		adjust->type(FL_HORIZONTAL);
+
 		pty += 30;
 
 		// camera buttons - in a radio button group
@@ -253,7 +260,7 @@ advanceTrain(float dir)
 	// TODO: make this work for your train
 	//#####################################################################
 	if (trainView->tw->arcLength->value()) {
-		m_Track.trainU += (1.0f * speed->value() + trainView->physical * 10) * dir;
+		m_Track.trainU += (1.5f * speed->value() + trainView->physical * 20) * dir;
 		if (m_Track.trainU > trainView->Path_Total) {
 			m_Track.trainU -= trainView->Path_Total;
 		}

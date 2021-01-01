@@ -962,7 +962,10 @@ void TrainView::draw()
 			tile_texture = new Texture2D("../tile/tiles.jpg");
 		}
 		if (!tunnel_model) {
-			tunnel_model = new Model("../backpack/backpack.obj");
+			tunnel_model = new Model("../tunnel/LeakeStreetTunnel03.obj");
+		}
+		if (!terrain_model) {
+			terrain_model = new Model("../terrain/Landscape01.obj");
 		}
 	}
 	else
@@ -1149,12 +1152,26 @@ void TrainView::draw()
 	glDepthFunc(GL_LESS);
 
 	loadmodel_shader->Use();
+
+	//Draw
+	glm::mat4 terrain_transfer = glm::mat4(1.0f);
+	terrain_transfer = glm::translate(terrain_transfer, glm::vec3(0.0f, -110.0f,-17.39));
+	terrain_transfer = glm::scale(terrain_transfer, glm::vec3(220.0, 220.0, 220.0));
+	terrain_transfer = glm::rotate(terrain_transfer, glm::radians(27.39f), glm::vec3(0.0, 1.0, 0.0));
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &terrain_transfer[0][0]);
+	terrain_model->Draw(*loadmodel_shader);
+
+	//Draw Tunnel
+	glm::mat4 tunnel_transfer = glm::mat4(1.0f);
+	tunnel_transfer = glm::translate(tunnel_transfer, glm::vec3(70.0f, 10.0f, 56.52));
+	tunnel_transfer = glm::scale(tunnel_transfer, glm::vec3(6.0, 6.0, 6.0));
+	tunnel_transfer = glm::rotate(tunnel_transfer, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &tunnel_transfer[0][0]);
 	tunnel_model->Draw(*loadmodel_shader);
-
-
 
 	//Draw Tiles
 	glEnable(GL_CULL_FACE);
@@ -1277,7 +1294,7 @@ void TrainView::trainCamView(TrainView* TrainV, float aspect) {
 	float percent = 1.0f / DIVIDE_LINE;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(120, aspect, 0.01, 1000);
+	gluPerspective(120, aspect, 0.01, 10000);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	float t;
@@ -1298,9 +1315,14 @@ void TrainView::trainCamView(TrainView* TrainV, float aspect) {
 	Pnt3f eye_orient = GMT(p1.orient, p2.orient, p3.orient, p4.orient, tw->splineBrowser->value(), t - percent);
 	Pnt3f centery_ori = GMT(p1.orient, p2.orient, p3.orient, p4.orient, tw->splineBrowser->value(), t);
 
+	
+
+
 	Pnt3f eye = GMT(p1.pos, p2.pos, p3.pos, p4.pos, tw->splineBrowser->value(), t - percent) + eye_orient * 2.0f;
 	Pnt3f centery = GMT(p1.pos, p2.pos, p3.pos, p4.pos, tw->splineBrowser->value(), t) + centery_ori * 2.0f;
 	gluLookAt(eye.x, eye.y, eye.z, centery.x, centery.y, centery.z, eye_orient.x, eye_orient.y, eye_orient.z);
+
+	trainPos = glm::vec3(centery.x, centery.y, centery.z);
 }
 void TrainView::drawTrack(TrainView* TrainV, bool doingShadows) {
 	Path_Total = 0;
@@ -1389,7 +1411,6 @@ void TrainView::drawTrack(TrainView* TrainV, bool doingShadows) {
 }
 
 void TrainView::drawTrain(TrainView* TrainV, bool doingShadows) {
-
 	float percent = 1.0f / DIVIDE_LINE;
 	float t;
 	int i;
@@ -1617,6 +1638,7 @@ doPick()
 		uv_center.y = uv.y;
 		uv_t = tw->wave_t;
 	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void TrainView::setUBO()
 {

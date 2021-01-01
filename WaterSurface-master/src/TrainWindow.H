@@ -95,6 +95,7 @@ class TrainWindow : public Fl_Double_Window {
 
 		// if we're animating it, how fast should it go?
 		Fl_Value_Slider*	speed;
+		Fl_Value_Slider* adjust;
 		Fl_Value_Slider* WaveFrequency;
 		Fl_Value_Slider* WaveHeight;
 		Fl_Value_Slider* WaveAmplitude;

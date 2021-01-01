@@ -143,6 +143,7 @@ class TrainView : public Fl_Gl_Window
 		Model* wave_model = nullptr;
 		Model* tile_model = nullptr;
 		Model* tunnel_model = nullptr;
+		Model* terrain_model = nullptr;
 
 
 		Texture2D* tile_texture = nullptr;
@@ -160,7 +161,7 @@ class TrainView : public Fl_Gl_Window
 		Shader* screenShader = nullptr;
 		Shader* interactive_frame = nullptr;
 
-		GLuint particleVAO, particleVBO, particleVBO1;
+		GLuint particleVAO, particleVBO;
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
 		//frame buffer
