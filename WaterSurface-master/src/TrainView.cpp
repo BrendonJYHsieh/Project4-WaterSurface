@@ -1135,7 +1135,6 @@ void TrainView::draw()
 	if (tw->waveBrowser->value() == 2) {
 		height_id[height_index].unbind(5);
 	}
-
 	/*Sky box*/
 	glDepthFunc(GL_LEQUAL);
 	skybox->Use();
