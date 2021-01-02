@@ -52,6 +52,40 @@
 #define particlee
 #include"RenderUtilities/model.h"
 
+void normalize(GLfloat* v)
+{
+	GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	v[0] /= d; v[1] /= d; v[2] /= d;
+}
+
+void divide_triangle(GLfloat* a, GLfloat* b, GLfloat* c, int depth)
+{
+	if (depth > 0) {
+		GLfloat ab[3], ac[3], bc[3];
+		for (unsigned int i = 0; i < 3; i++)
+			ab[i] = a[i] + b[i];
+		normalize(ab);
+		for (unsigned int i = 0; i < 3; i++)
+			ac[i] = a[i] + c[i];
+		normalize(ac);
+		for (unsigned int i = 0; i < 3; i++)
+			bc[i] = b[i] + c[i];
+		normalize(bc);
+		divide_triangle(a, ab, ac, depth - 1);
+		divide_triangle(b, bc, ab, depth - 1);
+		divide_triangle(c, ac, bc, depth - 1);
+		divide_triangle(ab, bc, ac, depth - 1);
+	}
+	else {
+		glBegin(GL_LINE_LOOP);
+		glColor3f(sqrt(a[0] * a[0]), sqrt(a[1] * a[1]), sqrt(a[2] * a[2]));
+		glVertex3fv(a);
+		glVertex3fv(b);
+		glVertex3fv(c);
+		glEnd();
+	}
+}
+
 void TrainView::Draw()
 {
 	glEnable(GL_BLEND);
@@ -1077,8 +1111,9 @@ void TrainView::draw()
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
 
 	//transformation matrix
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(scale, scale, scale));
+	glm::mat4 wave_transfer = glm::mat4(1.0f);
+	wave_transfer = glm::translate(wave_transfer, glm::vec3(0.0f, 100.0, 0));
+	wave_transfer = glm::scale(wave_transfer, glm::vec3(scale, scale, scale));
 
 
 
@@ -1133,7 +1168,7 @@ void TrainView::draw()
 
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(wave_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
 
 	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
@@ -1156,14 +1191,14 @@ void TrainView::draw()
 	glDepthFunc(GL_LESS);
 
 	loadmodel_shader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 
 	//Draw terrain
 	glm::mat4 terrain_transfer = glm::mat4(1.0f);
 	terrain_transfer = glm::translate(terrain_transfer, glm::vec3(0.0f, -110.0f,-17.39));
 	terrain_transfer = glm::scale(terrain_transfer, glm::vec3(220.0, 220.0, 220.0));
 	terrain_transfer = glm::rotate(terrain_transfer, glm::radians(27.39f), glm::vec3(0.0, 1.0, 0.0));
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &terrain_transfer[0][0]);
 	terrain_model->Draw(*loadmodel_shader);
 
@@ -1172,8 +1207,6 @@ void TrainView::draw()
 	tunnel_transfer = glm::translate(tunnel_transfer, glm::vec3(70.0f, 10.0f, 56.52));
 	tunnel_transfer = glm::scale(tunnel_transfer, glm::vec3(6.0, 6.0, 6.0));
 	tunnel_transfer = glm::rotate(tunnel_transfer, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &tunnel_transfer[0][0]);
 	tunnel_model->Draw(*loadmodel_shader);
 
@@ -1183,8 +1216,6 @@ void TrainView::draw()
 	person_transfer = glm::scale(person_transfer, glm::vec3(0.5, 0.5, 0.5));
 	person_transfer = person_transfer * train_rotate;
 	person_transfer = glm::rotate(person_transfer, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &person_transfer[0][0]);
 	person_model->Draw(*loadmodel_shader);
 
@@ -1193,9 +1224,7 @@ void TrainView::draw()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
 	tile_texture->bind(11);
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
 	glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
 	tile_model->Draw(*loadmodel_shader);
 	tile_texture->unbind(11);

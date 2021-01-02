@@ -135,8 +135,6 @@ class TrainView : public Fl_Gl_Window
 		ALCcontext* context = nullptr;
 		ALuint source;
 		ALuint buffer;
-
-
 		GLfloat View[16];
 		GLfloat Projection[16];
 
