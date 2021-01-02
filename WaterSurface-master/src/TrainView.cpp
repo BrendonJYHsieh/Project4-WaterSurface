@@ -296,13 +296,14 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	if (!doingShadows) {
 		glColor3ub(255, 255, 255);
 	}
-	glBegin(GL_QUADS);
+	//¤W
+	/*glBegin(GL_QUADS);
 	glNormal3f(up.x, up.y, up.z);
 	glVertex3f_Simplify(qt0 + cross_t + up);
 	glVertex3f_Simplify(qt0 + forward + cross_t + up);
 	glVertex3f_Simplify(qt0 + forward - cross_t + up);
 	glVertex3f_Simplify(qt0 - cross_t + up);
-	glEnd();
+	glEnd();*/
 	//¤U
 	glBegin(GL_QUADS);
 	glNormal3f(-up.x, -up.y, -up.z);
@@ -967,6 +968,9 @@ void TrainView::draw()
 		if (!terrain_model) {
 			terrain_model = new Model("../terrain/Landscape01.obj");
 		}
+		if (!person_model) {
+			person_model = new Model("../person/gura.obj");
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -1153,7 +1157,7 @@ void TrainView::draw()
 
 	loadmodel_shader->Use();
 
-	//Draw
+	//Draw terrain
 	glm::mat4 terrain_transfer = glm::mat4(1.0f);
 	terrain_transfer = glm::translate(terrain_transfer, glm::vec3(0.0f, -110.0f,-17.39));
 	terrain_transfer = glm::scale(terrain_transfer, glm::vec3(220.0, 220.0, 220.0));
@@ -1172,6 +1176,17 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &tunnel_transfer[0][0]);
 	tunnel_model->Draw(*loadmodel_shader);
+
+	//Draw Person
+	glm::mat4 person_transfer = glm::mat4(1.0f);
+	person_transfer = glm::translate(person_transfer, personPos);
+	person_transfer = glm::scale(person_transfer, glm::vec3(0.5, 0.5, 0.5));
+	person_transfer = person_transfer * train_rotate;
+	person_transfer = glm::rotate(person_transfer, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &person_transfer[0][0]);
+	person_model->Draw(*loadmodel_shader);
 
 	//Draw Tiles
 	glEnable(GL_CULL_FACE);
@@ -1439,14 +1454,22 @@ void TrainView::drawTrain(TrainView* TrainV, bool doingShadows) {
 			cross_t.normalize();
 			orient_t = cross_t * (qt1 - qt0);
 			orient_t.normalize();
-			cross_t = cross_t * Train_Width;
-			Pnt3f up = orient_t * Train_Height;
 			Pnt3f forward = (qt1 - qt0);
 			forward.normalize();
+			train_rotate = {
+				forward.x,forward.y,forward.z,0.0f,
+				orient_t.x,orient_t.y,orient_t.z,0.0f,
+				cross_t.x,cross_t.y,cross_t.z,0.0f,
+				0.0f,0.0f,0.0f,1.0f,
+			};
+			cross_t = cross_t * Train_Width;
+			Pnt3f up = orient_t * Train_Height;
 			forward = forward * Train_Forward;
 
-			trainPos = glm::vec3(qt1.x, qt1.y, qt1.z)+ glm::vec3(forward.x, forward.y, forward.z);
 
+			
+			trainPos = glm::vec3(qt1.x, qt1.y, qt1.z) + glm::vec3(forward.x, forward.y, forward.z);
+			personPos = glm::vec3(qt0.x, qt0.y, qt0.z) + glm::vec3(forward.x*0.8, forward.y*0.8, forward.z*0.8);
 
 			float total = 0.0f;
 			if (j == 1) {

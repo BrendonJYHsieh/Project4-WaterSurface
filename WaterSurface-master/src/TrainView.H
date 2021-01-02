@@ -144,8 +144,10 @@ class TrainView : public Fl_Gl_Window
 		Model* tile_model = nullptr;
 		Model* tunnel_model = nullptr;
 		Model* terrain_model = nullptr;
-
-
+		//person
+		Model* person_model = nullptr;
+		glm::vec3 personPos;
+		glm::mat4 train_rotate;
 		Texture2D* tile_texture = nullptr;
 
 		float height_index = 0;

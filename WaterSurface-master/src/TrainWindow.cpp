@@ -80,7 +80,7 @@ TrainWindow(const int x, const int y)
 
 		pty += 25;
 		adjust = new Fl_Value_Slider(655, pty, 140, 20, "adjust");
-		adjust->range(-200, 200);
+		adjust->range(0.0, 2.0);
 		adjust->value(2);
 		adjust->align(FL_ALIGN_LEFT);
 		adjust->type(FL_HORIZONTAL);
