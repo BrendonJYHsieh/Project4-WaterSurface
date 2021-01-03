@@ -312,7 +312,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="particle.cpp" />
     <ClInclude Include="WaterSurface-master\src\Particle.h" />
+    <ClInclude Include="WaterSurface-master\src\particle1.h" />
     <ClInclude Include="WaterSurface-master\src\RenderUtilities\mesh.h" />
     <ClInclude Include="WaterSurface-master\src\RenderUtilities\model.h" />
     <ClInclude Include="WaterSurface-master\src\RenderUtilities\stb_image.h" />

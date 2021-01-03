@@ -22,6 +22,9 @@
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\include\glad4.6\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Project4-WaterSurface\WaterSurface-master\src\RenderUtilities\BufferObject.h">
@@ -43,6 +46,9 @@
       <Filter>RenderUtilities</Filter>
     </ClInclude>
     <ClInclude Include="WaterSurface-master\src\Particle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterSurface-master\src\particle1.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
