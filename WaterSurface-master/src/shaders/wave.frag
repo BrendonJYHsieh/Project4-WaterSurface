@@ -123,7 +123,8 @@ void main()
     else{
         //f_color = vec4(texture(, f_in.texture_coordinate).rgb,1.0);
         vec4 reflectColor = texture(reflact_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
-        f_color = reflectColor;
+        vec4 base = {0.0,0.0,0.3,1.0};
+        f_color = reflectColor*0.8+base*0.2;
     }
   
 }
