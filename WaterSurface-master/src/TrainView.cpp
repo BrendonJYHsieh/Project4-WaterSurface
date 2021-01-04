@@ -996,6 +996,7 @@ void TrainView::draw()
 			tile_model = new Model("../tile/tile.obj");
 			tile_texture = new Texture2D("../tile/tiles.jpg");
 		}
+#ifdef DEBUG
 		if (!tunnel_model) {
 			tunnel_model = new Model("../tunnel/LeakeStreetTunnel03.obj");
 		}
@@ -1005,6 +1006,7 @@ void TrainView::draw()
 		if (!person_model) {
 			person_model = new Model("../person/gura.obj");
 		}
+#endif // DEBUG
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -1189,10 +1191,14 @@ void TrainView::draw()
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);
 
+
+
+
+
 	loadmodel_shader->Use();
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, View);
-
+#ifdef DEBUG
 	//Draw terrain
 	glm::mat4 terrain_transfer = glm::mat4(1.0f);
 	terrain_transfer = glm::translate(terrain_transfer, glm::vec3(0.0f, -110.0f,-17.39));
@@ -1217,7 +1223,7 @@ void TrainView::draw()
 	person_transfer = glm::rotate(person_transfer, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &person_transfer[0][0]);
 	person_model->Draw(*loadmodel_shader);
-
+#endif // DEBUG
 	//Draw Tiles
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -1259,25 +1265,7 @@ void TrainView::draw()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	//*********************************************************************
-	// now draw the ground plane
-	//*********************************************************************
-	// set to opengl fixed pipeline(use opengl 1.x draw function)
-	
-	/*setupFloor();
-	glDisable(GL_LIGHTING);
-	drawFloor(200, 10);*/
 
-	
-	//*********************************************************************
-	// now draw the object and we need to do it twice
-	// once for real, and then once for shadows
-	//*********************************************************************
-	
-	glEnable(GL_LIGHTING);
-	
-
-	
 }
 
 //************************************************************************

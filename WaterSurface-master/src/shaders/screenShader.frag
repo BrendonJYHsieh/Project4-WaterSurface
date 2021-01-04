@@ -167,8 +167,8 @@ uniform float vx_offset=0.55;
 uniform float rt_w; 
 uniform float rt_h; 
 uniform float t;
-uniform float pixel_w = 7; // 15.0
-uniform float pixel_h = 5; 
+uniform float pixel_w = 5; // 15.0
+uniform float pixel_h = 6; 
 uniform bool pixel_enable;
 uniform bool offset_enable;
 uniform bool other_enable;
@@ -177,25 +177,15 @@ void main()
 {
         if(pixel_enable){
             vec2 uv = TexCoords.xy;
-            vec3 tc = vec3(1.0, 0.0, 0.0);
-            if (uv.x < (vx_offset-0.005))
-            {
-            float dx = pixel_w*(1./rt_w);
-            float dy = pixel_h*(1./rt_h);
-            vec2 coord = vec2(dx*floor(uv.x/dx),
-                                dy*floor(uv.y/dy));
-            tc = texture2D(screenTexture, coord).rgb;
-            }
-            else if (uv.x>=(vx_offset+0.005))
-            {
-            tc = texture2D(screenTexture, uv).rgb;
-            }
+            float dx = pixel_w*(1.0/rt_w);
+            float dy = pixel_h*(1.0/rt_h);
+            vec2 coord = vec2(dx*floor(uv.x/dx),dy*floor(uv.y/dy));
+            vec3 tc = texture2D(screenTexture, coord).rgb;
             FragColor = vec4(tc, 1.0);
         }
         else if(offset_enable){
         /*
-            vec2 uv = TexCoords.xy;
-            vec3 col = texture( screenTexture, uv + 0.005*vec2( sin(t+1024.0*uv.x),cos(t+768.0*uv.y)) ).xyz;*/
+            */
             vec4 colorOrg = texture2D( screenTexture, TexCoords );
             vec3 vHSV =  RGBtoHSV(colorOrg.r,colorOrg.g,colorOrg.b);
             vHSV.x = nearestLevel(vHSV.x, 0);
@@ -206,21 +196,6 @@ void main()
             FragColor = vec4(vRGB , 1.0);
         }
         else if(other_enable){
-        /*
-            vec3 col;
-            float level =6;
-            for(float i=0.0;i<=1.0;i+=(1.0/level)){
-                if(texture(screenTexture, TexCoords).r>=i&&texture(screenTexture, TexCoords).r<i+(1.0/level)){
-                    col.x = i;
-                }
-                if(texture(screenTexture, TexCoords).g>=i&&texture(screenTexture, TexCoords).g<i+(1.0/level)){
-                    col.y = i;
-                }
-                if(texture(screenTexture, TexCoords).b>=i&&texture(screenTexture, TexCoords).b<i+(1.0/level)){
-                    col.z = i;
-                }
-            }
-                FragColor = vec4(col, 1.0);*/
                 vec2 resolution = {590,590};
                 const vec4 luminance_vector = vec4(0.3, 0.59, 0.11, 0.0);
                 vec2 uv = (gl_FragCoord.xy / resolution)-vec2(1.0);
