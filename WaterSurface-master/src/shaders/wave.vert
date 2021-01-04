@@ -34,18 +34,6 @@ out V_OUT
 void main()
 { 
     if(wave_mode == 1){
-        /*
-        float k = 2 * PI * frequency;
-        float w =  k * (position.x)+t;
-        vec3 p = position;
-        p.y = amplitude * sin(w);
-
-        vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
-
-        v_out.normal = mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
-        gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
-        v_out.position = vec3(model_matrix * vec4(p, 1.0));
-        v_out.texture_coordinate = texture_coordinate;*/
         gl_Position = proj_matrix * view_matrix * model_matrix * vec4(position, 1.0f);
         v_out.position = vec3(model_matrix * vec4(position, 1.0));
         v_out.texture_coordinate = texture_coordinate;
@@ -88,6 +76,19 @@ void main()
         p.y += amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
 
         v_out.normal = mat3(transpose(inverse(model_matrix)))*normal;
+        gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
+        v_out.position = vec3(model_matrix * vec4(p, 1.0));
+        v_out.texture_coordinate = texture_coordinate;
+    }
+    else if(wave_mode ==4){
+        float k = 2 * PI * frequency;
+        float w =  k * (position.x)+t;
+        vec3 p = position;
+        p.y = amplitude * sin(w);
+
+        vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
+
+        v_out.normal = mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
         gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
         v_out.position = vec3(model_matrix * vec4(p, 1.0));
         v_out.texture_coordinate = texture_coordinate;

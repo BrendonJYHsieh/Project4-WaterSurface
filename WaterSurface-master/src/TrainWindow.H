@@ -108,7 +108,7 @@ class TrainWindow : public Fl_Double_Window {
 		bool heightmap = false;
 		bool interactive = false;
 
-		bool reflect = true;
+		bool reflect = false;
 		bool refract = false;
 		
 		// we have other widgets as part of the sample solution

@@ -176,7 +176,9 @@ class TrainView : public Fl_Gl_Window
 		unsigned int reflect_texture;
 		unsigned int reflectFBO;
 		unsigned int reflectRBO;
-
+		unsigned int refract_texture;
+		unsigned int refractFBO;
+		unsigned int refractRBO;
 		glm::vec2 uv_center;
 		int uv_t = 0;
 

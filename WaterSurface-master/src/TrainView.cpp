@@ -51,7 +51,7 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-
+#define DEBUG
 void normalize(GLfloat* v)
 {
 	GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -813,7 +813,7 @@ void TrainView::draw()
 					"../WaterSurface-master/src/shaders/wave.vert",
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/wave.frag");
-
+			//reflect
 			glGenTextures(1, &reflect_texture);
 			glBindTexture(GL_TEXTURE_2D, reflect_texture);
 
@@ -834,9 +834,30 @@ void TrainView::draw()
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->pixel_w(), this->pixel_h());
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, reflectRBO);
-
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			//refract
+			glGenTextures(1, &refract_texture);
+			glBindTexture(GL_TEXTURE_2D, refract_texture);
 
+			glGenFramebuffers(1, &refractFBO);
+			glGenRenderbuffers(1, &refractRBO);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, refractFBO);
+
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->pixel_w(), this->pixel_h(), 0.1, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, refract_texture, 0);
+
+			glBindRenderbuffer(GL_RENDERBUFFER, refractRBO);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->pixel_w(), this->pixel_h());
+			glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, refractRBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		if (!this->skybox) {
@@ -1150,10 +1171,10 @@ void TrainView::draw()
 			(glm::sign(newClipPlane.y) + _projection_matrix[2][1]) / _projection_matrix[1][1],
 			-1.0f, (1.0f + _projection_matrix[2][2]) / _projection_matrix[3][2]);
 		glm::vec4 c = newClipPlane * (2.0f / glm::dot(newClipPlane, q));
-		/*_projection_matrix[0][2] = c.x;
+		_projection_matrix[0][2] = c.x;
 		_projection_matrix[1][2] = c.y;
 		_projection_matrix[2][2] = c.z + 1.0f;
-		_projection_matrix[3][2] = c.w;*/
+		_projection_matrix[3][2] = c.w;
 		glBindFramebuffer(GL_FRAMEBUFFER, reflectFBO);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1259,7 +1280,6 @@ void TrainView::draw()
 	wave_shader->Use();
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Wave*/
-	
 	glUniform1i(glGetUniformLocation(wave_shader->Program, "height_map_texture"), 5);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"), tw->WaveAmplitude->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveFrequency->value());

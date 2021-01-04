@@ -166,6 +166,7 @@ TrainWindow(const int x, const int y)
 		waveBrowser = new Fl_Browser(605, pty, 120, 75, "Wave Type");
 		waveBrowser->type(2);		// select
 		waveBrowser->callback((Fl_Callback*)damageCB, this);
+		waveBrowser->add("Real Time Reflect");
 		waveBrowser->add("Sin Wave");
 		waveBrowser->add("HeightMap Wave");
 		waveBrowser->add("Interactive Wave");

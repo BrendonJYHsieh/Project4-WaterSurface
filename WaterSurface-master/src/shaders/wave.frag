@@ -96,7 +96,7 @@ uniform int wave_mode;
 void main()
 {   
     vec3 norm;
-    if(wave_mode == 3){
+    if(wave_mode == 4){
         norm=-normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
     }
     else{
@@ -123,7 +123,7 @@ void main()
     else{
         //f_color = vec4(texture(, f_in.texture_coordinate).rgb,1.0);
         vec4 reflectColor = texture(reflact_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
-        vec4 base = {0.0,0.0,0.3,1.0};
+        vec4 base = {0.0,0.0,0.2,1.0};
         f_color = reflectColor*0.8+base*0.2;
     }
   
