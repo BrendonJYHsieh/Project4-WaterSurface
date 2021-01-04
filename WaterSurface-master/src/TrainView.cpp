@@ -1035,7 +1035,7 @@ void TrainView::draw()
 	// enable the lighting
 	glEnable(GL_COLOR_MATERIAL);
 
-
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
@@ -1074,9 +1074,9 @@ void TrainView::draw()
 
 
 	//Frame buffer
-	/*glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 
 	if (tw->waveBrowser->value() == 2) {
@@ -1229,27 +1229,36 @@ void TrainView::draw()
 	tile_texture->unbind(11);
 	glDisable(GL_CULL_FACE);
 
-
-	
+	glUseProgram(0);
+	setupObjects();
+	drawStuff();
+	// this time drawing is for shadows (except for top view)
+	if (!tw->topCam->value()) {
+		setupShadows();
+		drawStuff(true);
+		unsetupShadows();
+	}
+	ProcessParticles();
+	DrawParticles();
 
 
 	// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
-	//glClear(GL_COLOR_BUFFER_BIT);
-	//this->screenShader->Use();
-	//glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
-	//glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
-	//glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
-	//glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), w());
-	//glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), h());
-	//glBindVertexArray(quadVAO);
-	//glActiveTexture(GL_TEXTURE12);
-	//glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
-	//glUniform1i(glGetUniformLocation(screenShader->Program, "screenTexture"), 12);
-	//glDrawArrays(GL_TRIANGLES, 0, 6);
-	//glActiveTexture(GL_TEXTURE12);
-	//glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+	glClear(GL_COLOR_BUFFER_BIT);
+	this->screenShader->Use();
+	glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
+	glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
+	glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
+	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), w());
+	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), h());
+	glBindVertexArray(quadVAO);
+	glActiveTexture(GL_TEXTURE12);
+	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+	glUniform1i(glGetUniformLocation(screenShader->Program, "screenTexture"), 12);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glActiveTexture(GL_TEXTURE12);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	//*********************************************************************
 	// now draw the ground plane
 	//*********************************************************************
@@ -1259,24 +1268,16 @@ void TrainView::draw()
 	glDisable(GL_LIGHTING);
 	drawFloor(200, 10);*/
 
-	glUseProgram(0);
+	
 	//*********************************************************************
 	// now draw the object and we need to do it twice
 	// once for real, and then once for shadows
 	//*********************************************************************
 	
 	glEnable(GL_LIGHTING);
-	setupObjects();
-	drawStuff();
+	
 
-	// this time drawing is for shadows (except for top view)
-	if (!tw->topCam->value()) {
-		setupShadows();
-		drawStuff(true);
-		unsetupShadows();
-	}
-	ProcessParticles();
-	DrawParticles();
+	
 }
 
 //************************************************************************
