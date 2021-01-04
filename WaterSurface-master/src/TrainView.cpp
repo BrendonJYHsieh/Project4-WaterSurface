@@ -51,7 +51,7 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-//#define DEBUG
+#define DEBUG
 void normalize(GLfloat* v)
 {
 	GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -1173,10 +1173,10 @@ void TrainView::draw()
 			(glm::sign(newClipPlane.y) + _projection_matrix[2][1]) / _projection_matrix[1][1],
 			-1.0f, (1.0f + _projection_matrix[2][2]) / _projection_matrix[3][2]);
 		glm::vec4 c = newClipPlane * (2.0f / glm::dot(newClipPlane, q));
-		_projection_matrix[0][2] = c.x;
+		/*_projection_matrix[0][2] = c.x;
 		_projection_matrix[1][2] = c.y;
 		_projection_matrix[2][2] = c.z + 1.0f;
-		_projection_matrix[3][2] = c.w;
+		_projection_matrix[3][2] = c.w;*/
 		glBindFramebuffer(GL_FRAMEBUFFER, reflectFBO);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
