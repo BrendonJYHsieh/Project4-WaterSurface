@@ -51,7 +51,7 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-#define DEBUG
+//#define DEBUG
 void normalize(GLfloat* v)
 {
 	GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -857,7 +857,9 @@ void TrainView::draw()
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->pixel_w(), this->pixel_h());
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, refractRBO);
+
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		if (!this->skybox) {
@@ -1206,7 +1208,47 @@ void TrainView::draw()
 		glDepthFunc(GL_LESS);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+	if (true)
+	{
+		glm::vec3 campos = viewPos;
+		float len = sqrt(campos.x * campos.x + campos.y * campos.y + campos.z * campos.z);
 
+		glm::vec3 p0 = glm::vec3(-1, 0, 1);
+		glm::vec3 n = glm::vec3(0, 1, 0);
+
+		float mA = n.x;
+		float mB = n.y;
+		float mC = n.z;
+		float mD = -n.x * p0.x - n.y * p0.y - n.z * p0.z;;
+
+		glm::mat4 viewPrime = View_mat4x4 *glm::translate(glm::vec3(0.0f, 200.0f, 0.0f)) * glm::scale(glm::vec3(1, glm::clamp(1.0f - (0.3f), 0.001f, 1.0f), 1));
+		float fov = 2.0 * atan(1.0 / Projection_mat4x4[1][1]) * 180.0 / 3.1415926;
+		glm::mat4 _projection_matrix = glm::perspective<float>(glm::radians(fov), 1.0f, 0.01, 1000.0f);
+		glm::vec4 newClipPlane = glm::transpose(glm::inverse(viewPrime)) * glm::vec4(n, mD);
+		(&_projection_matrix[0][0])[2] = newClipPlane.x + (&_projection_matrix[0][0])[3];//x
+		(&_projection_matrix[0][0])[6] = newClipPlane.y + (&_projection_matrix[0][0])[7];//y
+		(&_projection_matrix[0][0])[10] = newClipPlane.z + (&_projection_matrix[0][0])[11];//z
+		(&_projection_matrix[0][0])[14] = newClipPlane.w + (&_projection_matrix[0][0])[15];//w
+
+		glBindFramebuffer(GL_FRAMEBUFFER, refractFBO);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//draw tiles
+		loadmodel_shader->Use();
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, &_projection_matrix[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, &viewPrime[0][0]);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glFrontFace(GL_CW);
+		tile_texture->bind(11);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
+		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
+		tile_model->Draw(*loadmodel_shader);
+		tile_texture->unbind(11);
+		glDisable(GL_CULL_FACE);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 	//Frame buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -1270,6 +1312,8 @@ void TrainView::draw()
 		}
 	}
 	particle_shader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	Draw();
 #endif
 
@@ -1297,7 +1341,10 @@ void TrainView::draw()
 
 	glActiveTexture(GL_TEXTURE13);
 	glBindTexture(GL_TEXTURE_2D, reflect_texture);
-	glUniform1i(glGetUniformLocation(wave_shader->Program, "reflact_texture"), 13);
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "reflect_texture"), 13);
+	glActiveTexture(GL_TEXTURE14);
+	glBindTexture(GL_TEXTURE_2D, refract_texture);
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "refract_texture"), 14);
 
 	wave_model->Draw(*wave_shader);
 	if (tw->waveBrowser->value() == 2) {

@@ -88,7 +88,8 @@ uniform samplerCube skybox;
 uniform bool reflect_enable;
 uniform bool refract_enable;
 
-uniform sampler2D reflact_texture;
+uniform sampler2D reflect_texture;
+uniform sampler2D refract_texture;
 uniform sampler2D height_map_texture;
 uniform vec3 light_pos ={30.0,70.0,100};
 uniform int wave_mode;
@@ -122,9 +123,23 @@ void main()
     }
     else{
         //f_color = vec4(texture(, f_in.texture_coordinate).rgb,1.0);
-        vec4 reflectColor = texture(reflact_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
-        vec4 base = {0.0,0.0,0.2,1.0};
-        f_color = reflectColor*0.8+base*0.2;
+        float _FresnelBase = 0.0;
+		float _FresnelScale = 10.0;
+		float _FresnelPower = 6.0;
+        vec4 reflectColor = texture(reflect_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
+        vec4 refractColor = texture(refract_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
+//        float fresnel = 0.0;
+//        if((-viewDir).y<0)
+//			{				
+//				fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
+//			}
+//			else
+//			{				
+//			    fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(-f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
+//			}
+//        f_color = refractColor*(1-fresnel)+reflectColor*fresnel;
+          vec4 base = {0.0,0.0,0.2,1.0};
+          f_color = refractColor*0.8+base*0.2;
     }
   
 }
