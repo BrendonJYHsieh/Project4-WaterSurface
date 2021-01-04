@@ -172,6 +172,10 @@ class TrainView : public Fl_Gl_Window
 		unsigned int framebuffer1;
 		unsigned int textureColorbuffer1;
 		unsigned int quadVAO1, quadVBO1;
+		//real time reflect and refract
+		unsigned int reflect_texture;
+		unsigned int reflectFBO;
+		unsigned int reflectRBO;
 
 		glm::vec2 uv_center;
 		int uv_t = 0;

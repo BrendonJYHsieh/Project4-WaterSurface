@@ -813,6 +813,31 @@ void TrainView::draw()
 					"../WaterSurface-master/src/shaders/wave.vert",
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/wave.frag");
+
+			glGenTextures(1, &reflect_texture);
+			glBindTexture(GL_TEXTURE_2D, reflect_texture);
+
+			glGenFramebuffers(1, &reflectFBO);
+			glGenRenderbuffers(1, &reflectRBO);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, reflectFBO);
+
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->pixel_w(), this->pixel_h(), 0.1, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, reflect_texture, 0);
+
+			glBindRenderbuffer(GL_RENDERBUFFER, reflectRBO);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->pixel_w(), this->pixel_h());
+			glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, reflectRBO);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		if (!this->skybox) {
 			this->skybox = new
@@ -919,7 +944,7 @@ void TrainView::draw()
 			// create a color attachment texture
 			glGenTextures(1, &textureColorbuffer);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->pixel_w(), this->pixel_h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
@@ -927,7 +952,7 @@ void TrainView::draw()
 			unsigned int rbo;
 			glGenRenderbuffers(1, &rbo);
 			glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->pixel_w(), this->pixel_h()); // use a single renderbuffer object for both a depth AND stencil buffer.
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
 			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -969,7 +994,7 @@ void TrainView::draw()
 			// create a color attachment texture
 			glGenTextures(1, &textureColorbuffer1);
 			glBindTexture(GL_TEXTURE_2D, textureColorbuffer1);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->pixel_w(), this->pixel_h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer1, 0);
@@ -1056,7 +1081,7 @@ void TrainView::draw()
 	// * set the light parameters
 	//
 	//**********************************************************************
-	GLfloat lightPosition1[] = { 0,1,1,0 }; // {50, 200.0, 50, 1.0};
+	GLfloat lightPosition1[] = { 0,1,1,0 };
 	GLfloat lightPosition2[] = { 1, 0, 0, 0 };
 	GLfloat lightPosition3[] = { 0, -1, 0, 0 };
 	GLfloat yellowLight[] = { 0.5f, 0.5f, .1f, 1.0 };
@@ -1074,6 +1099,92 @@ void TrainView::draw()
 	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
 
+	//transformation matrix
+	glm::mat4 wave_transfer = glm::mat4(1.0f);
+	wave_transfer = glm::translate(wave_transfer, glm::vec3(0.0f, 100.0, 0));
+	wave_transfer = glm::scale(wave_transfer, glm::vec3(scale, scale, scale));
+
+	//get Projection and view
+	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, View);
+	glm::mat4 View_mat4x4 = glm::make_mat4x4(View);
+	glm::mat4 Projection_mat4x4 = glm::make_mat4x4(Projection);
+	glm::mat4 skybox_View = glm::mat4(glm::mat3(View_mat4x4));
+	glm::mat4 viewMatrix = glm::inverse(View_mat4x4);
+	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
+	//reflect
+	if (true) {
+		glm::vec3 p0 = glm::vec3(0, 100, 0);
+		glm::vec3 n = glm::vec3(0, 1, 0);
+
+		float mA = n.x;
+		float mB = n.y;
+		float mC = n.z;
+		float mD = -n.x * p0.x - n.y * p0.y - n.z * p0.z;;
+		glm::mat4 reflectMat;
+		reflectMat[0][0] = -2 * n.x * n.x + 1;
+		reflectMat[0][1] = -2 * n.x * n.y;
+		reflectMat[0][2] = -2 * n.x * n.z;
+		reflectMat[0][3] = -2 * n.x * mD;
+
+		reflectMat[1][0] = -2 * n.x * n.y;
+		reflectMat[1][1] = -2 * n.y * n.y + 1;
+		reflectMat[1][2] = -2 * n.y * n.z;
+		reflectMat[1][3] = -2 * n.y * mD;
+
+		reflectMat[2][0] = -2 * n.z * n.x;
+		reflectMat[2][1] = -2 * n.z * n.y;
+		reflectMat[2][2] = -2 * n.z * n.z + 1;
+		reflectMat[2][3] = -2 * n.z * mD;
+
+		reflectMat[3][0] = 0;
+		reflectMat[3][1] = 0;
+		reflectMat[3][2] = 0;
+		reflectMat[3][3] = 1;
+
+		glm::mat4 viewPrime = View_mat4x4 * reflectMat;
+		float fov = 2.0 * atan(1.0 / Projection_mat4x4[1][1]) * 180.0 / 3.1415926;
+		glm::mat4 _projection_matrix = glm::perspective<float>(glm::radians(fov), 1.0f, 0.01, 1000.0f);
+		glm::vec4 newClipPlane = glm::transpose(glm::inverse(viewPrime)) * glm::vec4(n, mD);
+		glm::vec4 q = glm::vec4((glm::sign(newClipPlane.x) + _projection_matrix[2][0]) / _projection_matrix[0][0],
+			(glm::sign(newClipPlane.y) + _projection_matrix[2][1]) / _projection_matrix[1][1],
+			-1.0f, (1.0f + _projection_matrix[2][2]) / _projection_matrix[3][2]);
+		glm::vec4 c = newClipPlane * (2.0f / glm::dot(newClipPlane, q));
+		_projection_matrix[0][2] = c.x;
+		_projection_matrix[1][2] = c.y;
+		_projection_matrix[2][2] = c.z + 1.0f;
+		_projection_matrix[3][2] = c.w;
+		glBindFramebuffer(GL_FRAMEBUFFER, reflectFBO);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//draw tiles
+		loadmodel_shader->Use();
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, &_projection_matrix[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, &viewPrime[0][0]);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+		tile_texture->bind(11);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
+		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
+		tile_model->Draw(*loadmodel_shader);
+		tile_texture->unbind(11);
+		glDisable(GL_CULL_FACE);
+		///*Sky box*/
+		//glDepthFunc(GL_LEQUAL);
+		//skybox->Use();
+		//glm::mat4 skyboxView = glm::mat4(glm::mat3(viewPrime));
+		//glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "proj_matrix"), 1, GL_FALSE, &_projection_matrix[0][0]);
+		//glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_matrix"), 1, GL_FALSE, &skyboxView[0][0]);
+		//// skybox cube
+		//glBindVertexArray(skyboxVAO);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(0);
+		//glDepthFunc(GL_LESS);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
 	//Frame buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -1103,18 +1214,9 @@ void TrainView::draw()
 		height_id[(int)(height_index + tw->WaveFrequency->value()) % 200].bind(5);
 	}
 
-	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, View);
+	
 
-
-	glm::mat4 skybox_View = glm::mat4(glm::mat3(glm::make_mat4(View)));
-	glm::mat4 viewMatrix = glm::inverse(glm::make_mat4(View));
-	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
-
-	//transformation matrix
-	glm::mat4 wave_transfer = glm::mat4(1.0f);
-	wave_transfer = glm::translate(wave_transfer, glm::vec3(0.0f, 100.0, 0));
-	wave_transfer = glm::scale(wave_transfer, glm::vec3(scale, scale, scale));
+	
 
 
 
@@ -1147,8 +1249,6 @@ void TrainView::draw()
 		}
 	}
 	particle_shader->Use();
-	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view_matrix"), 1, GL_FALSE, View);
-	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
 	Draw();
 #endif
 
@@ -1159,6 +1259,7 @@ void TrainView::draw()
 	wave_shader->Use();
 	glUniform3f(glGetUniformLocation(wave_shader->Program, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 	/*Wave*/
+	
 	glUniform1i(glGetUniformLocation(wave_shader->Program, "height_map_texture"), 5);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "amplitude"), tw->WaveAmplitude->value());
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "frequency"), tw->WaveFrequency->value());
@@ -1173,6 +1274,10 @@ void TrainView::draw()
 
 	glUniform2f(glGetUniformLocation(wave_shader->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(wave_shader->Program, "uv_t"), uv_t);
+
+	glActiveTexture(GL_TEXTURE13);
+	glBindTexture(GL_TEXTURE_2D, reflect_texture);
+	glUniform1i(glGetUniformLocation(wave_shader->Program, "reflact_texture"), 13);
 
 	wave_model->Draw(*wave_shader);
 	if (tw->waveBrowser->value() == 2) {
@@ -1256,8 +1361,8 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
 	glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
 	glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), w());
-	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), h());
+	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), this->pixel_w());
+	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), this->pixel_h());
 	glBindVertexArray(quadVAO);
 	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane

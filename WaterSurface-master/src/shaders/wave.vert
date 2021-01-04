@@ -26,6 +26,7 @@ out V_OUT
    vec3 position;
    vec3 normal;
    vec2 texture_coordinate;
+   vec4 screenCoord;
 } v_out;
 
 
@@ -33,6 +34,7 @@ out V_OUT
 void main()
 { 
     if(wave_mode == 1){
+        /*
         float k = 2 * PI * frequency;
         float w =  k * (position.x)+t;
         vec3 p = position;
@@ -43,7 +45,14 @@ void main()
         v_out.normal = mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
         gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
         v_out.position = vec3(model_matrix * vec4(p, 1.0));
+        v_out.texture_coordinate = texture_coordinate;*/
+        gl_Position = proj_matrix * view_matrix * model_matrix * vec4(position, 1.0f);
+        v_out.position = vec3(model_matrix * vec4(position, 1.0));
         v_out.texture_coordinate = texture_coordinate;
+	    vec4 o = gl_Position;
+	    o = o*0.5;
+	    v_out.screenCoord.xy = o.xy+o.w;
+	    v_out.screenCoord.zw = o.zw*2;
     }
     else if(wave_mode == 2){
         vec3 height_map = position;

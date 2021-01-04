@@ -48,6 +48,7 @@ in V_OUT
    vec3 position;
    vec3 normal;
    vec2 texture_coordinate;
+   vec4 screenCoord;
 } f_in;
  
 
@@ -87,7 +88,7 @@ uniform samplerCube skybox;
 uniform bool reflect_enable;
 uniform bool refract_enable;
 
-
+uniform sampler2D reflact_texture;
 uniform sampler2D height_map_texture;
 uniform vec3 light_pos ={30.0,70.0,100};
 uniform int wave_mode;
@@ -120,7 +121,9 @@ void main()
         f_color = vec4(texture(skybox, result).rgb, 1.0);
     }
     else{
-        f_color = vec4(texture(skybox, result).rgb, 1.0);
+        //f_color = vec4(texture(, f_in.texture_coordinate).rgb,1.0);
+        vec4 reflectColor = texture(reflact_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
+        f_color = reflectColor;
     }
   
 }
