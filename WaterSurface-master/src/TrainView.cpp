@@ -51,7 +51,7 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-#define DEBUG
+//#define DEBUG
 void normalize(GLfloat* v)
 {
 	GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -1124,7 +1124,7 @@ void TrainView::draw()
 
 	//transformation matrix
 	glm::mat4 wave_transfer = glm::mat4(1.0f);
-	wave_transfer = glm::translate(wave_transfer, glm::vec3(0.0f, 100, 0));
+	//wave_transfer = glm::translate(wave_transfer, glm::vec3(0.0f, 100, 0));
 	wave_transfer = glm::scale(wave_transfer, glm::vec3(scale, scale, scale));
 
 	//get Projection and view
@@ -1165,7 +1165,7 @@ void TrainView::draw()
 		reflectMat[3][2] = 0;
 		reflectMat[3][3] = 1;
 
-		glm::mat4 viewPrime = View_mat4x4*glm::translate(glm::vec3(0.0f,200.0f,0.0f)) * reflectMat;
+		glm::mat4 viewPrime = View_mat4x4 * reflectMat;
 		float fov = 2.0 * atan(1.0 / Projection_mat4x4[1][1]) * 180.0 / 3.1415926;
 		glm::mat4 _projection_matrix = glm::perspective<float>(glm::radians(fov), 1.0f, 0.01, 1000.0f);
 		glm::vec4 newClipPlane = glm::transpose(glm::inverse(viewPrime)) * glm::vec4(n, mD);
@@ -1173,10 +1173,10 @@ void TrainView::draw()
 			(glm::sign(newClipPlane.y) + _projection_matrix[2][1]) / _projection_matrix[1][1],
 			-1.0f, (1.0f + _projection_matrix[2][2]) / _projection_matrix[3][2]);
 		glm::vec4 c = newClipPlane * (2.0f / glm::dot(newClipPlane, q));
-		/*_projection_matrix[0][2] = c.x;
+		_projection_matrix[0][2] = c.x;
 		_projection_matrix[1][2] = c.y;
 		_projection_matrix[2][2] = c.z + 1.0f;
-		_projection_matrix[3][2] = c.w;*/
+		_projection_matrix[3][2] = c.w;
 		glBindFramebuffer(GL_FRAMEBUFFER, reflectFBO);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1210,9 +1210,6 @@ void TrainView::draw()
 	}
 	if (true)
 	{
-		glm::vec3 campos = viewPos;
-		float len = sqrt(campos.x * campos.x + campos.y * campos.y + campos.z * campos.z);
-
 		glm::vec3 p0 = glm::vec3(-1, 0, 1);
 		glm::vec3 n = glm::vec3(0, 1, 0);
 
@@ -1221,7 +1218,7 @@ void TrainView::draw()
 		float mC = n.z;
 		float mD = -n.x * p0.x - n.y * p0.y - n.z * p0.z;;
 
-		glm::mat4 viewPrime = View_mat4x4 *glm::translate(glm::vec3(0.0f, 200.0f, 0.0f)) * glm::scale(glm::vec3(1, glm::clamp(1.0f - (0.3f), 0.001f, 1.0f), 1));
+		glm::mat4 viewPrime = View_mat4x4 * glm::scale(glm::vec3(1, glm::clamp(1.0f - (0.3f), 0.001f, 1.0f), 1));
 		float fov = 2.0 * atan(1.0 / Projection_mat4x4[1][1]) * 180.0 / 3.1415926;
 		glm::mat4 _projection_matrix = glm::perspective<float>(glm::radians(fov), 1.0f, 0.01, 1000.0f);
 		glm::vec4 newClipPlane = glm::transpose(glm::inverse(viewPrime)) * glm::vec4(n, mD);
@@ -1238,7 +1235,7 @@ void TrainView::draw()
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, &_projection_matrix[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, &viewPrime[0][0]);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
+		glCullFace(GL_BACK);
 		glFrontFace(GL_CW);
 		tile_texture->bind(11);
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);

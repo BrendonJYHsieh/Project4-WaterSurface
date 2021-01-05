@@ -128,18 +128,18 @@ void main()
 		float _FresnelPower = 6.0;
         vec4 reflectColor = texture(reflect_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
         vec4 refractColor = texture(refract_texture, f_in.screenCoord.xy/f_in.screenCoord.w+(f_in.position.y/20));
-//        float fresnel = 0.0;
-//        if((-viewDir).y<0)
-//			{				
-//				fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
-//			}
-//			else
-//			{				
-//			    fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(-f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
-//			}
-//        f_color = refractColor*(1-fresnel)+reflectColor*fresnel;
-          vec4 base = {0.0,0.0,0.2,1.0};
-          f_color = reflectColor*0.8+base*0.2;
+        float fresnel = 0.0;
+        if((-viewDir).y<0)
+			{				
+				fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
+			}
+			else
+			{				
+			    fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(-f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
+			}
+        //f_color = refractColor*(1-fresnel)+reflectColor*fresnel;
+         vec4 base = {0.0,0.0,0.2,1.0};
+         f_color = refractColor*0.8+base*0.2;
     }
   
 }
