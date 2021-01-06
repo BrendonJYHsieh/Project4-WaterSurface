@@ -42,7 +42,20 @@ void main()
 	    v_out.screenCoord.xy = o.xy+o.w;
 	    v_out.screenCoord.zw = o.zw*2;
     }
-    else if(wave_mode == 2){
+    else if(wave_mode ==2){
+        float k = 2 * PI * frequency;
+        float w =  k * (position.x)+t;
+        vec3 p = position;
+        p.y = amplitude * sin(w);
+
+        vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
+
+        v_out.normal = mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
+        gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
+        v_out.position = vec3(model_matrix * vec4(p, 1.0));
+        v_out.texture_coordinate = texture_coordinate;
+    }
+    else if(wave_mode == 3){
         vec3 height_map = position;
         vec3 height_map1 = position;
         float dist = distance(texture_coordinate, uv_center)*frequency*100;
@@ -69,7 +82,7 @@ void main()
         //v_out.normal = mat3(transpose(inverse(model_matrix)))*normal;
         v_out.texture_coordinate = texture_coordinate;
     }
-    else if(wave_mode ==3){
+    else if(wave_mode ==4){
         vec3 p = position;
         float dist = distance(texture_coordinate, uv_center)*frequency*100;
         float t_c = (t-uv_t)*(2*PI);
@@ -80,17 +93,5 @@ void main()
         v_out.position = vec3(model_matrix * vec4(p, 1.0));
         v_out.texture_coordinate = texture_coordinate;
     }
-    else if(wave_mode ==4){
-        float k = 2 * PI * frequency;
-        float w =  k * (position.x)+t;
-        vec3 p = position;
-        p.y = amplitude * sin(w);
-
-        vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
-
-        v_out.normal = mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
-        gl_Position = proj_matrix * view_matrix * model_matrix * vec4(p, 1.0f);
-        v_out.position = vec3(model_matrix * vec4(p, 1.0));
-        v_out.texture_coordinate = texture_coordinate;
-    }
+    
 }

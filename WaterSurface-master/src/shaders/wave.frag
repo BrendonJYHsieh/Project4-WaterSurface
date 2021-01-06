@@ -97,7 +97,7 @@ uniform int wave_mode;
 void main()
 {   
     vec3 norm;
-    if(wave_mode == 4||wave_mode == 1){
+    if(wave_mode == 3||wave_mode == 1){
         norm=-normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
     }
     else{
@@ -137,9 +137,9 @@ void main()
 			{				
 			    fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(-f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
 			}
-        f_color = refractColor*(1-fresnel)+reflectColor*fresnel;
-//         vec4 base = {0.0,0.0,0.2,1.0};
-//         f_color = refractColor*0.8+base*0.2;
+        //f_color = refractColor*(1-fresnel)+reflectColor*fresnel;
+         vec4 base = {0.0,0.0,0.2,1.0};
+         f_color = reflectColor*0.8+base*0.2;
     }
   
 }

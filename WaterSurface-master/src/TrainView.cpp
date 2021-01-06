@@ -1051,10 +1051,11 @@ void TrainView::draw()
 		if (!terrain_model) {
 			terrain_model = new Model("../terrain/Landscape01.obj");
 		}
+		#endif // DEBUG
 		if (!person_model) {
 			person_model = new Model("../person/gura.obj");
 		}
-#endif // DEBUG
+
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -1180,19 +1181,7 @@ void TrainView::draw()
 		glBindFramebuffer(GL_FRAMEBUFFER, reflectFBO);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//draw tiles
-		loadmodel_shader->Use();
-		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, &_projection_matrix[0][0]);
-		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, &viewPrime[0][0]);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		glFrontFace(GL_CW);
-		tile_texture->bind(11);
-		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
-		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
-		tile_model->Draw(*loadmodel_shader);
-		tile_texture->unbind(11);
-		glDisable(GL_CULL_FACE);
+
 		/*Sky box*/
 		glDepthFunc(GL_LEQUAL);
 		skybox->Use();
@@ -1206,6 +1195,43 @@ void TrainView::draw()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);
+
+		//draw tiles
+		loadmodel_shader->Use();
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, &_projection_matrix[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "view_matrix"), 1, GL_FALSE, &viewPrime[0][0]);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glFrontFace(GL_CW);
+		tile_texture->bind(11);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
+		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
+		tile_model->Draw(*loadmodel_shader);
+		tile_texture->unbind(11);
+		glDisable(GL_CULL_FACE);
+
+		//draw gura
+		glm::mat4 person_transfer = glm::mat4(1.0f);
+		person_transfer = glm::translate(person_transfer, personPos);
+		person_transfer = glm::scale(person_transfer, glm::vec3(0.5, 0.5, 0.5));
+		person_transfer = person_transfer * train_rotate;
+		person_transfer = glm::rotate(person_transfer, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &person_transfer[0][0]);
+		person_model->Draw(*loadmodel_shader);
+
+		//glUseProgram(0);
+		setupObjects();
+		drawStuff();
+		// this time drawing is for shadows (except for top view)
+		if (!tw->topCam->value()) {
+			setupShadows();
+			drawStuff(true);
+			unsetupShadows();
+		}
+		ProcessParticles();
+		DrawParticles();
+		
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	if (true)
@@ -1243,7 +1269,6 @@ void TrainView::draw()
 		tile_model->Draw(*loadmodel_shader);
 		tile_texture->unbind(11);
 		glDisable(GL_CULL_FACE);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	//Frame buffer
@@ -1252,7 +1277,7 @@ void TrainView::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 
-	if (tw->waveBrowser->value() == 2) {
+	if (tw->waveBrowser->value() == 3) {
 		if (load_heightmap) {
 			for (int i = 0; i < 200; i++) {
 				string name = to_string(i);
@@ -1344,7 +1369,7 @@ void TrainView::draw()
 	glUniform1i(glGetUniformLocation(wave_shader->Program, "refract_texture"), 14);
 
 	wave_model->Draw(*wave_shader);
-	if (tw->waveBrowser->value() == 2) {
+	if (tw->waveBrowser->value() == 3) {
 		height_id[height_index].unbind(5);
 	}
 	/*Sky box*/
@@ -1383,7 +1408,7 @@ void TrainView::draw()
 	tunnel_transfer = glm::rotate(tunnel_transfer, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &tunnel_transfer[0][0]);
 	tunnel_model->Draw(*loadmodel_shader);
-
+#endif // DEBUG
 	//Draw Person
 	glm::mat4 person_transfer = glm::mat4(1.0f);
 	person_transfer = glm::translate(person_transfer, personPos);
@@ -1392,7 +1417,7 @@ void TrainView::draw()
 	person_transfer = glm::rotate(person_transfer, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &person_transfer[0][0]);
 	person_model->Draw(*loadmodel_shader);
-#endif // DEBUG
+
 	//Draw Tiles
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
