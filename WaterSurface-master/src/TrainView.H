@@ -165,7 +165,17 @@ class TrainView : public Fl_Gl_Window
 		std::vector<glm::vec3>snow_pos;
 		Texture2D* snow_texture = nullptr;
 		void snow_update();
-
+		//firewrok
+		std::vector<glm::mat4>fire_pos;
+		std::vector<float>fire_angle;
+		void firework_init();
+		void firework_update();
+		float firework_speed;
+		int firework_radius;
+		float firework_circle;
+		float firework_clock;
+		bool firework_over=true;
+		std::vector<Texture2D> firework_color;
 
 		float height_index = 0;
 		bool load_heightmap = true;

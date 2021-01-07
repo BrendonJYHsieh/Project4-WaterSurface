@@ -50,13 +50,68 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-//#define DEBUG
+#define DEBUG
+
+void TrainView::firework_init() {
+	fire_pos.clear();
+	fire_angle.clear();
+	fire_pos.push_back(glm::mat4(1));
+	fire_angle.push_back(90);
+	firework_speed = 1.0;
+	firework_radius = 1;
+	firework_circle = 300;
+}
+void TrainView::firework_update() {
+	srand(clock());
+	int radius = 30;
+	float offset = 2.5f;
+	if (fire_pos[0][3][1] > 150) {
+		firework_radius++;
+		if ((int)firework_radius % 5 == 0) {
+			fire_pos.clear();
+			fire_angle.clear();
+		}
+		
+		for (int j = 0; j < firework_circle; j++) {
+			glm::mat4 model = glm::mat4(1.0f);
+			float angle = (float)j / (float)firework_circle * 360.0f;
+			float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+			float x = cos(angle*3.1415926/180) * firework_radius + displacement;
+			displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+
+			float y = fire_pos[0][3][1] + sin(angle * 3.1415926 / 180) * firework_radius;
+
+			displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+			float z = 0;
+			model = glm::translate(model, glm::vec3(x, y, z));
+
+			// 2. scale: scale between 0.05 and 0.25f
+			float scale = (rand() % 50) / 100.0f + 0.05;
+			model = glm::scale(model, glm::vec3(scale));
+
+			// 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
+			float rotAngle = (rand() % 360);
+			model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+			fire_pos.push_back(model);
+			fire_angle.push_back(angle);
+		}
+		if (firework_radius > radius) {
+			firework_over = true;
+		}
+	}
+	else {
+		firework_speed *= 1.03;
+		fire_pos[0][3][1] += firework_speed;
+		fire_angle[0] = rand() % 180;
+	}
+}
 
 void TrainView::snow_update() {
 	for (int i = 0; i < snow_pos.size(); i++) {
 		if (snow_pos[i].y > 0) {
 			srand(clock());
-			float y = rand() % 100 / 100.0;
+			float y = 0.5;
 			snow_pos[i].y -= y;
 		}
 		else {
@@ -796,6 +851,10 @@ void TrainView::draw()
 					"../WaterSurface-master/src/shaders/load_model.frag");
 
 			snow_texture = new Texture2D("../tile/white.jpg");
+			for (int i = 0; i < 7; i++) {
+				string temp = "../tile/"+to_string(i)+".jpg";
+				firework_color.push_back(Texture2D(temp.c_str()));
+			}
 		}
 		if (!this->wave_shader) {
 			this->wave_shader = new
@@ -1188,6 +1247,7 @@ void TrainView::draw()
 	glm::mat4 skybox_View = glm::mat4(glm::mat3(View_mat4x4));
 	glm::mat4 viewMatrix = glm::inverse(View_mat4x4);
 	glm::vec3 viewPos(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
+	camPos = viewPos;
 	//reflect
 	if (true) {
 		glm::vec3 p0 = glm::vec3(-1, 0, 1);
@@ -1291,6 +1351,27 @@ void TrainView::draw()
 		person_transfer = glm::rotate(person_transfer, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &person_transfer[0][0]);
 		person_model->Draw(*loadmodel_shader);
+
+		if (firework_over) {
+			firework_over = false;
+			firework_init();
+			firework_clock = clock();
+		}
+		else {
+			if (clock() - firework_clock > 30) {
+				firework_clock = clock();
+				firework_update();
+			}
+		}
+
+		for (unsigned int i = 0; i < fire_pos.size(); i++)
+		{
+			firework_color[((int)(floor(fire_angle[i] / 52)) + firework_radius % 7) % 7].bind(14);
+			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &fire_pos[i][0][0]);
+			glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 14);
+			snow_model->Draw(*loadmodel_shader);
+			firework_color[i % 7].unbind(14);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -1517,17 +1598,40 @@ void TrainView::draw()
 	}
 	//draw snow
 	snow_update();
-	snow_texture->bind(14);
+	snow_texture->bind(15);
 	for (unsigned int i = 0; i < snow_amount; i++)
 	{
 		
 		glm::mat4 snow_transfer(1);
 		snow_transfer = glm::translate(snow_transfer, snow_pos[i]);
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &snow_transfer[0][0]);
-		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 14);
+		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 15);
 		snow_model->Draw(*loadmodel_shader);
 	}
-	snow_texture->unbind(11);
+	snow_texture->unbind(15);
+
+	//draw fire work
+	if (firework_over) {
+		firework_over = false;
+		firework_init();
+		firework_clock = clock();
+	}
+	else {
+		if (clock() - firework_clock > 100) {
+			firework_clock = clock();
+			firework_update();
+		}
+	}
+
+	for (unsigned int i = 0; i < fire_pos.size(); i++)
+	{
+		firework_color[((int)(floor(fire_angle[i]/52))+firework_radius%7)%7].bind(14);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &fire_pos[i][0][0]);
+		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 14);
+		snow_model->Draw(*loadmodel_shader);
+		firework_color[((int)(floor(fire_angle[i] / 52)) + firework_radius % 7) % 7].unbind(14);
+	}
+
 
 	glUseProgram(0);
 	setupObjects();
