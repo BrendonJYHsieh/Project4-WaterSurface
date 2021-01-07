@@ -153,13 +153,19 @@ class TrainView : public Fl_Gl_Window
 		Model* tree_model = nullptr;
 		unsigned int tree_amount = 20;
 		glm::mat4* tree_modelMatrices;
-
-
 		//person
 		Model* person_model = nullptr;
 		glm::vec3 personPos;
 		glm::mat4 train_rotate;
 		Texture2D* tile_texture = nullptr;
+		Texture2D* tile_texture_LOD = nullptr;
+		//snow 
+		Model* snow_model = nullptr;
+		unsigned int snow_amount = 10000;
+		std::vector<glm::vec3>snow_pos;
+		Texture2D* snow_texture = nullptr;
+		void snow_update();
+
 
 		float height_index = 0;
 		bool load_heightmap = true;

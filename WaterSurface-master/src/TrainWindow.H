@@ -93,6 +93,7 @@ class TrainWindow : public Fl_Double_Window {
 
 		Fl_Button* ReflectBtn;
 		Fl_Button* RefractBtn;
+		Fl_Button* LOD;
 		Fl_Counter* buildingCounter;
 
 		// if we're animating it, how fast should it go?
@@ -111,7 +112,7 @@ class TrainWindow : public Fl_Double_Window {
 		bool interactive = false;
 		bool reflect = false;
 		bool refract = false;
-
+		bool lod;
 		
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about

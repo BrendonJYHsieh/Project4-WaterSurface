@@ -186,7 +186,10 @@ void Refract_enable(Fl_Widget*, TrainWindow* tw) {
 	tw->refract = !tw->refract;
 	tw->damageMe();
 }
-
+void LOD_enable(Fl_Widget*, TrainWindow* tw) {
+	tw->lod = !tw->lod;
+	tw->damageMe();
+}
 //***************************************************************************
 //
 // * Load the control points from the files

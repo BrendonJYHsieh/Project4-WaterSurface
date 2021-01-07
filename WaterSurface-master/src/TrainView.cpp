@@ -52,7 +52,23 @@
 #include"RenderUtilities/model.h"
 //#define DEBUG
 
-
+void TrainView::snow_update() {
+	for (int i = 0; i < snow_pos.size(); i++) {
+		if (snow_pos[i].y > 0) {
+			srand(clock());
+			float y = rand() % 100 / 100.0;
+			snow_pos[i].y -= y;
+		}
+		else {
+			snow_pos.erase(snow_pos.begin() + i);
+			i--;
+			float x = rand() % 2000 - 1000;
+			float z = rand() % 2000 - 1000;
+			float y = rand() % 1000 + 200;
+			snow_pos.push_back(glm::vec3(x, y, z));
+		}
+	}
+}
 
 void normalize(GLfloat* v)
 {
@@ -778,6 +794,8 @@ void TrainView::draw()
 					"../WaterSurface-master/src/shaders/load_model.vert",
 					nullptr, nullptr, nullptr,
 					"../WaterSurface-master/src/shaders/load_model.frag");
+
+			snow_texture = new Texture2D("../tile/white.jpg");
 		}
 		if (!this->wave_shader) {
 			this->wave_shader = new
@@ -1006,8 +1024,6 @@ void TrainView::draw()
 			glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
-
-
 		if (!wave_model) {
 			wave_model = new Model("../wave/wave.obj");
 		}
@@ -1015,6 +1031,7 @@ void TrainView::draw()
 		if (!tile_model) {
 			tile_model = new Model("../tile/tile.obj");
 			tile_texture = new Texture2D("../tile/tiles.jpg");
+			tile_texture_LOD = new Texture2D("../tile/tiles.jpg",1);
 		}
 #ifdef DEBUG
 		if (!tunnel_model) {
@@ -1051,6 +1068,16 @@ void TrainView::draw()
 				// 4. 添加到矩阵的数组中
 				building_modelMatrices.push_back(model);
 				building_past = tw->buildingCounter->value();
+			}
+		}
+		if (!snow_model) {
+			snow_model = new Model("../snow/snow.obj");
+			for (unsigned int i = 0; i < snow_amount; i++)
+			{
+				float x = rand()%2000-1000;
+				float z = rand() % 2000 - 1000;
+				float y = rand() % 1000+200;
+				snow_pos.push_back(glm::vec3(x,y,z));
 			}
 		}
 	}
@@ -1231,11 +1258,17 @@ void TrainView::draw()
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 		glFrontFace(GL_CW);
-		tile_texture->bind(11);
+		if (tw->lod)
+			tile_texture_LOD->bind(11);
+		else
+			tile_texture->bind(11);
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
 		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
 		tile_model->Draw(*loadmodel_shader);
-		tile_texture->unbind(11);
+		if (tw->lod)
+			tile_texture_LOD->unbind(11);
+		else
+			tile_texture->unbind(11);
 		glDisable(GL_CULL_FACE);
 
 		//draw building
@@ -1290,11 +1323,17 @@ void TrainView::draw()
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CW);
-		tile_texture->bind(11);
+		if (tw->lod)
+			tile_texture_LOD->bind(11);
+		else
+			tile_texture->bind(11);
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
 		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
 		tile_model->Draw(*loadmodel_shader);
-		tile_texture->unbind(11);
+		if (tw->lod)
+			tile_texture_LOD->unbind(11);
+		else
+			tile_texture->unbind(11);
 		glDisable(GL_CULL_FACE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -1454,11 +1493,17 @@ void TrainView::draw()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
+	if (tw->lod)
+	tile_texture_LOD->bind(11);
+	else
 	tile_texture->bind(11);
 	glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &wave_transfer[0][0]);
 	glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 11);
 	tile_model->Draw(*loadmodel_shader);
-	tile_texture->unbind(11);
+	if (tw->lod)
+		tile_texture_LOD->unbind(11);
+	else
+		tile_texture->unbind(11);
 	glDisable(GL_CULL_FACE);
 	
 
@@ -1470,6 +1515,19 @@ void TrainView::draw()
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
 		building_model->Draw(*loadmodel_shader);
 	}
+	//draw snow
+	snow_update();
+	snow_texture->bind(14);
+	for (unsigned int i = 0; i < snow_amount; i++)
+	{
+		
+		glm::mat4 snow_transfer(1);
+		snow_transfer = glm::translate(snow_transfer, snow_pos[i]);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &snow_transfer[0][0]);
+		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 14);
+		snow_model->Draw(*loadmodel_shader);
+	}
+	snow_texture->unbind(11);
 
 	glUseProgram(0);
 	setupObjects();
