@@ -57,7 +57,7 @@ class Model;
 #include<iostream>
 #include "Particle.h"
 #include <AL/alut.h>
-#include "firework.h"
+
 //#include <AL/al.h>
 //#include <AL/alc.h>
 

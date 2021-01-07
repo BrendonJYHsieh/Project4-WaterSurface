@@ -35,7 +35,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "firework.h"
 #include <GL/glu.h>
 
 
@@ -47,7 +46,6 @@
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
 
-#define MAX_FIRES 10  //最多幾盞煙火
 #define STB_IMAGE_IMPLEMENTATION
 //#define heightmap
 #define particlee
