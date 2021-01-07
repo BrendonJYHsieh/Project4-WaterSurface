@@ -138,8 +138,8 @@ void main()
 			    fresnel = clamp( _FresnelBase + _FresnelScale * pow(1 - dot(-f_in.normal, viewDir), _FresnelPower), 0.0, 1.0);
 			}
         //f_color = refractColor*(1-fresnel)+reflectColor*fresnel;
-         vec4 base = {0.0,0.0,0.2,1.0};
-         f_color = reflectColor*0.8+base*0.2;
+        vec4 base = {0.0,0.0,0.2,1.0};
+        f_color = reflectColor*0.8+base*0.2;
     }
   
 }

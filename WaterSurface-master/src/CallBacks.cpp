@@ -158,14 +158,6 @@ void DeleteCar(Fl_Widget*, TrainWindow* tw)
 		tw->trainView->car_quantity--;
 	tw->damageMe();
 }
-void Tension_Increase(Fl_Widget*, TrainWindow* tw) {
-	tw->trainView->tense += 0.1;
-	tw->damageMe();
-}
-void Tension_Decrease(Fl_Widget*, TrainWindow* tw) {
-	tw->trainView->tense -= 0.1;
-	tw->damageMe();
-}
 void Diret_enable(Fl_Widget*, TrainWindow* tw) {
 	tw->direct = !tw->direct;
 	tw->damageMe();

@@ -1,4 +1,4 @@
-/************************************************************************
+﻿/************************************************************************
      File:        TrainView.H
 
      Author:     
@@ -57,6 +57,7 @@ class Model;
 #include<iostream>
 #include "Particle.h"
 #include <AL/alut.h>
+#include "firework.h"
 //#include <AL/al.h>
 //#include <AL/alc.h>
 
@@ -95,7 +96,7 @@ class TrainView : public Fl_Gl_Window
 		void drawTrack(TrainView*, bool);
 		void drawTrain(TrainView*, bool);
 		void trainCamView(TrainView*, float);
-		
+	
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
@@ -123,8 +124,8 @@ class TrainView : public Fl_Gl_Window
 		bool s = false;
 
 		glm::vec3 trainPos;
-		
-
+		glm::vec3 camPos;
+		bool test = false;
 		//Wave
 		UBO* commom_matrices= nullptr;
 		
@@ -142,6 +143,18 @@ class TrainView : public Fl_Gl_Window
 		Model* tile_model = nullptr;
 		Model* tunnel_model = nullptr;
 		Model* terrain_model = nullptr;
+		//draw building
+		Model* building_model = nullptr;
+		unsigned int building_amount = 20;
+		std::vector<glm::mat4>building_modelMatrices;
+		std::vector<glm::vec2>building_pos;
+		int building_past;
+		//draw tree
+		Model* tree_model = nullptr;
+		unsigned int tree_amount = 20;
+		glm::mat4* tree_modelMatrices;
+
+
 		//person
 		Model* person_model = nullptr;
 		glm::vec3 personPos;
@@ -181,7 +194,6 @@ class TrainView : public Fl_Gl_Window
 		unsigned int refractRBO;
 		glm::vec2 uv_center;
 		int uv_t = 0;
-
 		float scale = 20;
 
 		//particle

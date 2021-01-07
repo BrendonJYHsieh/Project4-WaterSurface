@@ -119,7 +119,7 @@ TrainWindow(const int x, const int y)
 		splineBrowser->add("Cubic B-Spline");
 		splineBrowser->select(2);
 
-		pty += 110;
+		pty += 100;
 
 		// add and delete points
 		Fl_Button* ap = new Fl_Button(605,pty,80,20,"Add Point");
@@ -153,14 +153,7 @@ TrainWindow(const int x, const int y)
 		Fl_Button* delete_car = new Fl_Button(675, pty, 75, 20, "Delete Car");
 		delete_car->callback((Fl_Callback*)DeleteCar, this);
 
-
 		pty += 30;
-		Fl_Button* tension_increase = new Fl_Button(605, pty, 130, 20, "Tension_Increase");
-		tension_increase->callback((Fl_Callback*)Tension_Increase, this);
-		pty += 30;
-		Fl_Button* tension_decrease = new Fl_Button(605, pty, 130, 20, "Tension_Decrease");
-		tension_decrease->callback((Fl_Callback*)Tension_Decrease, this);
-		pty += 35;
 		// browser to select spline types
 		// TODO: make sure these choices are the same as what the code supports
 		waveBrowser = new Fl_Browser(605, pty, 120, 75, "Wave Type");
@@ -206,6 +199,13 @@ TrainWindow(const int x, const int y)
 		ReflectBtn->callback((Fl_Callback*)Reflect_enable, this);
 		RefractBtn = new Fl_Button(685, pty, 70, 20, "Refract");
 		RefractBtn->callback((Fl_Callback*)Refract_enable, this);
+
+		pty += 30; 
+		buildingCounter = new Fl_Counter(605, pty, 70, 20, "Build");
+		buildingCounter->type(2);
+		buildingCounter->value(1);
+		buildingCounter->step(1);
+		buildingCounter->range(1, 5);
 
 		// we need to make a little phantom widget to have things resize correctly
 		Fl_Box* resizebox = new Fl_Box(600,595,200,5);

@@ -22,7 +22,7 @@
     <ClCompile Include="C:\Project4-WaterSurface\WaterSurface-master\include\glad4.6\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="particle.cpp">
+    <ClCompile Include="WaterSurface-master\src\firework.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -48,7 +48,7 @@
     <ClInclude Include="WaterSurface-master\src\Particle.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="WaterSurface-master\src\particle1.h">
+    <ClInclude Include="WaterSurface-master\src\firework.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

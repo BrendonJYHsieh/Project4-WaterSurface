@@ -1,4 +1,4 @@
-/************************************************************************
+Ôªø/************************************************************************
      File:        TrainView.cpp
 
      Author:     
@@ -35,7 +35,7 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "particle1.h"
+#include "firework.h"
 #include <GL/glu.h>
 
 
@@ -47,11 +47,14 @@
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
 
+#define MAX_FIRES 10  //ÊúÄÂ§öÂπæÁõûÁÖôÁÅ´
 #define STB_IMAGE_IMPLEMENTATION
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
 //#define DEBUG
+
+
 void normalize(GLfloat* v)
 {
 	GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -169,11 +172,11 @@ Pnt3f TrainView::GMT(Pnt3f p1, Pnt3f p2, Pnt3f p3, Pnt3f p4, float mode, float t
 	else if (mode == 2) {
 		M = {
 				{-1.0f,2.0f,-1.0f,0.0f},
-				{2.0f / tense - 1.0f,1.0f - 3.0f / tense,0.0f,1.0f / tense},
-				{1.0f - 2.0f / tense,3.0f / tense - 2.0f,1.0f,0.0f},
+				{3.0f,-5.0f,0.0f,2.0f },
+				{-3.0f,4.0f,1.0f,0.0f},
 				{1.0f,-1.0f,0.0f,0.0f}
 		};
-		M *= tense;
+		M /= 2.0f;
 	}
 	else if (mode == 3) {
 		M = {
@@ -193,7 +196,7 @@ void glVertex3f_Simplify(Pnt3f q0) {
 	glVertex3f(q0.x, q0.y, q0.z);
 }
 void DrawSleeper(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doingShadows) {
-	//µe≈K≠y™∫Ωu
+	//Áï´ÈêµËªåÁöÑÁ∑ö
 	if (!doingShadows) {
 		glColor3ub(0, 0, 0);
 	}
@@ -228,7 +231,7 @@ void DrawSleeper(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doing
 	glVertex3f_Simplify(qt1 + cross_t - orient_t);
 	glEnd();
 
-	//µe≈K≠y
+	//Áï´ÈêµËªå
 	if (!doingShadows) {
 		glColor3ub(101, 50, 0);
 	}
@@ -281,18 +284,18 @@ void DrawSleeper(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doing
 	glEnd();
 }
 void DrawPillar(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doingShadows) {
-	/*¨W§l*/
+	/*Êü±Â≠ê*/
 	if (!doingShadows) {
 		glColor3ub(64, 17, 140);
 	}
-	//§U
+	//‰∏ã
 	glBegin(GL_QUADS);
 	glVertex3f((qt0 + cross_t).x, 0.1, (qt0 + cross_t).z);
 	glVertex3f((qt1 + cross_t).x, 0.1, (qt1 + cross_t).z);
 	glVertex3f((qt1 - cross_t).x, 0.1, (qt1 - cross_t).z);
 	glVertex3f((qt0 - cross_t).x, 0.1, (qt0 - cross_t).z);
 	glEnd();
-	//•k
+	//Âè≥
 	glNormal3f(cross_t.x, cross_t.y, cross_t.z);
 	glBegin(GL_QUADS);
 	glVertex3f((qt0 + cross_t).x, (qt0 + cross_t).y, (qt0 + cross_t).z);
@@ -300,7 +303,7 @@ void DrawPillar(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doingS
 	glVertex3f((qt1 + cross_t).x, 0.1, (qt1 + cross_t).z);
 	glVertex3f((qt0 + cross_t).x, 0.1, (qt0 + cross_t).z);
 	glEnd();
-	//•™
+	//Â∑¶
 	glNormal3f(-cross_t.x, -cross_t.y, -cross_t.z);
 	glBegin(GL_QUADS);
 	glVertex3f((qt0 - cross_t).x, (qt0 - cross_t).y, (qt0 - cross_t).z);
@@ -308,7 +311,7 @@ void DrawPillar(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doingS
 	glVertex3f((qt1 - cross_t).x, 0.1, (qt1 - cross_t).z);
 	glVertex3f((qt0 - cross_t).x, 0.1, (qt0 - cross_t).z);
 	glEnd();
-	//´e
+	//Ââç
 	glNormal3f((qt1 - qt0).x, (qt1 - qt0).y, (qt1 - qt0).z);
 	glBegin(GL_QUADS);
 	glVertex3f((qt1 - cross_t).x, (qt1 - cross_t).y, (qt1 - cross_t).z);
@@ -316,7 +319,7 @@ void DrawPillar(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doingS
 	glVertex3f((qt1 + cross_t).x, 0.1, (qt1 + cross_t).z);
 	glVertex3f((qt1 - cross_t).x, 0.1, (qt1 - cross_t).z);
 	glEnd();
-	//´·
+	//Âæå
 	glNormal3f(-(qt1 - qt0).x, -(qt1 - qt0).y, -(qt1 - qt0).z);
 	glBegin(GL_QUADS);
 	glVertex3f((qt0 - cross_t).x, (qt0 - cross_t).y, (qt0 - cross_t).z);
@@ -324,13 +327,13 @@ void DrawPillar(Pnt3f qt0, Pnt3f qt1, Pnt3f cross_t, Pnt3f orient_t, bool doingS
 	glVertex3f((qt0 + cross_t).x, 0.1, (qt0 + cross_t).z);
 	glVertex3f((qt0 - cross_t).x, 0.1, (qt0 - cross_t).z);
 	glEnd();
-	/*¨W§l*/
+	/*Êü±Â≠ê*/
 }
 void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShadows) {
 	if (!doingShadows) {
 		glColor3ub(255, 255, 255);
 	}
-	//§W
+	//‰∏ä
 	/*glBegin(GL_QUADS);
 	glNormal3f(up.x, up.y, up.z);
 	glVertex3f_Simplify(qt0 + cross_t + up);
@@ -338,7 +341,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 + forward - cross_t + up);
 	glVertex3f_Simplify(qt0 - cross_t + up);
 	glEnd();*/
-	//§U
+	//‰∏ã
 	glBegin(GL_QUADS);
 	glNormal3f(-up.x, -up.y, -up.z);
 	glVertex3f_Simplify(qt0 + cross_t);
@@ -346,7 +349,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 + forward - cross_t);
 	glVertex3f_Simplify(qt0 - cross_t);
 	glEnd();
-	//´e
+	//Ââç
 	glBegin(GL_QUADS);
 	glNormal3f(forward.x, forward.y, forward.z);
 	glVertex3f_Simplify(qt0 + forward - cross_t + up);
@@ -354,7 +357,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 + forward + cross_t);
 	glVertex3f_Simplify(qt0 + forward - cross_t);
 	glEnd();
-	//´·
+	//Âæå
 	glBegin(GL_QUADS);
 	glNormal3f(-forward.x, -forward.y, -forward.z);
 	glVertex3f_Simplify(qt0 - cross_t + up);
@@ -362,7 +365,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 + cross_t);
 	glVertex3f_Simplify(qt0 - cross_t);
 	glEnd();
-	//•™
+	//Â∑¶
 	glBegin(GL_QUADS);
 	glNormal3f(-cross_t.x, -cross_t.y, -cross_t.z);
 	glVertex3f_Simplify(qt0 + forward - cross_t + up);
@@ -370,7 +373,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 - cross_t);
 	glVertex3f_Simplify(qt0 - cross_t + up);
 	glEnd();
-	//•k
+	//Âè≥
 	glBegin(GL_QUADS);
 	glNormal3f(cross_t.x, cross_t.y, cross_t.z);
 	glVertex3f_Simplify(qt0 + forward + cross_t + up);
@@ -381,7 +384,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	if (!doingShadows) {
 		glColor3ub(0, 0, 0);
 	}
-	//´·Ω¸
+	//ÂæåËº™
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 - cross_t * 1.2);
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 + forward * 0.1);
@@ -391,7 +394,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 - forward * 0.1 + up * 0.2);
 	glEnd();
 	glFlush();
-	//´eΩ¸
+	//ÂâçËº™
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 + forward * 0.9);
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 + forward * 1);
@@ -401,7 +404,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 + forward * 0.8 + up * 0.2);
 	glEnd();
 	glFlush();
-	//´eΩ¸
+	//ÂâçËº™
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 + cross_t * 1.2);
 	glVertex3f_Simplify(qt0 + cross_t * 1.2 + forward * 0.1);
@@ -411,7 +414,7 @@ void DrawTrain(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doingShad
 	glVertex3f_Simplify(qt0 + cross_t * 1.2 - forward * 0.1 + up * 0.2);
 	glEnd();
 	glFlush();
-	//´eΩ¸                  
+	//ÂâçËº™                  
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 + cross_t * 1.2 + forward * 0.9);
 	glVertex3f_Simplify(qt0 + cross_t * 1.2 + forward * 1);
@@ -426,7 +429,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 		glColor3ub(0, 30, 150);
 	}
 	forward = forward * 1.5;
-	//§W
+	//‰∏ä
 	glBegin(GL_QUADS);
 	glNormal3f(up.x, up.y, up.z);
 	glVertex3f_Simplify(qt0 + cross_t + up);
@@ -434,7 +437,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + forward - cross_t + up);
 	glVertex3f_Simplify(qt0 - cross_t + up);
 	glEnd();
-	//§U
+	//‰∏ã
 	glBegin(GL_QUADS);
 	glNormal3f(-up.x, -up.y, -up.z);
 	glVertex3f_Simplify(qt0 + cross_t);
@@ -442,7 +445,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + forward - cross_t);
 	glVertex3f_Simplify(qt0 - cross_t);
 	glEnd();
-	//´e
+	//Ââç
 	glBegin(GL_QUADS);
 	glNormal3f(forward.x, forward.y, forward.z);
 	glVertex3f_Simplify(qt0 + forward - cross_t + up);
@@ -450,7 +453,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + forward + cross_t);
 	glVertex3f_Simplify(qt0 + forward - cross_t);
 	glEnd();
-	//´·
+	//Âæå
 	glBegin(GL_QUADS);
 	glNormal3f(-forward.x, -forward.y, -forward.z);
 	glVertex3f_Simplify(qt0 - cross_t + up);
@@ -458,7 +461,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + cross_t);
 	glVertex3f_Simplify(qt0 - cross_t);
 	glEnd();
-	//•™
+	//Â∑¶
 	glBegin(GL_QUADS);
 	glNormal3f(-cross_t.x, -cross_t.y, -cross_t.z);
 	glVertex3f_Simplify(qt0 + forward - cross_t + up);
@@ -466,7 +469,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 - cross_t);
 	glVertex3f_Simplify(qt0 - cross_t + up);
 	glEnd();
-	//•k
+	//Âè≥
 	glBegin(GL_QUADS);
 	glNormal3f(cross_t.x, cross_t.y, cross_t.z);
 	glVertex3f_Simplify(qt0 + forward + cross_t + up);
@@ -474,11 +477,11 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + cross_t);
 	glVertex3f_Simplify(qt0 + cross_t + up);
 	glEnd();
-	/*´·≠±™∫≥°§¿*/
+	/*ÂæåÈù¢ÁöÑÈÉ®ÂàÜ*/
 	float height = 1.8f;
 	float length = 0.4f;
 	cross_t = cross_t * 1.2;
-	//§W
+	//‰∏ä
 	glBegin(GL_QUADS);
 	glNormal3f(up.x, up.y, up.z);
 	glVertex3f_Simplify(qt0 + cross_t + up * height);
@@ -486,7 +489,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + forward * length - cross_t + up * height);
 	glVertex3f_Simplify(qt0 - cross_t + up * height);
 	glEnd();
-	//´·
+	//Âæå
 	glBegin(GL_QUADS);
 	glNormal3f(-forward.x, -forward.y, -forward.z);
 	glVertex3f_Simplify(qt0 - cross_t + up * height);
@@ -494,7 +497,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + cross_t);
 	glVertex3f_Simplify(qt0 - cross_t);
 	glEnd();
-	//´e
+	//Ââç
 	glBegin(GL_QUADS);
 	glNormal3f(forward.x, forward.y, forward.z);
 	glVertex3f_Simplify(qt0 + forward * length - cross_t + up * height);
@@ -502,7 +505,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + forward * length + cross_t);
 	glVertex3f_Simplify(qt0 + forward * length - cross_t);
 	glEnd();
-	//•™
+	//Â∑¶
 	glBegin(GL_QUADS);
 	glNormal3f(-cross_t.x, -cross_t.y, -cross_t.z);
 	glVertex3f_Simplify(qt0 + forward * length - cross_t + up * height);
@@ -510,7 +513,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 - cross_t);
 	glVertex3f_Simplify(qt0 - cross_t + up * height);
 	glEnd();
-	//•k
+	//Âè≥
 	glBegin(GL_QUADS);
 	glNormal3f(-cross_t.x, -cross_t.y, -cross_t.z);
 	glVertex3f_Simplify(qt0 + forward * length + cross_t + up * height);
@@ -523,7 +526,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	if (!doingShadows) {
 		glColor3ub(0, 0, 0);
 	}
-	//´·Ω¸
+	//ÂæåËº™
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 - cross_t * 1.4);
 	glVertex3f_Simplify(qt0 - cross_t * 1.4 + forward * 0.1);
@@ -533,7 +536,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 - cross_t * 1.4 - forward * 0.1 + up * 0.2);
 	glEnd();
 	glFlush();
-	//´eΩ¸
+	//ÂâçËº™
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 + forward * 0.9);
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 + forward * 1);
@@ -543,7 +546,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 - cross_t * 1.2 + forward * 0.8 + up * 0.2);
 	glEnd();
 	glFlush();
-	//´eΩ¸
+	//ÂâçËº™
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 + cross_t * 1.4);
 	glVertex3f_Simplify(qt0 + cross_t * 1.4 + forward * 0.1);
@@ -553,7 +556,7 @@ void DrawTrainHead(Pnt3f qt0, Pnt3f cross_t, Pnt3f up, Pnt3f forward, bool doing
 	glVertex3f_Simplify(qt0 + cross_t * 1.4 - forward * 0.1 + up * 0.2);
 	glEnd();
 	glFlush();
-	//´eΩ¸                  
+	//ÂâçËº™                  
 	glBegin(GL_POLYGON);
 	glVertex3f_Simplify(qt0 + cross_t * 1.2 + forward * 0.9);
 	glVertex3f_Simplify(qt0 + cross_t * 1.2 + forward * 1);
@@ -1055,11 +1058,64 @@ void TrainView::draw()
 		if (!person_model) {
 			person_model = new Model("../person/gura.obj");
 		}
+		if (!building_model) {
+			building_model = new Model("../building/building.obj");
+			srand(clock()); // ÂàùÂßãÂåñÈöèÊú∫ÁßçÂ≠ê    
+			float radius = 50.0;
+			float offset = 250.0f;
+			for (unsigned int i = 0; i < building_amount; i++)
+			{
+				glm::mat4 model;
+				float angle = (float)i / (float)building_amount * 360.0f;
+				float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				float x = sin(angle) * radius + displacement;
+				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				//float y = displacement * 0.4f+100.0f; // ËÆ©Ë°åÊòüÂ∏¶ÁöÑÈ´òÂ∫¶ÊØîxÂíåzÁöÑÂÆΩÂ∫¶Ë¶ÅÂ∞è
+				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				float z = cos(angle) * radius + displacement;
+				model = glm::translate(model, glm::vec3(x+30, 0.0, z+30));
 
+				// 2. Áº©ÊîæÔºöÂú® 0.05 Âíå 0.25f ‰πãÈó¥Áº©Êîæ
+				float scale = (rand() % 20) / 10.0f + 0.5;
+				model = glm::scale(model, glm::vec3(scale));
+				building_pos.push_back(glm::vec2(x, z));
+				// 4. Ê∑ªÂä†Âà∞Áü©ÈòµÁöÑÊï∞ÁªÑ‰∏≠
+				building_modelMatrices.push_back(model);
+				building_past = tw->buildingCounter->value();
+			}
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
 
+		if (building_past != tw->buildingCounter->value()) {
+			building_modelMatrices.clear();
+			building_pos.clear();
+			building_amount = 20 * tw->buildingCounter->value();
+			srand(clock()); // ÂàùÂßãÂåñÈöèÊú∫ÁßçÂ≠ê    
+			float radius = 50.0;
+			float offset = 250.0f;
+			for (unsigned int i = 0; i < building_amount; i++)
+			{
+				glm::mat4 model;
+				float angle = (float)i / (float)building_amount * 360.0f;
+				float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				float x = sin(angle) * radius + displacement;
+				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				//float y = displacement * 0.4f+100.0f; // ËÆ©Ë°åÊòüÂ∏¶ÁöÑÈ´òÂ∫¶ÊØîxÂíåzÁöÑÂÆΩÂ∫¶Ë¶ÅÂ∞è
+				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				float z = cos(angle) * radius + displacement;
+				model = glm::translate(model, glm::vec3(x + 30, 0.0, z + 30));
+
+				// 2. Áº©ÊîæÔºöÂú® 0.05 Âíå 0.25f ‰πãÈó¥Áº©Êîæ
+				float scale = (rand() % 20) / 10.0f + 0.5;
+				model = glm::scale(model, glm::vec3(scale));
+				building_pos.push_back(glm::vec2(x, z));
+				// 4. Ê∑ªÂä†Âà∞Áü©ÈòµÁöÑÊï∞ÁªÑ‰∏≠
+				building_modelMatrices.push_back(model);
+				building_past = tw->buildingCounter->value();
+			}
+		}
 	// Set up the view port
 	glViewport(0, 0, w(), h());
 
@@ -1196,6 +1252,8 @@ void TrainView::draw()
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);
 
+		
+
 		//draw tiles
 		loadmodel_shader->Use();
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "proj_matrix"), 1, GL_FALSE, &_projection_matrix[0][0]);
@@ -1210,7 +1268,16 @@ void TrainView::draw()
 		tile_texture->unbind(11);
 		glDisable(GL_CULL_FACE);
 
+		//draw building
+		loadmodel_shader->Use();
+		for (unsigned int i = 0; i < building_amount; i++)
+		{
+			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_modelMatrices[i][0][0]);
+			building_model->Draw(*loadmodel_shader);
+		}
+
 		//draw gura
+		loadmodel_shader->Use();
 		glm::mat4 person_transfer = glm::mat4(1.0f);
 		person_transfer = glm::translate(person_transfer, personPos);
 		person_transfer = glm::scale(person_transfer, glm::vec3(0.5, 0.5, 0.5));
@@ -1218,19 +1285,6 @@ void TrainView::draw()
 		person_transfer = glm::rotate(person_transfer, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &person_transfer[0][0]);
 		person_model->Draw(*loadmodel_shader);
-
-		//glUseProgram(0);
-		setupObjects();
-		drawStuff();
-		// this time drawing is for shadows (except for top view)
-		if (!tw->topCam->value()) {
-			setupShadows();
-			drawStuff(true);
-			unsetupShadows();
-		}
-		ProcessParticles();
-		DrawParticles();
-		
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -1271,10 +1325,15 @@ void TrainView::draw()
 		glDisable(GL_CULL_FACE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-	//Frame buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+	if (tw->direct || tw->spot || tw->point) {
+		//Frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	
 	
 
 	if (tw->waveBrowser->value() == 3) {
@@ -1428,6 +1487,16 @@ void TrainView::draw()
 	tile_model->Draw(*loadmodel_shader);
 	tile_texture->unbind(11);
 	glDisable(GL_CULL_FACE);
+	
+
+	for (unsigned int i = 0; i < building_amount; i++)
+	{
+		float building_angle = atan2(building_pos[i].x - viewPos.x, building_pos[i].y - viewPos.z) * (180 / 3.1415926535);
+		glm::mat4 building_transfer = building_modelMatrices[i];
+		building_transfer= glm::rotate(building_transfer, glm::radians(building_angle+90), glm::vec3(0.0, 1.0, 0.0));
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
+		building_model->Draw(*loadmodel_shader);
+	}
 
 	glUseProgram(0);
 	setupObjects();
@@ -1442,23 +1511,25 @@ void TrainView::draw()
 	DrawParticles();
 
 
-	// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
-	glClear(GL_COLOR_BUFFER_BIT);
-	this->screenShader->Use();
-	glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
-	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), this->pixel_w());
-	glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), this->pixel_h());
-	glBindVertexArray(quadVAO);
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
-	glUniform1i(glGetUniformLocation(screenShader->Program, "screenTexture"), 12);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	if (tw->direct || tw->spot || tw->point) {
+		// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+		glClear(GL_COLOR_BUFFER_BIT);
+		this->screenShader->Use();
+		glUniform1f(glGetUniformLocation(screenShader->Program, "pixel_enable"), tw->direct);
+		glUniform1f(glGetUniformLocation(screenShader->Program, "offset_enable"), tw->point);
+		glUniform1f(glGetUniformLocation(screenShader->Program, "other_enable"), tw->spot);
+		glUniform1f(glGetUniformLocation(screenShader->Program, "rt_w"), w());
+		glUniform1f(glGetUniformLocation(screenShader->Program, "rt_h"), h());
+		glBindVertexArray(quadVAO);
+		glActiveTexture(GL_TEXTURE12);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+		glUniform1i(glGetUniformLocation(screenShader->Program, "screenTexture"), 12);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glActiveTexture(GL_TEXTURE12);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 
 }
 
@@ -1578,7 +1649,7 @@ void TrainView::drawTrack(TrainView* TrainV, bool doingShadows) {
 			orient_t = cross_t * forward;
 			orient_t.normalize();
 			cross_t = cross_t * Sleeper_Width;
-			/*§ı®Æ≤æ∞ */
+			/*ÁÅ´ËªäÁßªÂãï*/
 			Path_Total += sqrt(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
 			if (!check && Path_Total > TrainV->m_pTrack->trainU) {
 				if (qt1.y - qt0.y > 0) {
@@ -1596,7 +1667,7 @@ void TrainView::drawTrack(TrainView* TrainV, bool doingShadows) {
 				check = true;
 			}
 
-			/*≈K≠y*/
+			/*ÈêµËªå*/
 			if (!doingShadows) {
 				glColor3ub(77, 19, 0);
 			}
@@ -1608,7 +1679,7 @@ void TrainView::drawTrack(TrainView* TrainV, bool doingShadows) {
 			glVertex3f_Simplify(qt0 - cross_t);
 			glVertex3f_Simplify(qt1 - cross_t);
 			glEnd();
-			//∏…µe≈K≠y¬_µı≥B
+			//Ë£úÁï´ÈêµËªåÊñ∑Ë£ÇËôï
 			if (j != 0) {
 				glNormal3f(orient_t.x, orient_t.y, orient_t.z);
 				glLineWidth(5);

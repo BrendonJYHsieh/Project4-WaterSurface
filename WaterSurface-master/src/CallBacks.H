@@ -44,8 +44,6 @@ void backCB(Fl_Widget*, TrainWindow* tw);
 //Train
 void AddCar(Fl_Widget*, TrainWindow* tw);
 void DeleteCar(Fl_Widget*, TrainWindow* tw);
-void Tension_Increase(Fl_Widget*, TrainWindow* tw);
-void Tension_Decrease(Fl_Widget*, TrainWindow* tw);
 
 // Idle callback: for run the step of the window
 void runButtonCB(TrainWindow* tw);
