@@ -312,8 +312,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WaterSurface-master\src\firework.cpp" />
-    <ClInclude Include="WaterSurface-master\src\firework.h" />
     <ClInclude Include="WaterSurface-master\src\Particle.h" />
     <ClInclude Include="WaterSurface-master\src\RenderUtilities\mesh.h" />
     <ClInclude Include="WaterSurface-master\src\RenderUtilities\model.h" />

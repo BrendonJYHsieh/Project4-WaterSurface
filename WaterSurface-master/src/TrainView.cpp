@@ -55,38 +55,11 @@
 //#define DEBUG
 
 
+
 void normalize(GLfloat* v)
 {
 	GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 	v[0] /= d; v[1] /= d; v[2] /= d;
-}
-
-void divide_triangle(GLfloat* a, GLfloat* b, GLfloat* c, int depth)
-{
-	if (depth > 0) {
-		GLfloat ab[3], ac[3], bc[3];
-		for (unsigned int i = 0; i < 3; i++)
-			ab[i] = a[i] + b[i];
-		normalize(ab);
-		for (unsigned int i = 0; i < 3; i++)
-			ac[i] = a[i] + c[i];
-		normalize(ac);
-		for (unsigned int i = 0; i < 3; i++)
-			bc[i] = b[i] + c[i];
-		normalize(bc);
-		divide_triangle(a, ab, ac, depth - 1);
-		divide_triangle(b, bc, ab, depth - 1);
-		divide_triangle(c, ac, bc, depth - 1);
-		divide_triangle(ab, bc, ac, depth - 1);
-	}
-	else {
-		glBegin(GL_LINE_LOOP);
-		glColor3f(sqrt(a[0] * a[0]), sqrt(a[1] * a[1]), sqrt(a[2] * a[2]));
-		glVertex3fv(a);
-		glVertex3fv(b);
-		glVertex3fv(c);
-		glEnd();
-	}
 }
 
 void TrainView::Draw()
@@ -111,8 +84,6 @@ void TrainView::Draw()
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
-
 void TrainView::RespawnParticle(Particle& particle)
 {
 	particle.Scale_randon = (float)((rand() % 1000) - 500) / 1000.0f;
@@ -1238,6 +1209,7 @@ void TrainView::draw()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 		/*Sky box*/
 		glDepthFunc(GL_LEQUAL);
 		skybox->Use();
@@ -1272,7 +1244,10 @@ void TrainView::draw()
 		loadmodel_shader->Use();
 		for (unsigned int i = 0; i < building_amount; i++)
 		{
-			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_modelMatrices[i][0][0]);
+			float building_angle = atan2(building_pos[i].x - viewPos.x, building_pos[i].y - viewPos.z) * (180 / 3.1415926535);
+			glm::mat4 building_transfer = building_modelMatrices[i];
+			building_transfer = glm::rotate(building_transfer, glm::radians(building_angle + 90), glm::vec3(0.0, 1.0, 0.0));
+			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
 			building_model->Draw(*loadmodel_shader);
 		}
 
@@ -1507,8 +1482,6 @@ void TrainView::draw()
 		drawStuff(true);
 		unsetupShadows();
 	}
-	ProcessParticles();
-	DrawParticles();
 
 
 	if (tw->direct || tw->spot || tw->point) {

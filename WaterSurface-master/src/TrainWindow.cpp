@@ -205,7 +205,7 @@ TrainWindow(const int x, const int y)
 		buildingCounter->type(2);
 		buildingCounter->value(1);
 		buildingCounter->step(1);
-		buildingCounter->range(1, 5);
+		buildingCounter->range(0, 5);
 
 		// we need to make a little phantom widget to have things resize correctly
 		Fl_Box* resizebox = new Fl_Box(600,595,200,5);
