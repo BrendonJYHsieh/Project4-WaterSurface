@@ -1380,34 +1380,6 @@ void TrainView::draw()
 			firework_color[i % 7].unbind(14);
 		}
 
-		/*snow_update();
-		snow_texture->bind(15);
-		for (unsigned int i = 0; i < snow_amount; i++)
-		{
-			glm::mat4 snow_transfer(1);
-			snow_transfer = glm::translate(snow_transfer, snow_pos[i]);
-			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &snow_transfer[0][0]);
-			glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 15);
-			snow_model->Draw(*loadmodel_shader);
-		}
-		snow_texture->unbind(15);*/
-		//Draw snow
-		snow_update();
-		snow_texture->bind(15);
-		glBindBuffer(GL_ARRAY_BUFFER, snow_buffer);
-		glBufferData(GL_ARRAY_BUFFER, snow_amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
-		building_shader->Use();
-		glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "view_matrix"), 1, GL_FALSE, View);
-		glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-		glUniform1i(glGetUniformLocation(building_shader->Program, "texture_diffuse1"), 15);
-		for (unsigned int i = 0; i < snow_model->meshes.size(); i++)
-		{
-			glBindVertexArray(snow_model->meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, snow_model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, snow_amount);
-			glBindVertexArray(0);
-		}
-		snow_texture->unbind(15);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	if (true)
