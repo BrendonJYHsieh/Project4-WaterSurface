@@ -47,10 +47,10 @@
 #include "Utilities/3DUtils.H"
 
 #define STB_IMAGE_IMPLEMENTATION
-#define heightmap
+//#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-#define DEBUG
+//#define DEBUG
 
 void TrainView::firework_init() {
 	fire_pos.clear();

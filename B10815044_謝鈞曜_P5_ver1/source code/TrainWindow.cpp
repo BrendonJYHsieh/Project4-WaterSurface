@@ -77,6 +77,7 @@ TrainWindow(const int x, const int y)
 		speed->value(2);
 		speed->align(FL_ALIGN_LEFT);
 		speed->type(FL_HORIZONTAL);
+
 		pty += 30;
 
 		// camera buttons - in a radio button group
@@ -154,6 +155,7 @@ TrainWindow(const int x, const int y)
 		waveBrowser->add("Real Time Reflect");
 		waveBrowser->add("Sin Wave");
 		waveBrowser->add("HeightMap Wave");
+		//waveBrowser->add("Interactive Wave");
 		waveBrowser->select(1);
 
 		pty+=100;
