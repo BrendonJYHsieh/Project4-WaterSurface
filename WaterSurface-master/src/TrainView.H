@@ -145,8 +145,10 @@ class TrainView : public Fl_Gl_Window
 		Model* terrain_model = nullptr;
 		//draw building
 		Model* building_model = nullptr;
+		unsigned int building_buffer;
 		unsigned int building_amount = 20;
 		std::vector<glm::mat4>building_modelMatrices;
+		std::vector<glm::mat4>building_buffer_data;
 		std::vector<glm::vec2>building_pos;
 		int building_past;
 		//draw tree
@@ -189,6 +191,7 @@ class TrainView : public Fl_Gl_Window
 		Shader* skybox = nullptr;
 		Shader* screenShader = nullptr;
 		Shader* interactive_frame = nullptr;
+		Shader* building_shader = nullptr;
 
 		GLuint particleVAO, particleVBO;
 		GLuint cubemapTexture;

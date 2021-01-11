@@ -92,7 +92,7 @@
     <None Include="WaterSurface-master\src\shaders\particle.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="WaterSurface-master\src\shaders\Instance.frag">
+    <None Include="WaterSurface-master\src\shaders\Instance.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

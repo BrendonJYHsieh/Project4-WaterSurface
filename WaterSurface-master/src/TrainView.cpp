@@ -50,7 +50,7 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-#define DEBUG
+//#define DEBUG
 
 void TrainView::firework_init() {
 	fire_pos.clear();
@@ -856,6 +856,13 @@ void TrainView::draw()
 				firework_color.push_back(Texture2D(temp.c_str()));
 			}
 		}
+		if (!this->building_shader) {
+			this->building_shader = new
+				Shader(
+					"../WaterSurface-master/src/shaders/Instance.vert",
+					nullptr, nullptr, nullptr,
+					"../WaterSurface-master/src/shaders/load_model.frag");
+		}
 		if (!this->wave_shader) {
 			this->wave_shader = new
 				Shader(
@@ -1128,6 +1135,31 @@ void TrainView::draw()
 				building_modelMatrices.push_back(model);
 				building_past = tw->buildingCounter->value();
 			}
+
+			glGenBuffers(1, &building_buffer);
+			glBindBuffer(GL_ARRAY_BUFFER, building_buffer);
+			glBufferData(GL_ARRAY_BUFFER, building_amount * sizeof(glm::mat4), &building_buffer_data[0], GL_STATIC_DRAW);
+			for (unsigned int i = 0; i < building_model->meshes.size(); i++)
+			{	
+				unsigned int VAO = building_model->meshes[i].VAO;
+				glBindVertexArray(VAO);
+				// set attribute pointers for matrix (4 times vec4)
+				glEnableVertexAttribArray(3);
+				glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+				glEnableVertexAttribArray(4);
+				glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+				glEnableVertexAttribArray(5);
+				glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+				glEnableVertexAttribArray(6);
+				glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+				glVertexAttribDivisor(3, 1);
+				glVertexAttribDivisor(4, 1);
+				glVertexAttribDivisor(5, 1);
+				glVertexAttribDivisor(6, 1);
+
+				glBindVertexArray(0);
+			}
 		}
 		if (!snow_model) {
 			snow_model = new Model("../snow/snow.obj");
@@ -1333,14 +1365,14 @@ void TrainView::draw()
 
 		//draw building
 		loadmodel_shader->Use();
-		for (unsigned int i = 0; i < building_amount; i++)
+		/*for (unsigned int i = 0; i < building_amount; i++)
 		{
 			float building_angle = atan2(building_pos[i].x - viewPos.x, building_pos[i].y - viewPos.z) * (180 / 3.1415926535);
 			glm::mat4 building_transfer = building_modelMatrices[i];
 			building_transfer = glm::rotate(building_transfer, glm::radians(building_angle + 90), glm::vec3(0.0, 1.0, 0.0));
 			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
 			building_model->Draw(*loadmodel_shader);
-		}
+		}*/
 
 		//draw gura
 		loadmodel_shader->Use();
@@ -1586,16 +1618,7 @@ void TrainView::draw()
 	else
 		tile_texture->unbind(11);
 	glDisable(GL_CULL_FACE);
-	
 
-	for (unsigned int i = 0; i < building_amount; i++)
-	{
-		float building_angle = atan2(building_pos[i].x - viewPos.x, building_pos[i].y - viewPos.z) * (180 / 3.1415926535);
-		glm::mat4 building_transfer = building_modelMatrices[i];
-		building_transfer= glm::rotate(building_transfer, glm::radians(building_angle+90), glm::vec3(0.0, 1.0, 0.0));
-		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
-		building_model->Draw(*loadmodel_shader);
-	}
 	//draw snow
 	snow_update();
 	snow_texture->bind(15);
@@ -1634,6 +1657,26 @@ void TrainView::draw()
 		firework_color[((int)(floor(fire_angle[i] / 52)) + firework_radius % 7) % 7].unbind(14);
 	}
 
+	//Draw building
+	for (unsigned int i = 0; i < building_amount; i++)
+	{
+		building_buffer_data.clear();
+		float building_angle = atan2(building_pos[i].x - viewPos.x, building_pos[i].y - viewPos.z) * (180 / 3.1415926535);
+		glm::mat4 building_transfer = building_modelMatrices[i];
+		building_transfer = glm::rotate(building_transfer, glm::radians(building_angle + 90), glm::vec3(0.0, 1.0, 0.0));
+		building_buffer_data.push_back(building_transfer);
+		//glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
+		//building_model->Draw(*loadmodel_shader);
+	}
+	building_shader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+	for (unsigned int i = 0; i < building_model->meshes.size(); i++)
+	{
+		glBindVertexArray(building_model->meshes[i].VAO);
+		glDrawElementsInstanced(GL_TRIANGLES, building_model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, building_amount);
+		glBindVertexArray(0);
+	}
 
 	glUseProgram(0);
 	setupObjects();
