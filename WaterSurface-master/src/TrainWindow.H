@@ -110,7 +110,7 @@ class TrainWindow : public Fl_Double_Window {
 		bool spot = false;
 		bool heightmap = false;
 		bool interactive = false;
-		bool reflect = false;
+		bool reflect = true;
 		bool refract = false;
 		bool lod;
 		

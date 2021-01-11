@@ -50,7 +50,7 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-#define DEBUG
+//#define DEBUG
 
 void TrainView::firework_init() {
 	fire_pos.clear();
@@ -59,7 +59,7 @@ void TrainView::firework_init() {
 	fire_angle.push_back(90);
 	firework_speed = 1.0;
 	firework_radius = 1;
-	firework_circle = 300;
+	firework_circle = 1000;
 }
 void TrainView::firework_update() {
 	srand(clock());
@@ -67,7 +67,7 @@ void TrainView::firework_update() {
 	float offset = 2.5f;
 	if (fire_pos[0][3][1] > 150) {
 		firework_radius++;
-		if ((int)firework_radius % 5 == 0) {
+		if ((int)firework_radius % 2 == 0) {
 			fire_pos.clear();
 			fire_angle.clear();
 		}
@@ -86,7 +86,7 @@ void TrainView::firework_update() {
 			model = glm::translate(model, glm::vec3(x, y, z));
 
 			// 2. scale: scale between 0.05 and 0.25f
-			float scale = (rand() % 50) / 100.0f + 0.05;
+			float scale = (rand() % 50) / 300.0f + 0.05;
 			model = glm::scale(model, glm::vec3(scale));
 
 			// 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
@@ -1625,10 +1625,12 @@ void TrainView::draw()
 
 	for (unsigned int i = 0; i < fire_pos.size(); i++)
 	{
+		//firework_color[((int)(floor(fire_angle[i] / 52)))].bind(14);
 		firework_color[((int)(floor(fire_angle[i]/52))+firework_radius%7)%7].bind(14);
 		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &fire_pos[i][0][0]);
 		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 14);
 		snow_model->Draw(*loadmodel_shader);
+		//firework_color[((int)(floor(fire_angle[i] / 52)))].bind(14);
 		firework_color[((int)(floor(fire_angle[i] / 52)) + firework_radius % 7) % 7].unbind(14);
 	}
 
