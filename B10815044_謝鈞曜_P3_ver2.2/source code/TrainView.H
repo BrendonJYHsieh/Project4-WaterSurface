@@ -1,0 +1,227 @@
+﻿/************************************************************************
+     File:        TrainView.H
+
+     Author:     
+                  Michael Gleicher, gleicher@cs.wisc.edu
+
+     Modifier
+                  Yu-Chi Lai, yu-chi@cs.wisc.edu
+     
+     Comment:     
+						The TrainView is the window that actually shows the 
+						train. Its a
+						GL display canvas (Fl_Gl_Window).  It is held within 
+						a TrainWindow
+						that is the outer window with all the widgets. 
+						The TrainView needs 
+						to be aware of the window - since it might need to 
+						check the widgets to see how to draw
+
+	  Note:        we need to have pointers to this, but maybe not know 
+						about it (beware circular references)
+
+     Platform:    Visio Studio.Net 2003/2005
+
+*************************************************************************/
+
+#pragma once
+
+#include "RenderUtilities/BufferObject.h"
+#include "RenderUtilities/Shader.h"
+#include "RenderUtilities/Texture.h"
+
+// Preclarify for preventing the compiler error
+class TrainWindow;
+class CTrack;
+class Model;
+
+
+//#######################################################################
+// TODO
+// You might change the TrainView in order to add different objects to
+// be drawn, or adjust the lighting, or ...
+//#######################################################################
+
+
+// The TrainView also needs to handle its user interface events.
+// since this is an FLTk Window, we need to include FlTk Headers
+// the pragmas turn off the warnings from FlTk - our code should have no warnings,
+// but their code doesn't meet that standard
+#pragma warning(push)
+#pragma warning(disable:4312)
+#pragma warning(disable:4311)
+#include <Fl/Fl_Gl_Window.h>
+#include"TrainWindow.H"
+#pragma warning(pop)
+#include<string>
+#include<iostream>
+#include "Particle.h"
+#include <AL/alut.h>
+
+//#include <AL/al.h>
+//#include <AL/alc.h>
+
+// this uses the old ArcBall Code
+#include "Utilities/ArcBallCam.H"
+
+class TrainView : public Fl_Gl_Window
+{
+	public:
+		// note that we keep the "standard widget" constructor arguments
+		TrainView(int x, int y, int w, int h, const char* l = 0);
+
+		// overrides of important window things
+		virtual int handle(int);
+		virtual void draw();
+
+		// all of the actual drawing happens in this routine
+		// it has to be encapsulated, since we draw differently if
+		// we're drawing shadows (no colors, for example)
+		void drawStuff(bool doingShadows=false);
+
+		// setup the projection - assuming that the projection stack has been
+		// cleared for you
+		void setProjection();
+
+		// Reset the Arc ball control
+		void resetArcball();
+
+		// pick a point (for when the mouse goes down)
+		void doPick();
+
+		//set ubo
+		void setUBO();
+		//train
+		Pnt3f GMT(Pnt3f p1, Pnt3f p2, Pnt3f p3, Pnt3f p4, float mode, float t);
+		void drawTrack(TrainView*, bool);
+		void drawTrain(TrainView*, bool);
+		void trainCamView(TrainView*, float);
+	
+	public:
+		ArcBallCam		arcball;			// keep an ArcBall for the UI
+		int				selectedCube;  // simple - just remember which cube is selected
+
+		TrainWindow*	tw;				// The parent of this display window
+		CTrack*			m_pTrack;		// The track of the entire scene
+		//Train
+		float physical = 0.0f;
+		float DIVIDE_LINE = 1000.0f;
+		float t_time = 0.0f;
+
+		float t_i = 0.0f;
+		float t_t = 0.0f;
+		float Path_Total = 0.0f;
+
+		float Sleeper_Length = 3.0f;
+		float Sleeper_Interval = 6.0f;
+		float Sleeper_Width = 3.0f;
+
+		float Train_Forward = 10.0f;
+		float Train_Height = 5.0f;
+		float Train_Width = 2.0f;
+		float tense = 0.5f;
+		int car_quantity = 2;
+		bool s = false;
+
+		glm::vec3 trainPos;
+		glm::vec3 camPos;
+		bool test = false;
+		//Wave
+		UBO* commom_matrices= nullptr;
+		
+		//OpenAL
+		glm::vec3 source_pos;
+		glm::vec3 listener_pos;
+		ALCdevice* device	= nullptr;
+		ALCcontext* context = nullptr;
+		ALuint source;
+		ALuint buffer;
+		GLfloat View[16];
+		GLfloat Projection[16];
+
+		Model* wave_model = nullptr;
+		Model* tile_model = nullptr;
+		Model* tunnel_model = nullptr;
+		Model* terrain_model = nullptr;
+		//draw building
+		Model* building_model = nullptr;
+		unsigned int building_amount = 20;
+		std::vector<glm::mat4>building_modelMatrices;
+		std::vector<glm::vec2>building_pos;
+		int building_past;
+		//draw tree
+		Model* tree_model = nullptr;
+		unsigned int tree_amount = 20;
+		glm::mat4* tree_modelMatrices;
+		//person
+		Model* person_model = nullptr;
+		glm::vec3 personPos;
+		glm::mat4 train_rotate;
+		Texture2D* tile_texture = nullptr;
+		Texture2D* tile_texture_LOD = nullptr;
+		//snow 
+		Model* snow_model = nullptr;
+		unsigned int snow_amount = 10000;
+		std::vector<glm::vec3>snow_pos;
+		Texture2D* snow_texture = nullptr;
+		void snow_update();
+		//firewrok
+		std::vector<glm::mat4>fire_pos;
+		std::vector<float>fire_angle;
+		void firework_init();
+		void firework_update();
+		float firework_speed;
+		int firework_radius;
+		float firework_circle;
+		float firework_clock;
+		bool firework_over=true;
+		std::vector<Texture2D> firework_color;
+
+		float height_index = 0;
+		bool load_heightmap = true;
+		bool skybox_load = true;
+		std::vector<Texture2D> height_id;
+
+		//Shader
+		Shader* particle_shader = nullptr;
+		Shader* wave_shader = nullptr;
+		Shader* loadmodel_shader = nullptr;
+		Shader* skybox = nullptr;
+		Shader* screenShader = nullptr;
+		Shader* interactive_frame = nullptr;
+
+		GLuint particleVAO, particleVBO;
+		GLuint cubemapTexture;
+		GLuint skyboxVAO, skyboxVBO;
+		//frame buffer
+		unsigned int framebuffer;
+		unsigned int textureColorbuffer;
+		unsigned int quadVAO, quadVBO;
+
+		unsigned int framebuffer1;
+		unsigned int textureColorbuffer1;
+		unsigned int quadVAO1, quadVBO1;
+		//real time reflect and refract
+		unsigned int reflect_texture;
+		unsigned int reflectFBO;
+		unsigned int reflectRBO;
+		unsigned int refract_texture;
+		unsigned int refractFBO;
+		unsigned int refractRBO;
+		glm::vec2 uv_center;
+		int uv_t = 0;
+		float scale = 20;
+
+		//particle
+		void RespawnParticle(Particle& particle);
+		GLuint FirstUnusedParticle();
+		void Draw();
+
+		GLuint nr_particles = 10000;
+		std::vector<Particle> particles;
+		GLuint lastUsedParticle = 0;
+		
+		double lastime;
+		double currentime;
+		double dt;
+};		

@@ -50,7 +50,7 @@
 //#define heightmap
 #define particlee
 #include"RenderUtilities/model.h"
-//#define DEBUG
+#define DEBUG
 
 void TrainView::firework_init() {
 	fire_pos.clear();
