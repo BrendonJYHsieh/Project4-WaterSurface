@@ -145,12 +145,12 @@ class TrainView : public Fl_Gl_Window
 		Model* terrain_model = nullptr;
 		//draw building
 		Model* building_model = nullptr;
-		unsigned int building_buffer;
 		unsigned int building_amount = 20;
 		std::vector<glm::mat4>building_modelMatrices;
 		std::vector<glm::mat4>building_buffer_data;
 		std::vector<glm::vec2>building_pos;
 		int building_past;
+
 		//draw tree
 		Model* tree_model = nullptr;
 		unsigned int tree_amount = 20;
@@ -166,6 +166,8 @@ class TrainView : public Fl_Gl_Window
 		unsigned int snow_amount = 10000;
 		std::vector<glm::vec3>snow_pos;
 		Texture2D* snow_texture = nullptr;
+		glm::mat4* modelMatrices;
+		unsigned int snow_buffer;
 		void snow_update();
 		//firewrok
 		std::vector<glm::mat4>fire_pos;

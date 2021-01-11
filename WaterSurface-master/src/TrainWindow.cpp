@@ -201,7 +201,7 @@ TrainWindow(const int x, const int y)
 		RefractBtn->callback((Fl_Callback*)Refract_enable, this);
 
 		pty += 30; 
-		buildingCounter = new Fl_Counter(605, pty, 70, 20, "Build");
+		buildingCounter = new Fl_Counter(605, pty, 70, 20, "Snow");
 		buildingCounter->type(2);
 		buildingCounter->value(1);
 		buildingCounter->step(1);

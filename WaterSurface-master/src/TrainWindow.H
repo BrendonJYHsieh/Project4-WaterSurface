@@ -112,7 +112,7 @@ class TrainWindow : public Fl_Double_Window {
 		bool interactive = false;
 		bool reflect = true;
 		bool refract = false;
-		bool lod;
+		bool lod = true;
 		
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about

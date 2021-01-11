@@ -108,7 +108,8 @@ void TrainView::firework_update() {
 }
 
 void TrainView::snow_update() {
-	for (int i = 0; i < snow_pos.size(); i++) {
+	snow_amount = tw->buildingCounter->value() * 10000;
+	for (int i = 0; i < snow_amount; i++) {
 		if (snow_pos[i].y > 0) {
 			srand(clock());
 			float y = 0.5;
@@ -122,6 +123,9 @@ void TrainView::snow_update() {
 			float y = rand() % 1000 + 200;
 			snow_pos.push_back(glm::vec3(x, y, z));
 		}
+		glm::mat4 snow_transfer(1);
+		snow_transfer = glm::translate(snow_transfer, snow_pos[i]);
+		modelMatrices[i] = snow_transfer;
 	}
 }
 
@@ -1133,15 +1137,25 @@ void TrainView::draw()
 				building_pos.push_back(glm::vec2(x, z));
 				// 4. 添加到矩阵的数组中
 				building_modelMatrices.push_back(model);
-				building_past = tw->buildingCounter->value();
 			}
-
-			glGenBuffers(1, &building_buffer);
-			glBindBuffer(GL_ARRAY_BUFFER, building_buffer);
-			glBufferData(GL_ARRAY_BUFFER, building_amount * sizeof(glm::mat4), &building_buffer_data[0], GL_STATIC_DRAW);
-			for (unsigned int i = 0; i < building_model->meshes.size(); i++)
-			{	
-				unsigned int VAO = building_model->meshes[i].VAO;
+		}
+		if (!snow_model) {
+			snow_model = new Model("../snow/snow.obj");
+			snow_amount *= 5;
+			for (unsigned int i = 0; i < snow_amount; i++)
+			{
+				float x = rand()%2000-1000;
+				float z = rand() % 2000 - 1000;
+				float y = rand() % 1000+200;
+				snow_pos.push_back(glm::vec3(x,y,z));
+			}
+			modelMatrices = new glm::mat4[snow_amount];
+			glGenBuffers(1, &snow_buffer);
+			glBindBuffer(GL_ARRAY_BUFFER, snow_buffer);
+			glBufferData(GL_ARRAY_BUFFER, snow_amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+			for (unsigned int i = 0; i < snow_model->meshes.size(); i++)
+			{
+				unsigned int VAO = snow_model->meshes[i].VAO;
 				glBindVertexArray(VAO);
 				// set attribute pointers for matrix (4 times vec4)
 				glEnableVertexAttribArray(3);
@@ -1161,48 +1175,10 @@ void TrainView::draw()
 				glBindVertexArray(0);
 			}
 		}
-		if (!snow_model) {
-			snow_model = new Model("../snow/snow.obj");
-			for (unsigned int i = 0; i < snow_amount; i++)
-			{
-				float x = rand()%2000-1000;
-				float z = rand() % 2000 - 1000;
-				float y = rand() % 1000+200;
-				snow_pos.push_back(glm::vec3(x,y,z));
-			}
-		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
 
-		if (building_past != tw->buildingCounter->value()) {
-			building_modelMatrices.clear();
-			building_pos.clear();
-			building_amount = 20 * tw->buildingCounter->value();
-			srand(clock()); // 初始化随机种子    
-			float radius = 50.0;
-			float offset = 250.0f;
-			for (unsigned int i = 0; i < building_amount; i++)
-			{
-				glm::mat4 model;
-				float angle = (float)i / (float)building_amount * 360.0f;
-				float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
-				float x = sin(angle) * radius + displacement;
-				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
-				//float y = displacement * 0.4f+100.0f; // 让行星带的高度比x和z的宽度要小
-				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
-				float z = cos(angle) * radius + displacement;
-				model = glm::translate(model, glm::vec3(x + 30, 0.0, z + 30));
-
-				// 2. 缩放：在 0.05 和 0.25f 之间缩放
-				float scale = (rand() % 20) / 10.0f + 0.5;
-				model = glm::scale(model, glm::vec3(scale));
-				building_pos.push_back(glm::vec2(x, z));
-				// 4. 添加到矩阵的数组中
-				building_modelMatrices.push_back(model);
-				building_past = tw->buildingCounter->value();
-			}
-		}
 	// Set up the view port
 	glViewport(0, 0, w(), h());
 
@@ -1327,6 +1303,7 @@ void TrainView::draw()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+
 		/*Sky box*/
 		glDepthFunc(GL_LEQUAL);
 		skybox->Use();
@@ -1340,8 +1317,6 @@ void TrainView::draw()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);
-
-		
 
 		//draw tiles
 		loadmodel_shader->Use();
@@ -1365,14 +1340,14 @@ void TrainView::draw()
 
 		//draw building
 		loadmodel_shader->Use();
-		/*for (unsigned int i = 0; i < building_amount; i++)
+		for (unsigned int i = 0; i < building_amount; i++)
 		{
 			float building_angle = atan2(building_pos[i].x - viewPos.x, building_pos[i].y - viewPos.z) * (180 / 3.1415926535);
 			glm::mat4 building_transfer = building_modelMatrices[i];
 			building_transfer = glm::rotate(building_transfer, glm::radians(building_angle + 90), glm::vec3(0.0, 1.0, 0.0));
 			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
 			building_model->Draw(*loadmodel_shader);
-		}*/
+		}
 
 		//draw gura
 		loadmodel_shader->Use();
@@ -1404,6 +1379,34 @@ void TrainView::draw()
 			snow_model->Draw(*loadmodel_shader);
 			firework_color[i % 7].unbind(14);
 		}
+
+		/*snow_update();
+		snow_texture->bind(15);
+		for (unsigned int i = 0; i < snow_amount; i++)
+		{
+			glm::mat4 snow_transfer(1);
+			snow_transfer = glm::translate(snow_transfer, snow_pos[i]);
+			glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &snow_transfer[0][0]);
+			glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 15);
+			snow_model->Draw(*loadmodel_shader);
+		}
+		snow_texture->unbind(15);*/
+		//Draw snow
+		snow_update();
+		snow_texture->bind(15);
+		glBindBuffer(GL_ARRAY_BUFFER, snow_buffer);
+		glBufferData(GL_ARRAY_BUFFER, snow_amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+		building_shader->Use();
+		glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "view_matrix"), 1, GL_FALSE, View);
+		glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
+		glUniform1i(glGetUniformLocation(building_shader->Program, "texture_diffuse1"), 15);
+		for (unsigned int i = 0; i < snow_model->meshes.size(); i++)
+		{
+			glBindVertexArray(snow_model->meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, snow_model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, snow_amount);
+			glBindVertexArray(0);
+		}
+		snow_texture->unbind(15);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -1619,21 +1622,7 @@ void TrainView::draw()
 		tile_texture->unbind(11);
 	glDisable(GL_CULL_FACE);
 
-	//draw snow
-	snow_update();
-	snow_texture->bind(15);
-	for (unsigned int i = 0; i < snow_amount; i++)
-	{
-		
-		glm::mat4 snow_transfer(1);
-		snow_transfer = glm::translate(snow_transfer, snow_pos[i]);
-		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &snow_transfer[0][0]);
-		glUniform1i(glGetUniformLocation(loadmodel_shader->Program, "texture_diffuse1"), 15);
-		snow_model->Draw(*loadmodel_shader);
-	}
-	snow_texture->unbind(15);
-
-	//draw fire work
+	//Draw firework
 	if (firework_over) {
 		firework_over = false;
 		firework_init();
@@ -1645,7 +1634,6 @@ void TrainView::draw()
 			firework_update();
 		}
 	}
-
 	for (unsigned int i = 0; i < fire_pos.size(); i++)
 	{
 		//firework_color[((int)(floor(fire_angle[i] / 52)))].bind(14);
@@ -1657,26 +1645,31 @@ void TrainView::draw()
 		firework_color[((int)(floor(fire_angle[i] / 52)) + firework_radius % 7) % 7].unbind(14);
 	}
 
-	//Draw building
 	for (unsigned int i = 0; i < building_amount; i++)
 	{
-		building_buffer_data.clear();
 		float building_angle = atan2(building_pos[i].x - viewPos.x, building_pos[i].y - viewPos.z) * (180 / 3.1415926535);
 		glm::mat4 building_transfer = building_modelMatrices[i];
 		building_transfer = glm::rotate(building_transfer, glm::radians(building_angle + 90), glm::vec3(0.0, 1.0, 0.0));
-		building_buffer_data.push_back(building_transfer);
-		//glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
-		//building_model->Draw(*loadmodel_shader);
+		glUniformMatrix4fv(glGetUniformLocation(loadmodel_shader->Program, "model_matrix"), 1, GL_FALSE, &building_transfer[0][0]);
+		building_model->Draw(*loadmodel_shader);
 	}
+	//Draw snow
+	snow_update();
+	snow_texture->bind(15);
+	glBindBuffer(GL_ARRAY_BUFFER, snow_buffer);
+	glBufferData(GL_ARRAY_BUFFER, snow_amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 	building_shader->Use();
 	glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "view_matrix"), 1, GL_FALSE, View);
 	glUniformMatrix4fv(glGetUniformLocation(building_shader->Program, "proj_matrix"), 1, GL_FALSE, Projection);
-	for (unsigned int i = 0; i < building_model->meshes.size(); i++)
+	glUniform1i(glGetUniformLocation(building_shader->Program, "texture_diffuse1"), 15);
+	for (unsigned int i = 0; i < snow_model->meshes.size(); i++)
 	{
-		glBindVertexArray(building_model->meshes[i].VAO);
-		glDrawElementsInstanced(GL_TRIANGLES, building_model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, building_amount);
+		glBindVertexArray(snow_model->meshes[i].VAO);
+		glDrawElementsInstanced(GL_TRIANGLES, snow_model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, snow_amount);
 		glBindVertexArray(0);
 	}
+	snow_texture->unbind(15);
+	
 
 	glUseProgram(0);
 	setupObjects();
